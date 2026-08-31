@@ -1,6 +1,7 @@
 .env
 .supabase-provisioning-token
 .twilio-credentials
+booking-platform/supabase/.temp/
 .tmp/
 credentials.json
 token.json
