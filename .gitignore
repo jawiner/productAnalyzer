@@ -1,4 +1,6 @@
 .env
+.supabase-provisioning-token
+.twilio-credentials
 .tmp/
 credentials.json
 token.json

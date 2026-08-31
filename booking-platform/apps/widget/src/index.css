@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Default token values. These are overridden at runtime per-business by
+  src/lib/theme.js, which writes CSS custom properties onto the widget
+  root element (#booking-widget-root) from the business_themes row (or
+  attribute overrides on <booking-widget>). Never hardcode a client's
+  brand colors into a component — always go through these variables.
+*/
+:root,
+.booking-widget-root {
+  --bw-primary: #2563eb;
+  --bw-primary-foreground: #ffffff;
+  --bw-secondary: #1e293b;
+  --bw-secondary-foreground: #ffffff;
+  --bw-surface: #ffffff;
+  --bw-surface-foreground: #0f172a;
+  --bw-muted: #f1f5f9;
+  --bw-muted-foreground: #64748b;
+  --bw-border: #e2e8f0;
+  --bw-destructive: #dc2626;
+  --bw-destructive-foreground: #ffffff;
+  --bw-font-family: Inter, system-ui, sans-serif;
+  --bw-radius: 0.5rem;
+  --bw-radius-lg: 0.75rem;
+}
+
+.booking-widget-root[data-theme='dark'] {
+  --bw-surface: #0f172a;
+  --bw-surface-foreground: #f8fafc;
+  --bw-muted: #1e293b;
+  --bw-muted-foreground: #94a3b8;
+  --bw-border: #334155;
+}
+
+.booking-widget-root {
+  font-family: var(--bw-font-family);
+  background: var(--bw-surface);
+  color: var(--bw-surface-foreground);
+  min-height: 100%;
+}
+
+.booking-widget-root button,
+.booking-widget-root input,
+.booking-widget-root select,
+.booking-widget-root textarea {
+  font-family: inherit;
+}
+
+/* Button shape follows business_themes.button_style */
+.booking-widget-root[data-button-style='square'] .bw-btn,
+.booking-widget-root[data-button-style='square'] .bw-input,
+.booking-widget-root[data-button-style='square'] .bw-card {
+  --bw-radius: 0.125rem;
+  --bw-radius-lg: 0.25rem;
+}
+.booking-widget-root[data-button-style='pill'] .bw-btn {
+  --bw-radius: 9999px;
+}
+
+/* Focus visibility for keyboard navigation throughout the flow */
+.booking-widget-root :focus-visible {
+  outline: 2px solid var(--bw-primary);
+  outline-offset: 2px;
+}

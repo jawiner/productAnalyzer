@@ -1,0 +1,13 @@
+{
+  "name": "@booking-platform/supabase-tests",
+  "version": "0.0.0",
+  "private": true,
+  "description": "SQL-level concurrency tests for the double-booking guard. Run against a real Postgres/Supabase instance.",
+  "main": "concurrent_booking.test.js",
+  "scripts": {
+    "test": "node concurrent_booking.test.js"
+  },
+  "dependencies": {
+    "pg": "^8.23.0"
+  }
+}
