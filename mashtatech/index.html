@@ -50,6 +50,10 @@ a:hover{color:inherit;}
 .contact-dark:hover{transform:translateY(-2px);}
 .contact-outline:hover{background:#0E100E;border-color:#0E100E;color:#C9F7C5;}
 .fab:hover{transform:scale(1.07);}
+.pricing-card:hover{border-color:rgba(201,247,197,.5);}
+.pricing-card-popular:hover{transform:scale(1.08);}
+.pricing-btn:hover{border-color:#C9F7C5;background:#C9F7C5;color:#0E100E;}
+.pricing-btn-popular:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(201,247,197,.3);}
 [data-reveal]{transition:opacity .8s cubic-bezier(.2,.8,.2,1),transform .8s cubic-bezier(.2,.8,.2,1);}
 [data-reveal-stagger]{opacity:0;transform:translateY(16px);transition:opacity .6s cubic-bezier(.2,.8,.2,1),transform .6s cubic-bezier(.2,.8,.2,1);}
 [data-reveal-stagger].is-in{opacity:1;transform:translateY(0);}
@@ -73,15 +77,24 @@ a:hover{color:inherit;}
   #techStrip span:last-child{margin-inline-start:0 !important;}
   #services{padding:72px 20px 0 !important;}
   #process{padding:72px 20px 0 !important;}
+  #pricing{padding:72px 20px 80px !important;}
+  #pricing > div{padding:0 !important;}
   #work{padding-top:72px !important;}
   #work > div:first-child{padding:0 20px !important;}
   #aboutInner{padding:56px 20px !important;}
   #contactInner{padding:56px 20px !important;}
   #siteFooter{padding:48px 20px 20px !important;}
   #copyrightWrap{padding:0 20px 32px !important;}
-  #services h2, #work h2, #process h2, #about h2{font-size:28px !important;}
+  #services h2, #work h2, #process h2, #pricing h2, #faq h2, #about h2{font-size:28px !important;}
   #servicesGrid{grid-template-columns:1fr !important;}
   #servicesGrid > div{border-inline-end:none !important;border-bottom:1px solid rgba(233,235,232,.14);}
+  #pricingGrid{grid-template-columns:1fr !important;gap:20px !important;}
+  .pricing-card-popular{transform:none !important;order:-1;}
+  .pricing-card-popular:hover{transform:none !important;}
+  #faq{padding:72px 0 80px !important;}
+  #faq > div{padding:0 20px !important;}
+  #faqList{grid-template-columns:1fr !important;}
+  #faqList button{font-size:18px !important;}
   #tiltZone{height:300px !important;perspective:none !important;}
   #testimonialsSection{margin-top:72px !important;padding:0 20px !important;}
   #testimonialsSection > div[style*="grid-template-columns:300px"]{grid-template-columns:1fr !important;}
@@ -119,6 +132,8 @@ a:hover{color:inherit;}
       <a href="#services" class="hoverline" data-t="nav_services" style="padding-bottom:3px;border-bottom:1px solid transparent;transition:color .25s,border-color .25s;"></a>
       <a href="#work" class="hoverline" data-t="nav_work" style="padding-bottom:3px;border-bottom:1px solid transparent;transition:color .25s,border-color .25s;"></a>
       <a href="#process" class="hoverline" data-t="nav_process" style="padding-bottom:3px;border-bottom:1px solid transparent;transition:color .25s,border-color .25s;"></a>
+      <a href="#pricing" class="hoverline" data-t="nav_pricing" style="padding-bottom:3px;border-bottom:1px solid transparent;transition:color .25s,border-color .25s;"></a>
+      <a href="#faq" class="hoverline" data-t="nav_faq" style="padding-bottom:3px;border-bottom:1px solid transparent;transition:color .25s,border-color .25s;"></a>
       <a href="#about" class="hoverline" data-t="nav_about" style="padding-bottom:3px;border-bottom:1px solid transparent;transition:color .25s,border-color .25s;"></a>
     </div>
     <div style="margin-inline-start:auto;display:flex;align-items:center;gap:18px;">
@@ -281,10 +296,71 @@ a:hover{color:inherit;}
     </div>
   </section>
 
+  <section id="pricing" style="position:relative;z-index:1;background:#0E100E;padding:160px 0 200px;">
+    <div style="max-width:1400px;margin:0 auto;padding:0 56px;">
+    <div data-reveal style="text-align:center;">
+      <div style="display:flex;align-items:baseline;justify-content:center;gap:20px;">
+        <span data-t="nav_pricing" data-prefix="05 / " style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#C9F7C5;"></span>
+        <h2 data-t="pricing_title" style="font-family:'Frank Ruhl Libre',serif;font-size:58px;font-weight:300;letter-spacing:-.02em;margin:0;"></h2>
+      </div>
+      <p data-t="pricing_sub" style="margin:16px auto 0;font-size:16px;line-height:1.7;opacity:.62;max-width:56ch;"></p>
+    </div>
+
+    <div id="pricingGrid" style="margin-top:88px;display:grid;grid-template-columns:repeat(3,1fr);gap:28px;align-items:center;">
+      <div data-reveal class="pricing-card" style="padding:40px 32px;border:1px solid rgba(233,235,232,.16);background:#131613;border-radius:20px;display:flex;flex-direction:column;text-align:center;transition:border-color .3s,transform .3s;">
+        <span data-t="tier1_name" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.6;"></span>
+        <div style="margin-top:24px;display:flex;align-items:baseline;justify-content:center;gap:8px;">
+          <span data-t="tier1_price" style="font-family:'Frank Ruhl Libre',serif;font-size:46px;font-weight:400;letter-spacing:-.01em;"></span>
+        </div>
+        <span data-t="tier1_monthly" style="font-family:'IBM Plex Mono',monospace;font-size:12px;opacity:.5;margin-top:8px;"></span>
+        <hr style="width:100%;border:none;border-top:1px solid rgba(233,235,232,.14);margin:28px 0;">
+        <ul data-t-list="tier1_features" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;font-size:14px;line-height:1.5;text-align:start;flex-grow:1;"></ul>
+        <a href="#contact" class="pricing-btn" data-t="pricing_cta" style="margin-top:32px;display:inline-flex;align-items:center;justify-content:center;gap:10px;border:1px solid rgba(233,235,232,.28);border-radius:8px;padding:14px 22px;font-size:15px;font-weight:600;transition:border-color .25s,background .25s,color .25s;"></a>
+      </div>
+
+      <div data-reveal class="pricing-card pricing-card-popular" style="padding:48px 32px;border:2px solid #C9F7C5;background:#171B17;border-radius:20px;display:flex;flex-direction:column;text-align:center;position:relative;transform:scale(1.06);box-shadow:0 20px 60px rgba(201,247,197,.08);z-index:2;">
+        <span style="position:absolute;top:0;inset-inline-end:0;background:#C9F7C5;color:#0E100E;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:8px 16px;border-radius:0 18px 0 14px;display:inline-flex;align-items:center;gap:6px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l2.9 6.6 7.1.7-5.4 4.8 1.6 7-6.2-3.7-6.2 3.7 1.6-7L2 9.3l7.1-.7z"></path></svg>
+          <span data-t="tier3_badge"></span>
+        </span>
+        <span data-t="tier3_name" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#C9F7C5;"></span>
+        <div style="margin-top:24px;display:flex;align-items:baseline;justify-content:center;gap:8px;">
+          <span data-t="tier3_price" style="font-family:'Frank Ruhl Libre',serif;font-size:52px;font-weight:400;letter-spacing:-.01em;"></span>
+        </div>
+        <span data-t="tier3_monthly" style="font-family:'IBM Plex Mono',monospace;font-size:12px;opacity:.6;margin-top:8px;"></span>
+        <hr style="width:100%;border:none;border-top:1px solid rgba(233,235,232,.14);margin:28px 0;">
+        <ul data-t-list="tier3_features" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;font-size:14px;line-height:1.5;text-align:start;flex-grow:1;"></ul>
+        <a href="#contact" class="pricing-btn pricing-btn-popular" data-t="pricing_cta" style="margin-top:32px;display:inline-flex;align-items:center;justify-content:center;gap:10px;background:#C9F7C5;color:#0E100E;border-radius:8px;padding:16px 22px;font-size:15px;font-weight:600;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s;"></a>
+      </div>
+
+      <div data-reveal class="pricing-card" style="padding:40px 32px;border:1px solid rgba(233,235,232,.16);background:#131613;border-radius:20px;display:flex;flex-direction:column;text-align:center;transition:border-color .3s,transform .3s;">
+        <span data-t="tier2_name" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.6;"></span>
+        <div style="margin-top:24px;display:flex;align-items:baseline;justify-content:center;gap:8px;">
+          <span data-t="tier2_price" style="font-family:'Frank Ruhl Libre',serif;font-size:46px;font-weight:400;letter-spacing:-.01em;"></span>
+        </div>
+        <span data-t="tier2_monthly" style="font-family:'IBM Plex Mono',monospace;font-size:12px;opacity:.5;margin-top:8px;"></span>
+        <hr style="width:100%;border:none;border-top:1px solid rgba(233,235,232,.14);margin:28px 0;">
+        <ul data-t-list="tier2_features" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;font-size:14px;line-height:1.5;text-align:start;flex-grow:1;"></ul>
+        <a href="#contact" class="pricing-btn" data-t="pricing_cta" style="margin-top:32px;display:inline-flex;align-items:center;justify-content:center;gap:10px;border:1px solid rgba(233,235,232,.28);border-radius:8px;padding:14px 22px;font-size:15px;font-weight:600;transition:border-color .25s,background .25s,color .25s;"></a>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <section id="faq" style="position:relative;z-index:1;background:#0E100E;padding:160px 0 200px;">
+    <div style="max-width:1400px;margin:0 auto;padding:0 56px;">
+    <div data-reveal style="display:flex;align-items:baseline;gap:20px;">
+      <span data-t="nav_faq" data-prefix="06 / " style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#C9F7C5;"></span>
+      <h2 data-t="faq_title" style="font-family:'Frank Ruhl Libre',serif;font-size:58px;font-weight:300;letter-spacing:-.02em;margin:0;"></h2>
+    </div>
+    <div id="faqList" style="margin-top:72px;border-top:1px solid rgba(233,235,232,.14);display:grid;grid-template-columns:1fr 1fr;column-gap:64px;"></div>
+    </div>
+  </section>
+
   <section id="about" style="position:relative;z-index:1;background:#EAEAE7;color:#1A1C1A;">
     <div id="aboutInner" style="max-width:1400px;margin:0 auto;padding:140px 56px;">
       <div style="display:flex;align-items:baseline;gap:20px;">
-        <span data-t="nav_about" data-prefix="05 / " style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;opacity:.62;"></span>
+        <span data-t="nav_about" data-prefix="07 / " style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;opacity:.62;"></span>
         <h2 data-t="about_section_title" style="font-family:'Frank Ruhl Libre',serif;font-size:58px;font-weight:400;letter-spacing:-.02em;margin:0;"></h2>
       </div>
       <div style="margin-top:64px;border-top:1px solid rgba(26,28,26,.2);display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:0;">
@@ -312,7 +388,7 @@ a:hover{color:inherit;}
   <section id="contact" style="position:relative;z-index:1;background:#C9F7C5;color:#0E100E;overflow:hidden;">
     <div id="ctaGlow"></div>
     <div id="contactInner" style="position:relative;max-width:1400px;margin:0 auto;padding:150px 56px;">
-      <span data-reveal-stagger style="transition-delay:.05s;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;opacity:.6;display:inline-block;"><span data-t="nav_cta" data-prefix="06 / "></span></span>
+      <span data-reveal-stagger style="transition-delay:.05s;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;opacity:.6;display:inline-block;"><span data-t="nav_cta" data-prefix="08 / "></span></span>
       <h2 data-t="contact_title" data-reveal-stagger style="transition-delay:.15s;font-family:'Frank Ruhl Libre',serif;font-size:76px;font-weight:400;line-height:1.06;letter-spacing:-.03em;margin:28px 0 0;max-width:18ch;"></h2>
       <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:64px;align-items:end;margin-top:48px;">
         <p data-t="contact_sub" data-reveal-stagger style="transition-delay:.25s;font-size:19px;line-height:1.7;margin:0;max-width:52ch;opacity:.72;"></p>
@@ -339,6 +415,8 @@ a:hover{color:inherit;}
       <a href="#services" class="footer-link" data-t="nav_services" style="opacity:.75;transition:color .25s,opacity .25s;"></a>
       <a href="#work" class="footer-link" data-t="nav_work" style="opacity:.75;transition:color .25s,opacity .25s;"></a>
       <a href="#process" class="footer-link" data-t="nav_process" style="opacity:.75;transition:color .25s,opacity .25s;"></a>
+      <a href="#pricing" class="footer-link" data-t="nav_pricing" style="opacity:.75;transition:color .25s,opacity .25s;"></a>
+      <a href="#faq" class="footer-link" data-t="nav_faq" style="opacity:.75;transition:color .25s,opacity .25s;"></a>
       <a href="#about" class="footer-link" data-t="nav_about" style="opacity:.75;transition:color .25s,opacity .25s;"></a>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px;font-size:14px;">
@@ -360,7 +438,7 @@ a:hover{color:inherit;}
 const translations = {
   he: {
     dir: 'rtl', langCode: 'he', lang_toggle: 'EN',
-    nav_services: 'שירותים', nav_work: 'עבודות', nav_process: 'תהליך', nav_about: 'אודות', nav_cta: 'בואו נדבר',
+    nav_services: 'שירותים', nav_work: 'עבודות', nav_process: 'תהליך', nav_pricing: 'תמחור', nav_faq: 'שאלות נפוצות', nav_about: 'אודות', nav_cta: 'בואו נדבר',
     location: 'תל אביב · ישראל', availability: 'פנוי לפרויקט הבא',
     tech_label: 'נבנה עם טכנולוגיה מודרנית ·',
     hero_kicker: 'פיתוח אתרים ומערכות · פתרונות AI',
@@ -384,6 +462,21 @@ const translations = {
     step2_title: 'עיצוב', step2_body: 'הקונספט נבנה ישר בדפדפן, כך שאתם מאשרים את הדבר האמיתי.',
     step3_title: 'בנייה', step3_body: 'קוד נקי וברור לתחזוקה, עם ניהול תוכן בדיוק היכן שצריך.',
     step4_title: 'השקה', step4_body: 'עולים לאוויר, עוקבים אחרי השבועות הראשונים, ומעבירים לכם מוצר שאתם יכולים להפעיל.',
+    pricing_title: 'תמחור', pricing_sub: 'מחירים התחלתיים לפי היקף הפרויקט. כל פרויקט מתומחר סופית אחרי שיחת אפיון קצרה.',
+    pricing_cta: 'בואו נדבר',
+    tier1_name: 'Starter', tier1_price: '₪1,299', tier1_monthly: '+ ₪99 לחודש',
+    tier1_features: ['עד 3 עמודים', 'עיצוב מותאם למובייל', 'הגדרות SEO בסיסיות', 'טופס יצירת קשר'],
+    tier2_name: 'Professional', tier2_price: '₪1,949', tier2_monthly: '+ ₪169 לחודש',
+    tier2_features: ['עד 8 עמודים', 'עיצוב מותאם למובייל', 'הגדרות SEO מתקדמות', 'טופס יצירת קשר + מערכת הזמנות', 'הטמעת אנליטיקס'],
+    tier3_badge: 'הכי פופולרי', tier3_name: 'Premium', tier3_price: '₪4,890', tier3_monthly: '+ ₪319 לחודש',
+    tier3_features: ['עמודים ללא הגבלה', 'עיצוב מותאם למובייל', 'חבילת SEO מלאה', 'טופס יצירת קשר + מערכת הזמנות', 'הטמעת אנליטיקס', 'הגדרת דומיין מותאם אישית', 'תמיכה עדיפה (מענה תוך 48 שעות)', 'ערכת זהות מותגית בסיסית', '3 חודשי תחזוקה חינם', 'עמדת/כרטיס לביקורות גוגל', 'מערכת תורים/הזמנות אונליין', 'תשלום אונליין', 'הגדרת SEO', 'שליחת SMS אוטומטית לשיחות שלא נענו'],
+    faq_title: 'שאלות נפוצות',
+    faq_items: [
+      { q: 'כמה זמן לוקח לבנות אתר?', a: 'תלוי בהיקף — אתר תדמית פשוט לוקח כשבועיים-שלושה, מערכת מותאמת אישית או פתרון עם AI יכולים לקחת 4-8 שבועות. בשיחת האפיון הראשונה תקבלו לוח זמנים מדויק לפרויקט שלכם.' },
+      { q: 'איך נראה התהליך?', a: 'מתחילים בשיחת גילוי קצרה כדי להבין מטרות וקהל, עוברים לעיצוב שנבנה ישר בדפדפן כדי שתראו את הדבר האמיתי, בונים בקוד נקי, ומשיקים תוך מעקב צמוד בשבועות הראשונים.' },
+      { q: 'כמה סבבי תיקונים כלולים?', a: 'כל חבילה כוללת סבבי עריכה בשלב העיצוב עד שאתם מרוצים מהכיוון, ותיקוני באגים חינם אחרי ההשקה. שינויי תוכן משמעותיים אחרי אישור העיצוב מתואמים בנפרד.' },
+      { q: 'מה קורה אחרי ההשקה?', a: 'החבילה החודשית כוללת אחסון, עדכוני אבטחה וזמינות לתיקונים שוטפים. אני עוקב אחרי הביצועים בשבועות הראשונים ונשאר זמין ישירות — בלי אנשי תיווך — לכל שינוי או שאלה.' }
+    ],
     work1_name: 'וילה אל נוף פנורמה', work1_tag: 'אתר תדמית לנופש', work1_url: 'https://villa-el-nof-panorama.co.il/',
     work2_name: 'Lifemaxing', work2_tag: 'פלטפורמה אישית', work2_url: 'https://my-lifemaxing.base44.app/',
     work3_name: 'TalentFlow', work3_tag: 'פתרון עסקי מותאם', work3_url: 'https://talentflow-sable.vercel.app/',
@@ -408,7 +501,7 @@ const translations = {
   },
   en: {
     dir: 'ltr', langCode: 'en', lang_toggle: 'עב',
-    nav_services: 'Services', nav_work: 'Work', nav_process: 'Process', nav_about: 'About', nav_cta: "Let's talk",
+    nav_services: 'Services', nav_work: 'Work', nav_process: 'Process', nav_pricing: 'Pricing', nav_faq: 'FAQ', nav_about: 'About', nav_cta: "Let's talk",
     location: 'Tel Aviv · IL', availability: 'Open for the next project',
     tech_label: 'Built with modern technology ·',
     hero_kicker: 'Web & software development · AI solutions',
@@ -432,6 +525,21 @@ const translations = {
     step2_title: 'Design', step2_body: 'Concepts are built straight in the browser, so you review the real thing.',
     step3_title: 'Build', step3_body: 'Clean, maintainable code — content-managed exactly where it should be.',
     step4_title: 'Launch', step4_body: 'We ship, watch the first weeks closely, and hand you a product you can run.',
+    pricing_title: 'Pricing', pricing_sub: 'Starting prices based on project scope. Every project gets a final quote after a short scoping call.',
+    pricing_cta: "Let's talk",
+    tier1_name: 'Starter', tier1_price: '₪1,299', tier1_monthly: '+ ₪99/mo',
+    tier1_features: ['Up to 3 pages', 'Mobile responsive design', 'Basic SEO setup', 'Contact form'],
+    tier2_name: 'Professional', tier2_price: '₪1,949', tier2_monthly: '+ ₪169/mo',
+    tier2_features: ['Up to 8 pages', 'Mobile responsive design', 'On-page SEO setup', 'Contact form + booking integration', 'Analytics setup'],
+    tier3_badge: 'Most popular', tier3_name: 'Premium', tier3_price: '₪4,890', tier3_monthly: '+ ₪319/mo',
+    tier3_features: ['Unlimited pages', 'Mobile responsive design', 'Full SEO package', 'Contact form + booking integration', 'Analytics setup', 'Custom domain setup', 'Priority support (48h response)', 'Basic brand identity kit', '3 months of free maintenance', 'Google Review stand/card', 'Online appointment/booking system', 'Online payment', 'SEO setup', 'Missed-call auto-text'],
+    faq_title: 'FAQ',
+    faq_items: [
+      { q: 'How long does a project take?', a: "It depends on scope — a simple brand site takes about two to three weeks, while a custom system or an AI-powered solution can take four to eight weeks. You'll get an exact timeline for your project after the first scoping call." },
+      { q: "What's the process?", a: "We start with a short discovery call to map goals and audience, move into design that's built straight in the browser so you see the real thing, build it in clean code, and launch with close monitoring in the first weeks." },
+      { q: 'How many revisions are included?', a: 'Every package includes revision rounds during the design phase until you\'re happy with the direction, plus free bug fixes after launch. Major content changes after design sign-off are scoped separately.' },
+      { q: 'What happens after launch?', a: "The monthly plan covers hosting, security updates and availability for ongoing fixes. I track performance closely in the first weeks and stay directly reachable — no account managers — for any change or question." }
+    ],
     work1_name: 'Villa El Nof Panorama', work1_tag: 'Hospitality site', work1_url: 'https://villa-el-nof-panorama.co.il/',
     work2_name: 'Lifemaxing', work2_tag: 'Personal platform', work2_url: 'https://my-lifemaxing.base44.app/',
     work3_name: 'TalentFlow', work3_tag: 'Custom business solution', work3_url: 'https://talentflow-sable.vercel.app/',
@@ -729,6 +837,46 @@ function applyTilt() {
   tiltInner.style.transform = 'rotateY(' + (mx * 4).toFixed(2) + 'deg) rotateX(' + (-my * 2.4).toFixed(2) + 'deg)';
 }
 
+function renderPricingFeatures() {
+  const tr = t();
+  document.querySelectorAll('[data-t-list]').forEach((el) => {
+    const key = el.getAttribute('data-t-list');
+    const items = tr[key] || [];
+    el.innerHTML = items.map((f) => `
+      <li style="display:flex;align-items:flex-start;gap:10px;opacity:.8;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9F7C5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span>${f}</span>
+      </li>`).join('');
+  });
+}
+
+let openFaq = 0;
+
+function renderFaq() {
+  const tr = t();
+  const faqList = document.getElementById('faqList');
+  const items = tr.faq_items || [];
+  faqList.innerHTML = '';
+  items.forEach((item, i) => {
+    const isOpen = i === openFaq;
+    const row = document.createElement('div');
+    row.style.cssText = 'border-bottom:1px solid rgba(233,235,232,.14);';
+    row.innerHTML = `
+      <button aria-expanded="${isOpen}" style="all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:24px;width:100%;padding:28px 0;cursor:pointer;font-family:'Frank Ruhl Libre',serif;font-size:22px;font-weight:400;letter-spacing:-.01em;">
+        <span>${item.q}</span>
+        <span style="flex:none;font-family:'IBM Plex Mono',monospace;font-size:18px;color:#C9F7C5;transform:rotate(${isOpen ? '45deg' : '0deg'});transition:transform .35s ease;">+</span>
+      </button>
+      <div style="max-height:${isOpen ? '400px' : '0'};overflow:hidden;transition:max-height .45s cubic-bezier(.2,.8,.2,1);">
+        <p style="margin:0 0 28px;font-size:15px;line-height:1.75;opacity:.65;max-width:70ch;">${item.a}</p>
+      </div>`;
+    row.querySelector('button').addEventListener('click', () => {
+      openFaq = isOpen ? -1 : i;
+      renderFaq();
+    });
+    faqList.appendChild(row);
+  });
+}
+
 function render() {
   rootEl.setAttribute('dir', t().dir);
   rootEl.setAttribute('lang', t().langCode);
@@ -738,6 +886,8 @@ function render() {
   renderCards();
   renderDots();
   renderTestimonial();
+  renderPricingFeatures();
+  renderFaq();
   applyTilt();
 }
 
