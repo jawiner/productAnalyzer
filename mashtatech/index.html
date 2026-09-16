@@ -129,7 +129,6 @@ body.menu-open #fab{visibility:hidden !important;}
   #navCtaArrow{display:none !important;}
   .services-cta{font-size:22px !important;gap:10px !important;}
   #services > div:last-child{padding:56px 20px 80px !important;}
-  #workFallback{padding:0 20px 8px !important;}
   #stepsContainer > div > div:nth-child(2){order:-1;margin-bottom:12px;height:auto !important;}
   #stepsContainer > div > div:last-child{padding-top:18px !important;}
   #contactInner > div:last-child{flex-direction:column !important;gap:12px !important;}
@@ -172,11 +171,15 @@ body.menu-open #fab{visibility:hidden !important;}
   #faq > div{padding:0 20px !important;}
   #faqList{grid-template-columns:1fr !important;}
   #faqList .faq-btn span:nth-child(2){font-size:18px !important;}
-  #workShowcase{height:auto !important;background:none !important;}
+  #workShowcase{height:300px !important;margin-top:40px !important;background:none !important;}
   #workShowcase > div[style*="14%"]{display:none !important;}
   #workShowcase span[data-t="work_watermark"]{display:none !important;}
-  #workFallback{display:flex !important;}
-  #prevBtn, #nextBtn, #dotsContainer{display:none !important;}
+  #drumStage{display:none !important;}
+  #workFallback{display:block !important;}
+  #prevBtn, #nextBtn{width:40px !important;height:40px !important;margin-top:-20px !important;}
+  #prevBtn{left:8px !important;}
+  #nextBtn{right:8px !important;}
+  #work > div[style*="margin-top:44px"]{margin-top:24px !important;}
   #testimonialsSection{margin-top:72px !important;padding:0 20px !important;}
   #testimonialsSection > div[style*="grid-template-columns:300px"]{grid-template-columns:1fr !important;}
   #testimonialsSection > div[style*="grid-template-columns:300px"] > div:first-child{border-inline-end:none !important;border-bottom:1px solid rgba(233,235,232,.14);padding-inline-end:0 !important;}
@@ -378,7 +381,7 @@ body.menu-open #fab{visibility:hidden !important;}
 
       <ul id="workAccessibleList" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:0;padding:0;list-style:none;"></ul>
 
-      <div id="workFallback" style="display:none;position:relative;height:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;gap:16px;padding:0 20px;"></div>
+      <div id="workFallback" style="display:none;position:relative;height:100%;overflow:hidden;touch-action:pan-y;"></div>
     </div>
 
     <div id="drumLightbox" style="position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;padding:6vh 5vw;cursor:pointer;">
@@ -936,25 +939,88 @@ function updateSpine() {
   spineFillEl.style.width = (((activeStep + 1) / 4) * 100) + '%';
 }
 
+// Mobile work showcase: the earlier coverflow design. One centred card with
+// its neighbours peeking from the sides, swipe / arrows / dots to move.
+function mobileWorkCardCss(o) {
+  const s = o < 0 ? -1 : 1;
+  const a = Math.abs(o);
+  const w = Math.min(360, window.innerWidth - 64);
+  const h = Math.round(w * (372 / 560));
+  let transform, opacity, filter, zIndex, boxShadow;
+  if (a === 0) {
+    transform = 'translate3d(0,0,0) scale(1)'; opacity = 1; filter = 'none'; zIndex = 40;
+    boxShadow = '0 30px 60px -28px rgba(0,0,0,.9), 0 0 0 1px rgba(233,235,232,.12)';
+  } else if (a === 1) {
+    transform = 'translate3d(' + (s * 88) + '%, 0, 0) scale(.88)';
+    opacity = .45; filter = 'blur(1px)'; zIndex = 30; boxShadow = 'none';
+  } else {
+    transform = 'translate3d(' + (s * 150) + '%, 0, 0) scale(.8)'; opacity = 0; filter = 'none'; zIndex = 10; boxShadow = 'none';
+  }
+  return `position:absolute;left:50%;top:50%;width:${w}px;height:${h}px;margin-left:-${w / 2}px;margin-top:-${h / 2}px;cursor:pointer;border-radius:14px;overflow:hidden;background:#151815;transition:transform .9s cubic-bezier(.16,1,.3,1),opacity .8s cubic-bezier(.16,1,.3,1),filter .8s ease,box-shadow .8s ease;transform:${transform};opacity:${opacity};filter:${filter};z-index:${zIndex};box-shadow:${boxShadow};`;
+}
+
 function renderWorkFallback() {
   const tr = t();
   const el = document.getElementById('workFallback');
   if (!el) return;
-  el.style.display = 'flex';
-  el.innerHTML = workData.map((it) => `
-    <a href="${tr[it.key + '_url']}" target="_blank" rel="noopener noreferrer" style="flex:none;width:min(320px,82vw);scroll-snap-align:start;display:flex;flex-direction:column;position:relative;border-radius:16px;overflow:hidden;background:#151815;border:1px solid rgba(233,235,232,.12);">
-      <div style="position:relative;aspect-ratio:1.4/1;overflow:hidden;background:#0E100E;">
-        <img src="${it.img}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center;display:block;">
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-top:1px solid rgba(233,235,232,.10);">
-        <div style="min-width:0;">
-          <div style="color:#fff;font-family:'Frank Ruhl Libre',serif;font-size:19px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${tr[it.key + '_name']}</div>
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.10em;text-transform:uppercase;color:#C9F7C5;opacity:.75;margin-top:4px;">${tr.work_open_label || ''}</div>
+  el.style.display = 'block';
+  const n = workData.length;
+  el.innerHTML = '';
+  workData.forEach((it, i) => {
+    let o = i - index;
+    if (o > n / 2) o -= n;
+    if (o < -n / 2) o += n;
+    // In RTL the "next" project should sit to the left.
+    if (lang === 'he') o = -o;
+    const active = o === 0;
+    const url = tr[it.key + '_url'];
+    const card = document.createElement('div');
+    card.style.cssText = mobileWorkCardCss(o);
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', active ? '0' : '-1');
+    card.setAttribute('aria-label', tr[it.key + '_name']);
+    card.addEventListener('click', () => {
+      if (workSwipeMoved) return;
+      if (!active) { index = i; goWork(0); }
+      else window.open(url, '_blank', 'noopener,noreferrer');
+    });
+    card.innerHTML = `
+      <div aria-hidden="true" style="position:absolute;inset:0;background-image:url('${it.img}');background-size:cover;background-position:top center;"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(14,16,14,.92) 0%, rgba(14,16,14,.25) 48%, rgba(14,16,14,0) 72%);pointer-events:none;"></div>
+      <div style="position:absolute;left:12px;right:12px;bottom:12px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 10px 0 16px;background:rgba(14,16,14,.74);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(233,235,232,.12);border-radius:10px;opacity:${active ? 1 : 0};transform:${active ? 'translateY(0)' : 'translateY(10px)'};transition:opacity .6s ease,transform .8s cubic-bezier(.16,1,.3,1);">
+        <div style="display:flex;flex-direction:column;gap:4px;min-width:0;">
+          <div style="font-size:17px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${tr[it.key + '_name']}</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#C9F7C5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${tr[it.key + '_tag']} · ${tr.work_open_label || ''}</div>
         </div>
-        <span aria-hidden="true" style="flex:none;width:38px;height:38px;border-radius:50%;background:#C9F7C5;color:#0E100E;display:flex;align-items:center;justify-content:center;">&#8599;</span>
+        <div aria-hidden="true" style="flex:none;width:40px;height:40px;border-radius:50%;background:#C9F7C5;color:#0E100E;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:16px;">↖</div>
       </div>
-    </a>
-  `).join('');
+      <div style="position:absolute;inset:0;pointer-events:none;background:rgba(14,16,14,.55);opacity:${active ? 0 : 1};transition:opacity .8s ease;"></div>`;
+    el.appendChild(card);
+  });
+}
+
+let workSwipeMoved = false;
+function initWorkSwipe() {
+  const el = document.getElementById('workFallback');
+  if (!el || el.dataset.swipe) return;
+  el.dataset.swipe = '1';
+  let x0 = 0, y0 = 0, tracking = false;
+  el.addEventListener('pointerdown', (e) => { x0 = e.clientX; y0 = e.clientY; tracking = true; workSwipeMoved = false; }, { passive: true });
+  el.addEventListener('pointermove', (e) => {
+    if (!tracking) return;
+    if (Math.abs(e.clientX - x0) > 10 && Math.abs(e.clientX - x0) > Math.abs(e.clientY - y0)) workSwipeMoved = true;
+  }, { passive: true });
+  el.addEventListener('pointerup', (e) => {
+    if (!tracking) return;
+    tracking = false;
+    const dx = e.clientX - x0;
+    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(e.clientY - y0)) return;
+    // Swiping left reveals the card on the right and vice-versa, in either direction.
+    const dir = dx < 0 ? 1 : -1;
+    goWork(lang === 'he' ? -dir : dir);
+    setTimeout(() => { workSwipeMoved = false; }, 50);
+  }, { passive: true });
+  el.addEventListener('pointercancel', () => { tracking = false; });
 }
 
 // Drum carousel: a CSS-3D ring of project panels, dragged/scrolled around a
@@ -1272,6 +1338,12 @@ function initWorkShowcase() {
 
   if (reduced || isMobile || !drumStageEl) {
     renderWorkFallback();
+    initWorkSwipe();
+    window.__workShowcase = { goTo: () => renderWorkFallback(), setRtl: () => renderWorkFallback() };
+    let workResizeTimer = null;
+    const relayout = () => { clearTimeout(workResizeTimer); workResizeTimer = setTimeout(renderWorkFallback, 120); };
+    window.addEventListener('resize', relayout);
+    window.addEventListener('orientationchange', () => { relayout(); setTimeout(renderWorkFallback, 400); });
     return;
   }
 
@@ -1494,8 +1566,10 @@ document.getElementById('mobileLangToggle').addEventListener('click', () => {
   mobileMq.addEventListener('change', (e) => { if (!e.matches && open) setOpen(false); });
 })();
 
-document.getElementById('prevBtn').addEventListener('click', () => goWork(-1));
-document.getElementById('nextBtn').addEventListener('click', () => goWork(1));
+// On the mobile coverflow the arrows point at the card physically on that
+// side, which in RTL means the left arrow advances.
+document.getElementById('prevBtn').addEventListener('click', () => goWork(mobileMq.matches && lang === 'he' ? 1 : -1));
+document.getElementById('nextBtn').addEventListener('click', () => goWork(mobileMq.matches && lang === 'he' ? -1 : 1));
 document.getElementById('testPrevBtn').addEventListener('click', () => goWork(-1));
 document.getElementById('testNextBtn').addEventListener('click', () => goWork(1));
 
