@@ -111,6 +111,7 @@ a:hover{color:inherit;}
   #techStrip{padding:14px 20px !important;gap:20px !important;overflow-x:auto !important;white-space:nowrap !important;font-size:11px !important;}
   #techStrip span:last-child{margin-inline-start:0 !important;}
   #services{padding:72px 20px 0 !important;}
+  #services > div:first-child{padding:0 !important;}
   #process{padding:72px 20px 0 !important;}
   #pricing{padding:72px 20px 80px !important;}
   #pricing > div{padding:0 !important;}
@@ -132,12 +133,15 @@ a:hover{color:inherit;}
   #pricingGrid{grid-template-columns:1fr !important;gap:20px !important;}
   .pricing-card-popular{transform:none !important;order:-1;}
   .pricing-card-popular:hover{transform:none !important;}
+  #fab{width:48px !important;height:48px !important;bottom:16px !important;inset-inline-end:16px !important;}
+  #fab svg{width:22px !important;height:22px !important;}
   #faq{padding:72px 0 80px !important;}
   #faq > div{padding:0 20px !important;}
   #faqList{grid-template-columns:1fr !important;}
   #faqList .faq-btn span:nth-child(2){font-size:18px !important;}
   #workShowcase{height:auto !important;background:none !important;}
   #workShowcase > div[style*="14%"]{display:none !important;}
+  #workShowcase span[data-t="work_watermark"]{display:none !important;}
   #workFallback{display:flex !important;}
   #prevBtn, #nextBtn, #dotsContainer{display:none !important;}
   #testimonialsSection{margin-top:72px !important;padding:0 20px !important;}
@@ -334,7 +338,7 @@ a:hover{color:inherit;}
     </div>
 
     <div style="position:relative;margin-top:44px;display:flex;align-items:center;justify-content:center;gap:24px;font-family:'IBM Plex Mono',monospace;">
-      <div style="font-size:12px;letter-spacing:.12em;opacity:.55;"><span id="counter" style="color:#E9EBE8;opacity:1;"></span> / <span id="total"></span></div>
+      <div dir="ltr" style="font-size:12px;letter-spacing:.12em;opacity:.55;"><span id="counter" style="color:#E9EBE8;opacity:1;"></span> / <span id="total"></span></div>
       <div id="dotsContainer" style="display:flex;align-items:center;gap:10px;"></div>
     </div>
 
@@ -1411,7 +1415,7 @@ const heroScrollEl = document.getElementById('heroScroll');
 const navCtaEl = document.getElementById('navCta');
 const fabEl = document.getElementById('fab');
 function onScroll() {
-  const introDone = !heroScrollEl || window.scrollY >= heroScrollEl.offsetHeight - window.innerHeight;
+  const introDone = mobileMq.matches || !heroScrollEl || window.scrollY >= heroScrollEl.offsetHeight - window.innerHeight;
   const on = introDone && window.scrollY > 12;
   navEl.style.background = on ? 'rgba(14,16,14,.82)' : 'rgba(14,16,14,0)';
   navEl.style.backdropFilter = on ? 'blur(16px)' : 'none';
@@ -1654,6 +1658,7 @@ initWorkShowcase();
   if (reduceMotion || isMobile) {
     wrap.style.height = 'auto';
     if (introKicker) introKicker.style.display = 'none';
+    video.style.display = 'none';
     revealHero();
     return;
   }
