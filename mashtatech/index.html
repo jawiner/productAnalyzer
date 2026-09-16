@@ -130,6 +130,25 @@ a:hover{color:inherit;}
 #mobileMenu.is-open .mobile-menu-link:nth-child(7){transition-delay:.29s}
 body.menu-open{overflow:hidden;}
 body.menu-open #fab{visibility:hidden !important;}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+#a11yToggle:hover{transform:scale(1.06);border-color:#C9F7C5;}
+#a11yToggle.is-active{background:#C9F7C5;color:#0E100E;}
+#a11yPanel.is-open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
+.a11y-opt{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:14px 8px;background:#0E100E;border:1px solid rgba(233,235,232,.14);border-radius:10px;color:#E9EBE8;font-family:'Assistant',sans-serif;font-size:12.5px;line-height:1.3;cursor:pointer;transition:border-color .2s ease,background .2s ease,color .2s ease;}
+.a11y-opt:hover{border-color:rgba(201,247,197,.5);}
+.a11y-opt.is-on{background:#C9F7C5;color:#0E100E;border-color:#C9F7C5;}
+#a11yClose:hover{border-color:#C9F7C5;color:#C9F7C5;}
+
+/* Accessibility feature effects, toggled on <html> */
+html.a11y-contrast{filter:contrast(1.28) saturate(1.05);}
+html.a11y-contrast body{background:#000;}
+html.a11y-grayscale{filter:grayscale(1);}
+html.a11y-contrast.a11y-grayscale{filter:grayscale(1) contrast(1.28);}
+html.a11y-underline a{text-decoration:underline !important;text-underline-offset:3px;}
+html.a11y-readable, html.a11y-readable input, html.a11y-readable button, html.a11y-readable textarea{font-family:Arial,Helvetica,sans-serif !important;letter-spacing:0 !important;}
+html.a11y-readable h1, html.a11y-readable h2, html.a11y-readable h3{font-family:Arial,Helvetica,sans-serif !important;letter-spacing:0 !important;}
+html.a11y-stop-anim *, html.a11y-stop-anim *::before, html.a11y-stop-anim *::after{animation-play-state:paused !important;transition:none !important;}
+html.a11y-big-cursor, html.a11y-big-cursor *{cursor:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"><path d="M5 3l6.5 16 2-6.7L20 10.5z" fill="%23C9F7C5" stroke="%230E100E" stroke-width="1.2"/></svg>') 4 4, auto !important;}
 
 @media (max-width: 760px) {
   #navLinks{display:none !important;}
@@ -179,6 +198,10 @@ body.menu-open #fab{visibility:hidden !important;}
   .pricing-card-popular:hover{transform:none !important;}
   #fab{width:48px !important;height:48px !important;bottom:16px !important;inset-inline-end:16px !important;}
   #fab svg{width:22px !important;height:22px !important;}
+  #a11yToggle{width:48px !important;height:48px !important;bottom:16px !important;inset-inline-start:16px !important;}
+  #a11yToggle svg{width:22px !important;height:22px !important;}
+  #a11yPanel{bottom:72px !important;inset-inline-start:16px !important;width:calc(100vw - 32px) !important;}
+  body.menu-open #a11yToggle, body.menu-open #a11yPanel{visibility:hidden !important;}
   #faq{padding:72px 0 80px !important;}
   #faq > div{padding:0 20px !important;}
   #faqList{grid-template-columns:1fr !important;}
@@ -609,6 +632,57 @@ body.menu-open #fab{visibility:hidden !important;}
   <a id="fab" href="https://wa.me/972549961663" target="_blank" rel="noopener noreferrer" class="fab" style="position:fixed;bottom:28px;inset-inline-end:28px;z-index:80;width:56px;height:56px;border-radius:50%;background:#C9F7C5;color:#0E100E;border:1px solid transparent;display:flex;align-items:center;justify-content:center;animation:mFab 3s ease-in-out infinite;transition:transform .3s cubic-bezier(.2,.8,.2,1),background .3s ease,color .3s ease,border-color .3s ease;">
     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 21l1.65-3.8a9 9 0 1 1 3.4 2.9z"></path><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0zm0 0a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"></path></svg>
   </a>
+
+  <button id="a11yToggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="a11yPanel" style="position:fixed;bottom:28px;inset-inline-start:28px;z-index:80;width:56px;height:56px;border-radius:50%;background:#151815;color:#C9F7C5;border:1px solid rgba(201,247,197,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .3s cubic-bezier(.2,.8,.2,1),background .3s ease,border-color .3s ease;">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="4" r="1.6" fill="currentColor" stroke="none"></circle><path d="M4.5 8.5c2.2.9 5 1.4 7.5 1.4s5.3-.5 7.5-1.4"></path><path d="M12 9.9v3.4"></path><path d="M12 13.3l-3.2 7.2"></path><path d="M12 13.3l3.2 7.2"></path><path d="M9 13.3l-3-1.4"></path><path d="M15 13.3l3-1.4"></path></svg>
+    <span class="sr-only">נגישות</span>
+  </button>
+
+  <div id="a11yPanel" role="dialog" aria-modal="false" aria-labelledby="a11yPanelTitle" aria-hidden="true" style="box-sizing:border-box;position:fixed;bottom:96px;inset-inline-start:28px;z-index:81;width:min(320px,calc(100vw - 40px));max-height:min(560px,calc(100vh - 140px));overflow-y:auto;background:#151815;border:1px solid rgba(233,235,232,.14);border-radius:14px;box-shadow:0 30px 70px -24px rgba(0,0,0,.75);padding:20px;opacity:0;transform:translateY(10px) scale(.98);pointer-events:none;transition:opacity .25s ease,transform .25s cubic-bezier(.2,.8,.2,1);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <h2 id="a11yPanelTitle" style="margin:0;font-family:'Frank Ruhl Libre',serif;font-size:19px;font-weight:400;color:#E9EBE8;">הגדרות נגישות</h2>
+      <button id="a11yClose" type="button" aria-label="סגירה" style="width:30px;height:30px;flex:none;background:none;border:1px solid rgba(233,235,232,.2);border-radius:6px;color:#E9EBE8;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button type="button" class="a11y-opt" data-a11y="fontUp">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18l4-11 4 11"></path><path d="M5.2 14.5h5.6"></path><path d="M14 8h6M17 5v6"></path></svg>
+        <span>הגדלת טקסט</span>
+      </button>
+      <button type="button" class="a11y-opt" data-a11y="fontDown">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18l4-11 4 11"></path><path d="M5.2 14.5h5.6"></path><path d="M14 8h6"></path></svg>
+        <span>הקטנת טקסט</span>
+      </button>
+      <button type="button" class="a11y-opt" data-a11y="contrast">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"></path></svg>
+        <span>ניגודיות גבוהה</span>
+      </button>
+      <button type="button" class="a11y-opt" data-a11y="grayscale">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 3v18M3 12h18"></path></svg>
+        <span>גווני אפור</span>
+      </button>
+      <button type="button" class="a11y-opt" data-a11y="underline">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v7a6 6 0 0 0 12 0V4"></path><path d="M4 20h16"></path></svg>
+        <span>הדגשת קישורים</span>
+      </button>
+      <button type="button" class="a11y-opt" data-a11y="readable">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6.5h16M4 12h16M4 17.5h10"></path></svg>
+        <span>גופן קריא</span>
+      </button>
+      <button type="button" class="a11y-opt" data-a11y="stopAnim">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect></svg>
+        <span>עצירת אנימציות</span>
+      </button>
+      <button type="button" class="a11y-opt" data-a11y="cursor">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3l6.5 16 2-6.7L20 10.5z"></path></svg>
+        <span>סמן מוגדל</span>
+      </button>
+      <button type="button" id="a11yReset" class="a11y-opt">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v5h5"></path></svg>
+        <span>איפוס הגדרות</span>
+      </button>
+    </div>
+    <p style="margin:16px 0 0;font-size:12px;line-height:1.6;opacity:.55;">ההגדרות נשמרות בדפדפן שלכם בלבד.</p>
+  </div>
 </div>
 
 <script>
@@ -1576,6 +1650,84 @@ document.getElementById('langToggle').addEventListener('click', () => {
 document.getElementById('mobileLangToggle').addEventListener('click', () => {
   document.getElementById('langToggle').click();
 });
+
+// Accessibility panel: font scaling, contrast/grayscale, link underline,
+// a readable font, paused animations, and a bigger cursor. Preferences are
+// stored per-browser in localStorage; the button also carries the "is-active"
+// mint highlight whenever any option is currently on.
+(function initA11yPanel() {
+  const toggleBtn = document.getElementById('a11yToggle');
+  const panel = document.getElementById('a11yPanel');
+  const closeBtn = document.getElementById('a11yClose');
+  const resetBtn = document.getElementById('a11yReset');
+  if (!toggleBtn || !panel) return;
+
+  const STORE_KEY = 'mashtechA11y';
+  const TOGGLE_CLASS = { contrast: 'a11y-contrast', grayscale: 'a11y-grayscale', underline: 'a11y-underline', readable: 'a11y-readable', stopAnim: 'a11y-stop-anim', cursor: 'a11y-big-cursor' };
+  const FONT_STEP = 0.1, FONT_MIN = 0, FONT_MAX = 0.5;
+  let state = { fontStep: 0, contrast: false, grayscale: false, underline: false, readable: false, stopAnim: false, cursor: false };
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (raw) state = Object.assign(state, JSON.parse(raw));
+    } catch (e) { /* private mode or blocked storage: fall back to defaults */ }
+  }
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
+  }
+  function apply() {
+    const root = document.documentElement;
+    root.style.fontSize = state.fontStep ? (100 + state.fontStep * 100) + '%' : '';
+    Object.keys(TOGGLE_CLASS).forEach((key) => {
+      root.classList.toggle(TOGGLE_CLASS[key], !!state[key]);
+    });
+    document.querySelectorAll('.a11y-opt[data-a11y]').forEach((btn) => {
+      const key = btn.getAttribute('data-a11y');
+      if (key === 'fontUp' || key === 'fontDown') return;
+      btn.classList.toggle('is-on', !!state[key]);
+    });
+    const anyOn = state.fontStep > 0 || state.contrast || state.grayscale || state.underline || state.readable || state.stopAnim || state.cursor;
+    toggleBtn.classList.toggle('is-active', anyOn);
+  }
+  function setOpen(open) {
+    panel.classList.toggle('is-open', open);
+    panel.style.opacity = open ? '1' : '0';
+    panel.style.transform = open ? 'translateY(0) scale(1)' : 'translateY(10px) scale(.98)';
+    panel.style.pointerEvents = open ? 'auto' : 'none';
+    panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+    toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) setTimeout(() => closeBtn.focus(), 200);
+  }
+
+  load();
+  apply();
+
+  toggleBtn.addEventListener('click', () => setOpen(!panel.classList.contains('is-open')));
+  closeBtn.addEventListener('click', () => setOpen(false));
+  document.addEventListener('click', (e) => {
+    if (!panel.classList.contains('is-open')) return;
+    if (panel.contains(e.target) || toggleBtn.contains(e.target)) return;
+    setOpen(false);
+  });
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && panel.classList.contains('is-open')) setOpen(false); });
+
+  panel.querySelectorAll('.a11y-opt[data-a11y]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const key = btn.getAttribute('data-a11y');
+      if (key === 'fontUp') state.fontStep = Math.min(FONT_MAX, +(state.fontStep + FONT_STEP).toFixed(2));
+      else if (key === 'fontDown') state.fontStep = Math.max(FONT_MIN, +(state.fontStep - FONT_STEP).toFixed(2));
+      else state[key] = !state[key];
+      save();
+      apply();
+    });
+  });
+  resetBtn.addEventListener('click', () => {
+    state = { fontStep: 0, contrast: false, grayscale: false, underline: false, readable: false, stopAnim: false, cursor: false };
+    save();
+    apply();
+  });
+})();
 
 // Mobile menu: full-screen overlay opened from the hamburger button.
 (function initMobileMenu() {
