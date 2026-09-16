@@ -513,6 +513,7 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
       <span data-t="nav_process" data-prefix="04 / " style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#C9F7C5;">04 / תהליך</span>
       <h2 data-t="process_title" style="font-family:'Frank Ruhl Libre',serif;font-size:58px;font-weight:300;letter-spacing:-.02em;margin:0;">איך זה עובד</h2>
     </div>
+    <p data-t="process_sub" data-reveal style="transition-delay:.08s;margin:16px 0 0;font-size:16px;line-height:1.7;opacity:.62;max-width:56ch;">ארבעה שלבים ברורים, לוח זמנים ריאלי, ותקשורת ישירה איתי לאורך כל הדרך — בלי הפתעות ובלי שכבות תיווך.</p>
 
     <div id="stepsWrap" style="position:relative;margin-top:88px;padding-bottom:20px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));column-gap:36px;align-items:start;">
       <div style="position:absolute;top:244px;left:0;right:0;height:1px;background:rgba(233,235,232,.14);"></div>
@@ -762,10 +763,11 @@ const translations = {
     work_open_label: 'לביקור באתר',
     testimonials_label: 'המלצות', testimonials_title: 'מה אומרים עליי',
     process_title: 'איך זה עובד',
-    step1_title: 'גילוי', step1_body: 'ממפים מטרות, קהל ותוכן — לפני שנוגעים בפיקסל אחד.',
-    step2_title: 'עיצוב', step2_body: 'הקונספט נבנה ישר בדפדפן, כך שאתם מאשרים את הדבר האמיתי.',
-    step3_title: 'בנייה', step3_body: 'קוד נקי וברור לתחזוקה, עם ניהול תוכן בדיוק היכן שצריך.',
-    step4_title: 'השקה', step4_body: 'עולים לאוויר, עוקבים אחרי השבועות הראשונים, ומעבירים לכם מוצר שאתם יכולים להפעיל.',
+    process_sub: 'ארבעה שלבים ברורים, לוח זמנים ריאלי, ותקשורת ישירה איתי לאורך כל הדרך — בלי הפתעות ובלי שכבות תיווך.',
+    step1_title: 'גילוי', step1_body: 'שיחת עומק על העסק, הקהל והמטרות שלכם, ומיפוי בדיוק מה האתר צריך לעשות בשבילכם — לפני שנוגעים בפיקסל אחד. בסוף השלב יש לנו תוכנית עבודה ברורה ולוח זמנים מוסכם.',
+    step2_title: 'עיצוב', step2_body: 'הקונספט נבנה ישר בדפדפן במקום בקבצי עיצוב סטטיים, כך שמההתחלה אתם רואים ומרגישים את האתר האמיתי — לא הדמיה. אתם מאשרים כל שלב לפני שממשיכים, כדי שלא יהיו הפתעות בסוף.',
+    step3_title: 'בנייה', step3_body: 'קוד נקי, מהיר ובנוי לתחזוקה לטווח ארוך, עם מערכת ניהול תוכן שמאפשרת לכם לעדכן טקסטים ותמונות בעצמכם בקלות, בדיוק היכן שצריך — בלי לחכות למפתח בכל שינוי קטן.',
+    step4_title: 'השקה', step4_body: 'עולים לאוויר, ומלווים אתכם מקרוב בשבועות הראשונים כדי לוודא שהכול עובד חלק בעולם האמיתי. בסיום אתם מקבלים מוצר גמור, מהיר ומאובטח, שאתם יודעים להפעיל בביטחון — עם תמיכה זמינה גם אחרי.',
     pricing_title: 'תמחור', pricing_sub: 'מחירים התחלתיים לפי היקף הפרויקט. כל פרויקט מתומחר סופית אחרי שיחת אפיון קצרה.',
     pricing_cta: 'בואו נדבר',
     tier1_name: 'Starter', tier1_price: '₪1,299', tier1_monthly: '₪99 לחודש',
@@ -841,10 +843,11 @@ const translations = {
     work_open_label: 'Visit site',
     testimonials_label: 'Testimonials', testimonials_title: 'What clients say',
     process_title: 'How it runs',
-    step1_title: 'Discover', step1_body: 'We map goals, audience and content before a single pixel is drawn.',
-    step2_title: 'Design', step2_body: 'Concepts are built straight in the browser, so you review the real thing.',
-    step3_title: 'Build', step3_body: 'Clean, maintainable code — content-managed exactly where it should be.',
-    step4_title: 'Launch', step4_body: 'We ship, watch the first weeks closely, and hand you a product you can run.',
+    process_sub: 'Four clear stages, a realistic timeline, and direct communication with me the whole way through — no surprises, no middlemen.',
+    step1_title: 'Discover', step1_body: 'An in-depth conversation about your business, audience and goals, mapping exactly what the site needs to do for you before a single pixel is drawn. You leave this stage with a clear plan and an agreed timeline.',
+    step2_title: 'Design', step2_body: 'The concept is built straight in the browser instead of static design files, so from day one you’re seeing and feeling the real site, not a mockup. You approve each stage before we move on, so nothing surprises you at the end.',
+    step3_title: 'Build', step3_body: 'Clean, fast code built for the long run, with a content system that lets you update text and images yourself, exactly where you need to — no waiting on a developer for every small change.',
+    step4_title: 'Launch', step4_body: 'We ship, then stay close for the first few weeks to make sure everything holds up in the real world. You walk away with a finished, fast, secure product you can run with confidence, and support available after too.',
     pricing_title: 'Pricing', pricing_sub: 'Starting prices based on project scope. Every project gets a final quote after a short scoping call.',
     pricing_cta: "Let's talk",
     tier1_name: 'Starter', tier1_price: '₪1,299', tier1_monthly: '₪99/mo',
