@@ -1511,13 +1511,19 @@ function initWorkShowcase() {
   const start = (ev) => drumBeginDrag(ev);
   drumStageEl.addEventListener('pointerdown', start);
   drumStageEl.addEventListener('mousedown', start);
+  // A click that lands on the stage but not on a panel (the gaps between
+  // panels, the empty strips above/below them, or the dimmed vignette edges)
+  // must never activate the focused project — visitors aiming at a
+  // neighbouring project were opening the main one by accident. Treat it as
+  // "move the carousel toward the side I pressed" instead, and ignore
+  // presses in the dead centre where no direction is implied.
   drumStageEl.addEventListener('click', (e) => {
     if (drumSuppressClick) return;
     if (e.target.closest('[data-drum-panel]')) return;
-    const cur = drumSlot();
-    const tr = t();
-    const w = workData[cur % workData.length];
-    drumActivate(cur, w.img, tr[w.key + '_url'], tr[w.key + '_name'], tr[w.key + '_tag']);
+    const r = drumStageEl.getBoundingClientRect();
+    const offset = e.clientX - (r.left + r.width / 2);
+    if (Math.abs(offset) < r.width * 0.08) return;
+    drumSpin(offset > 0 ? 1 : -1);
   });
 
   const lightbox = document.getElementById('drumLightbox');
