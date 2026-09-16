@@ -37,7 +37,15 @@ a:hover{color:inherit;}
 @keyframes mFab{0%,100%{box-shadow:0 0 0 0 rgba(201,247,197,.35);}50%{box-shadow:0 0 0 10px rgba(201,247,197,0);}}
 @keyframes mFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
 @keyframes mHeroScan{0%{transform:translateY(0);opacity:0;}8%{opacity:.85;}70%{opacity:.3;}100%{transform:translateY(100vh);opacity:0;}}
+@keyframes workWatermarkShine{0%{background-position:140% 0;}100%{background-position:-40% 0;}}
 .hoverline:hover{color:#C9F7C5;border-bottom-color:#C9F7C5;}
+.faq-row{background:transparent;transition:background .3s ease;}
+.faq-row:hover{background:rgba(233,235,232,.03);}
+.faq-btn:hover span:last-child{border-color:#C9F7C5 !important;}
+.faq-answer p{margin:0 0 16px;}
+.faq-answer p:last-child{margin-bottom:0;}
+.faq-answer strong{color:#F4FFF2;font-weight:600;}
+.faq-answer a:hover{color:#F4FFF2;}
 .btn-lang:hover{border-color:#C9F7C5;color:#C9F7C5;}
 .btn-cta:hover{background:#E9EBE8;}
 .btn-cta-lift:hover{background:#E9EBE8;transform:translateY(-2px);}
@@ -56,12 +64,20 @@ a:hover{color:inherit;}
 .pricing-btn:hover{border-color:#C9F7C5;background:#C9F7C5;color:#0E100E;}
 .pricing-btn-popular:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(201,247,197,.3);}
 .service-panel-imgwrap{transform:scale(var(--imgscale,.55));opacity:1;order:2;will-change:transform;}
-.service-panel-text{order:1;}
-.service-panel-img{filter:grayscale(1) brightness(.8) contrast(1.15);}
-.service-panel-imgwrap::after{content:'';position:absolute;inset:0;background:linear-gradient(160deg,rgba(201,247,197,.34),rgba(14,16,14,.55) 65%);mix-blend-mode:color;pointer-events:none;}
-.service-panel-imgwrap::before{content:'';position:absolute;inset:0;background:radial-gradient(120% 120% at 50% 20%,transparent 40%,rgba(14,16,14,.55) 100%);pointer-events:none;z-index:1;}
+.service-panel-text{order:1;position:relative;}
+.service-panel-num{position:absolute;top:-128px;inset-inline-end:-18px;font-family:'Frank Ruhl Libre',serif;font-size:150px;font-weight:400;line-height:1;color:transparent;-webkit-text-stroke:1px rgba(201,247,197,.28);letter-spacing:-.04em;pointer-events:none;z-index:0;user-select:none;}
+.service-panel-eyebrow{position:relative;z-index:1;display:flex;align-items:center;gap:10px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#C9F7C5;}
+.service-panel-eyebrow::before{content:'';width:26px;height:1px;background:#C9F7C5;display:inline-block;}
+.service-panel-title{position:relative;z-index:1;font-family:'Frank Ruhl Libre',serif;font-size:44px;font-weight:400;margin:20px 0 0;letter-spacing:-.02em;line-height:1.12;}
+.service-panel-body{position:relative;z-index:1;font-size:17px;line-height:1.8;opacity:.68;margin:18px 0 0;max-width:52ch;}
+.service-panel-img{filter:hue-rotate(-100deg) saturate(.85) brightness(.95) contrast(1.1);}
+.service-panel-imgwrap::after{content:'';position:absolute;inset:0;background:linear-gradient(160deg,rgba(201,247,197,.22),rgba(14,16,14,.28) 65%);mix-blend-mode:color;pointer-events:none;}
+.service-panel-imgwrap::before{content:'';position:absolute;inset:0;background:radial-gradient(120% 120% at 50% 20%,transparent 55%,rgba(14,16,14,.4) 100%);pointer-events:none;z-index:1;}
+.service-panel{transform:scale(var(--cardscale,1));transform-origin:center top;will-change:transform,box-shadow;isolation:isolate;background-image:linear-gradient(135deg,rgba(255,255,255,.08) 0%,rgba(255,255,255,.03) 45%,transparent 70%),linear-gradient(180deg,#1a1d18,#0E100E);background-blend-mode:normal;box-shadow:0 0 46px 6px rgba(201,247,197,.22),0 24px 60px rgba(0,0,0,.45);}
+.service-panel::after{content:'';position:absolute;inset:-1.5px;border-radius:29.5px;padding:1.5px;background:conic-gradient(from calc(var(--edgeangle,0deg)),rgba(201,247,197,.15) 0deg,#C9F7C5 55deg,rgba(233,255,225,.9) 90deg,rgba(201,247,197,.15) 130deg,rgba(201,247,197,.1) 230deg,#C9F7C5 305deg,rgba(233,255,225,.6) 330deg,rgba(201,247,197,.15) 360deg);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;z-index:-1;}
 [data-reveal]{opacity:0;transform:translateY(40px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);}
 [data-reveal].is-in{opacity:1;transform:translateY(0);}
+#introKickerEyebrow.is-in,#introKickerTextA.is-in,#introKickerTextMark.is-in{opacity:1 !important;transform:translateY(0) !important;}
 [data-reveal-stagger]{opacity:0;transform:translateY(40px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);}
 [data-reveal-stagger].is-in{opacity:1;transform:translateY(0);}
 .reveal-card{opacity:0;transform:translateY(40px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);}
@@ -111,13 +127,15 @@ a:hover{color:inherit;}
   .service-panel-imgwrap{max-width:220px;}
   .service-panel h3{font-size:24px !important;}
   .service-panel p{font-size:15px !important;}
+  .service-panel-num{display:none;}
+  .service-panel-eyebrow::before{width:16px;}
   #pricingGrid{grid-template-columns:1fr !important;gap:20px !important;}
   .pricing-card-popular{transform:none !important;order:-1;}
   .pricing-card-popular:hover{transform:none !important;}
   #faq{padding:72px 0 80px !important;}
   #faq > div{padding:0 20px !important;}
   #faqList{grid-template-columns:1fr !important;}
-  #faqList button{font-size:18px !important;}
+  #faqList .faq-btn span:nth-child(2){font-size:18px !important;}
   #workShowcase{height:auto !important;background:none !important;}
   #workShowcase > div[style*="14%"]{display:none !important;}
   #workFallback{display:flex !important;}
@@ -165,7 +183,7 @@ a:hover{color:inherit;}
     </div>
     <div style="margin-inline-start:auto;display:flex;align-items:center;gap:18px;">
       <button id="langToggle" class="btn-lang" data-t="lang_toggle" style="background:none;border:1px solid rgba(233,235,232,.20);color:#E9EBE8;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.10em;padding:9px 13px;cursor:pointer;transition:border-color .25s,color .25s;"></button>
-      <a href="#contact" class="btn-cta" style="display:inline-flex;align-items:center;gap:10px;background:#C9F7C5;color:#0E100E;padding:11px 20px;font-size:14px;font-weight:600;transition:background .25s;"><span data-t="nav_cta"></span> <span style="font-family:'IBM Plex Mono',monospace;">↖</span></a>
+      <a id="navCta" href="#contact" class="btn-cta" style="display:inline-flex;align-items:center;gap:10px;background:#C9F7C5;color:#0E100E;border:1px solid transparent;padding:11px 20px;font-size:14px;font-weight:600;transition:background .3s ease,color .3s ease,border-color .3s ease;"><span data-t="nav_cta"></span> <span style="font-family:'IBM Plex Mono',monospace;">↖</span></a>
     </div>
   </nav>
 
@@ -178,8 +196,13 @@ a:hover{color:inherit;}
         <source src="assets/landingpage-animation-scrub.mp4?v=1" type="video/mp4">
       </video>
     </div>
-    <h2 id="introKicker" style="position:absolute;top:118px;inset-inline:0;z-index:1;margin:0;text-align:center;font-family:'Frank Ruhl Libre',serif;font-weight:400;font-size:51px;letter-spacing:-.01em;color:#F4FFF2;text-shadow:0 2px 18px rgba(0,0,0,.55),0 1px 3px rgba(0,0,0,.4);opacity:1;transition:opacity .5s ease;pointer-events:none;">
-      <span id="introKickerText"></span>
+    <h2 id="introKicker" style="position:absolute;top:106px;inset-inline:0;z-index:1;margin:0;text-align:center;font-family:'Frank Ruhl Libre',serif;font-weight:400;font-size:51px;letter-spacing:-.01em;color:#F4FFF2;text-shadow:0 2px 18px rgba(0,0,0,.55),0 1px 3px rgba(0,0,0,.4);opacity:1;transition:opacity .5s ease;pointer-events:none;">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:#C9F7C5;display:block;margin-bottom:16px;opacity:0;transform:translateY(10px);transition:opacity .6s ease,transform .6s ease;" id="introKickerEyebrow" data-t="hero_kicker"></span>
+      <span id="introKickerTextA" style="display:inline-block;opacity:0;transform:translateY(14px);transition:opacity .7s ease .05s,transform .7s ease .05s;"></span>
+      <span id="introKickerTextMark" style="display:inline-block;position:relative;color:#C9F7C5;opacity:0;transform:translateY(14px);transition:opacity .7s ease .18s,transform .7s ease .18s;">
+        <span id="introKickerMarkText"></span>
+        <span style="position:absolute;inset-inline-start:0;bottom:-.08em;height:2px;width:100%;background:linear-gradient(90deg,transparent,#C9F7C5,transparent);"></span>
+      </span>
     </h2>
     <div style="position:absolute;inset:0;pointer-events:none;z-index:0;display:grid;grid-template-columns:repeat(12,1fr);">
       <span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span>
@@ -216,59 +239,53 @@ a:hover{color:inherit;}
       </div>
     </div>
     <div id="servicesStack" style="max-width:1400px;margin:64px auto 0;padding:0 56px;position:relative;">
-      <div class="service-panel" style="display:grid;grid-template-columns:1fr 45%;gap:56px;align-items:center;min-height:100vh;padding:48px 56px;position:sticky;top:0;background:linear-gradient(180deg,#1a1d18,#0E100E);border-radius:28px;border:1px solid rgba(233,235,232,.08);z-index:1;">
+      <div class="service-panel" style="display:grid;grid-template-columns:1fr 58.5%;gap:56px;align-items:center;min-height:100vh;padding:48px 56px;position:sticky;top:0;border-radius:28px;border:1px solid rgba(233,235,232,.08);z-index:1;">
         <div class="service-panel-imgwrap" style="width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:20px;position:relative;background:#14171a;border:1px solid rgba(233,235,232,.12);box-shadow:0 24px 60px rgba(0,0,0,.45);">
           <img class="service-panel-img" src="assets/service-web-design.jpg" alt="" style="width:100%;height:100%;object-fit:cover;">
         </div>
         <div class="service-panel-text">
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.14em;color:#C9F7C5;">01</span>
-          <h3 data-t="service1_title" style="font-family:'Frank Ruhl Libre',serif;font-size:32px;font-weight:300;margin:16px 0 0;letter-spacing:-.02em;"></h3>
-          <p data-t="service1_body" style="font-size:16px;line-height:1.75;opacity:.65;margin:14px 0 0;max-width:52ch;"></p>
+          <span class="service-panel-num" aria-hidden="true">01</span>
+          <span class="service-panel-eyebrow">01</span>
+          <h3 data-t="service1_title" class="service-panel-title"></h3>
+          <p data-t="service1_body" class="service-panel-body"></p>
         </div>
       </div>
-      <div class="service-panel" style="display:grid;grid-template-columns:1fr 45%;gap:56px;align-items:center;min-height:100vh;padding:48px 56px;position:sticky;top:0;background:linear-gradient(180deg,#1a1d18,#0E100E);border-radius:28px;border:1px solid rgba(233,235,232,.08);z-index:2;">
+      <div class="service-panel" style="display:grid;grid-template-columns:1fr 58.5%;gap:56px;align-items:center;min-height:100vh;padding:48px 56px;position:sticky;top:0;border-radius:28px;border:1px solid rgba(233,235,232,.08);z-index:2;">
         <div class="service-panel-imgwrap" style="width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:20px;position:relative;background:#14171a;border:1px solid rgba(233,235,232,.12);box-shadow:0 24px 60px rgba(0,0,0,.45);">
           <img class="service-panel-img" src="assets/service-custom-web-apps.png" alt="" style="width:100%;height:100%;object-fit:cover;">
         </div>
         <div class="service-panel-text">
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.14em;color:#C9F7C5;">02</span>
-          <h3 data-t="service2_title" style="font-family:'Frank Ruhl Libre',serif;font-size:32px;font-weight:300;margin:16px 0 0;letter-spacing:-.02em;"></h3>
-          <p data-t="service2_body" style="font-size:16px;line-height:1.75;opacity:.65;margin:14px 0 0;max-width:52ch;"></p>
+          <span class="service-panel-num" aria-hidden="true">02</span>
+          <span class="service-panel-eyebrow">02</span>
+          <h3 data-t="service2_title" class="service-panel-title"></h3>
+          <p data-t="service2_body" class="service-panel-body"></p>
         </div>
       </div>
-      <div class="service-panel" style="display:grid;grid-template-columns:1fr 45%;gap:56px;align-items:center;min-height:100vh;padding:48px 56px;position:sticky;top:0;background:linear-gradient(180deg,#1a1d18,#0E100E);border-radius:28px;border:1px solid rgba(233,235,232,.08);z-index:3;">
+      <div class="service-panel" style="display:grid;grid-template-columns:1fr 58.5%;gap:56px;align-items:center;min-height:100vh;padding:48px 56px;position:sticky;top:0;border-radius:28px;border:1px solid rgba(233,235,232,.08);z-index:3;">
         <div class="service-panel-imgwrap" style="width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:20px;position:relative;background:#14171a;border:1px solid rgba(233,235,232,.12);box-shadow:0 24px 60px rgba(0,0,0,.45);">
           <img class="service-panel-img" src="assets/service-ai-solutions.png" alt="" style="width:100%;height:100%;object-fit:cover;">
         </div>
         <div class="service-panel-text">
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.14em;color:#C9F7C5;">03</span>
-          <h3 data-t="service3_title" style="font-family:'Frank Ruhl Libre',serif;font-size:32px;font-weight:300;margin:16px 0 0;letter-spacing:-.02em;"></h3>
-          <p data-t="service3_body" style="font-size:16px;line-height:1.75;opacity:.65;margin:14px 0 0;max-width:52ch;"></p>
+          <span class="service-panel-num" aria-hidden="true">03</span>
+          <span class="service-panel-eyebrow">03</span>
+          <h3 data-t="service3_title" class="service-panel-title"></h3>
+          <p data-t="service3_body" class="service-panel-body"></p>
         </div>
       </div>
-      <div class="service-panel" style="display:grid;grid-template-columns:1fr 45%;gap:56px;align-items:center;min-height:100vh;padding:48px 56px;position:sticky;top:0;background:linear-gradient(180deg,#1a1d18,#0E100E);border-radius:28px;border:1px solid rgba(233,235,232,.08);z-index:4;">
+      <div class="service-panel" style="display:grid;grid-template-columns:1fr 58.5%;gap:56px;align-items:center;min-height:100vh;padding:48px 56px;position:sticky;top:0;border-radius:28px;border:1px solid rgba(233,235,232,.08);z-index:4;">
         <div class="service-panel-imgwrap" style="width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:20px;position:relative;background:#14171a;border:1px solid rgba(233,235,232,.12);box-shadow:0 24px 60px rgba(0,0,0,.45);">
           <img class="service-panel-img" src="assets/service-business-automation.jpg" alt="" style="width:100%;height:100%;object-fit:cover;">
         </div>
         <div class="service-panel-text">
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.14em;color:#C9F7C5;">04</span>
-          <h3 data-t="service4_title" style="font-family:'Frank Ruhl Libre',serif;font-size:32px;font-weight:300;margin:16px 0 0;letter-spacing:-.02em;"></h3>
-          <p data-t="service4_body" style="font-size:16px;line-height:1.75;opacity:.65;margin:14px 0 0;max-width:52ch;"></p>
-        </div>
-      </div>
-      <div class="service-panel" style="display:grid;grid-template-columns:1fr 45%;gap:56px;align-items:center;min-height:100vh;padding:48px 56px;position:sticky;top:0;background:linear-gradient(180deg,#1a1d18,#0E100E);border-radius:28px;border:1px solid rgba(233,235,232,.08);z-index:5;">
-        <div class="service-panel-imgwrap" style="width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:20px;position:relative;background:#14171a;border:1px solid rgba(233,235,232,.12);box-shadow:0 24px 60px rgba(0,0,0,.45);">
-          <img class="service-panel-img" src="assets/service-backend-database.png" alt="" style="width:100%;height:100%;object-fit:cover;">
-        </div>
-        <div class="service-panel-text">
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.14em;color:#C9F7C5;">05</span>
-          <h3 data-t="service5_title" style="font-family:'Frank Ruhl Libre',serif;font-size:32px;font-weight:300;margin:16px 0 0;letter-spacing:-.02em;"></h3>
-          <p data-t="service5_body" style="font-size:16px;line-height:1.75;opacity:.65;margin:14px 0 0;max-width:52ch;"></p>
+          <span class="service-panel-num" aria-hidden="true">04</span>
+          <span class="service-panel-eyebrow">04</span>
+          <h3 data-t="service4_title" class="service-panel-title"></h3>
+          <p data-t="service4_body" class="service-panel-body"></p>
         </div>
       </div>
     </div>
     <div style="position:relative;z-index:1;background:#0E100E;max-width:1400px;margin:0 auto;padding:80px 56px 120px;text-align:center;">
-      <a href="#contact" class="hoverline" style="font-family:'IBM Plex Mono',monospace;font-size:14px;letter-spacing:.08em;color:#C9F7C5;display:inline-flex;align-items:center;gap:8px;border-bottom:1px solid rgba(201,247,197,.4);padding-bottom:4px;">
+      <a href="#contact" class="hoverline" style="font-family:'IBM Plex Mono',monospace;font-size:34px;letter-spacing:.02em;color:#C9F7C5;display:inline-flex;align-items:center;gap:14px;border-bottom:1px solid rgba(201,247,197,.4);padding-bottom:8px;">
         <span data-t="services_cta"></span> <span>↖</span>
       </a>
     </div>
@@ -284,7 +301,15 @@ a:hover{color:inherit;}
     </div>
 
     <div id="workShowcase" style="position:relative;width:100%;margin-top:72px;height:560px;background:#000;">
-      <div id="workShowcaseCanvas" style="position:absolute;inset:0;overflow:hidden;"></div>
+      <div style="position:absolute;top:-33%;left:0;right:0;display:flex;justify-content:center;pointer-events:none;z-index:0;overflow:visible;">
+        <span data-t="work_watermark" style="font-family:'Frank Ruhl Libre',serif;font-size:16.5vw;line-height:.82;font-weight:300;letter-spacing:-.03em;color:transparent;-webkit-text-stroke:1px rgba(233,235,232,.14);white-space:nowrap;background-image:linear-gradient(100deg,rgba(233,235,232,0) 35%,rgba(201,247,197,.9) 50%,rgba(233,235,232,0) 65%);background-size:280% 100%;background-clip:text;-webkit-background-clip:text;animation:workWatermarkShine 7s ease-in-out infinite;"></span>
+      </div>
+      <div id="drumStage" style="position:absolute;inset:0;z-index:2;overflow:hidden;perspective:1950px;perspective-origin:50% 46%;cursor:grab;touch-action:pan-y;">
+        <div id="drumScene" style="position:absolute;inset:0;transform-style:preserve-3d;transform:scale(1.2);transform-origin:50% 44%;">
+          <div id="drumRing" style="position:absolute;left:50%;top:44%;width:0;height:0;transform-style:preserve-3d;"></div>
+          <div id="drumReflect" aria-hidden="true" style="position:absolute;left:50%;top:44%;width:0;height:0;transform-style:preserve-3d;opacity:.26;pointer-events:none;"></div>
+        </div>
+      </div>
 
       <div style="position:absolute;left:0;top:0;bottom:0;width:14%;pointer-events:none;background:linear-gradient(90deg,#000 8%,rgba(0,0,0,0));"></div>
       <div style="position:absolute;right:0;top:0;bottom:0;width:14%;pointer-events:none;background:linear-gradient(270deg,#000 8%,rgba(0,0,0,0));"></div>
@@ -295,6 +320,17 @@ a:hover{color:inherit;}
       <ul id="workAccessibleList" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:0;padding:0;list-style:none;"></ul>
 
       <div id="workFallback" style="display:none;position:relative;height:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;gap:16px;padding:0 20px;"></div>
+    </div>
+
+    <div id="drumLightbox" style="position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;padding:6vh 5vw;cursor:pointer;">
+      <div id="drumLightboxBackdrop" style="position:absolute;inset:0;background:rgba(6,7,6,.88);backdrop-filter:blur(6px);opacity:0;transition:opacity .4s ease;"></div>
+      <div id="drumLightboxCard" style="position:relative;max-width:1100px;max-height:88vh;width:100%;opacity:0;transform:scale(.94) translateY(10px);transition:opacity .45s cubic-bezier(.2,.8,.2,1),transform .45s cubic-bezier(.2,.8,.2,1);">
+        <div id="drumLightboxFrame" style="position:relative;border-radius:8px;overflow:hidden;background:#151815;box-shadow:0 40px 100px -30px rgba(0,0,0,.7),0 0 0 1px rgba(201,247,197,.35);transition:box-shadow .35s ease;">
+          <img id="drumLightboxImg" src="" alt="" style="display:block;width:100%;height:auto;max-height:80vh;object-fit:contain;background:#0E100E;">
+          <div id="drumLightboxShards" style="position:absolute;inset:0;pointer-events:none;"></div>
+        </div>
+        <div style="margin-top:18px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;color:rgba(233,235,232,.55);" data-t="work_lightbox_hint"></div>
+      </div>
     </div>
 
     <div style="position:relative;margin-top:44px;display:flex;align-items:center;justify-content:center;gap:24px;font-family:'IBM Plex Mono',monospace;">
@@ -360,41 +396,44 @@ a:hover{color:inherit;}
       <p data-t="pricing_sub" style="margin:16px auto 0;font-size:16px;line-height:1.7;opacity:.62;max-width:56ch;"></p>
     </div>
 
-    <div id="pricingGrid" style="margin-top:88px;display:grid;grid-template-columns:repeat(3,1fr);gap:28px;align-items:center;">
+    <div id="pricingGrid" style="margin-top:88px;display:grid;grid-template-columns:repeat(3,1fr);gap:28px;align-items:stretch;">
       <div data-reveal-stagger class="pricing-card" style="transition-delay:0s;padding:40px 32px;border:1px solid rgba(233,235,232,.16);background:#131613;border-radius:20px;display:flex;flex-direction:column;text-align:center;transition:border-color .3s,transform .3s cubic-bezier(.16,1,.3,1),opacity .7s cubic-bezier(.16,1,.3,1);">
         <span data-t="tier1_name" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.6;"></span>
         <div style="margin-top:24px;display:flex;align-items:baseline;justify-content:center;gap:8px;">
           <span data-t="tier1_price" style="font-family:'Frank Ruhl Libre',serif;font-size:46px;font-weight:400;letter-spacing:-.01em;"></span>
         </div>
-        <span data-t="tier1_monthly" style="font-family:'IBM Plex Mono',monospace;font-size:12px;opacity:.5;margin-top:8px;"></span>
+        <span data-t="tier1_monthly" data-prefix="+ " style="font-family:'IBM Plex Mono',monospace;font-size:12px;opacity:.5;margin-top:8px;"></span>
+        <p data-t="tier1_sub" style="font-style:italic;font-size:14px;line-height:1.6;opacity:.65;margin:18px 0 0;"></p>
         <hr style="width:100%;border:none;border-top:1px solid rgba(233,235,232,.14);margin:28px 0;">
         <ul data-t-list="tier1_features" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;font-size:14px;line-height:1.5;text-align:start;flex-grow:1;"></ul>
         <a href="#contact" class="pricing-btn" data-t="pricing_cta" style="margin-top:32px;display:inline-flex;align-items:center;justify-content:center;gap:10px;border:1px solid rgba(233,235,232,.28);border-radius:8px;padding:14px 22px;font-size:15px;font-weight:600;transition:border-color .25s,background .25s,color .25s;"></a>
       </div>
 
-      <div data-reveal-stagger class="pricing-card pricing-card-popular is-popular-card" style="transition-delay:.08s;padding:48px 32px;border:2px solid #C9F7C5;background:#171B17;border-radius:20px;display:flex;flex-direction:column;text-align:center;position:relative;box-shadow:0 20px 60px rgba(201,247,197,.08);z-index:2;">
+      <div data-reveal-stagger class="pricing-card pricing-card-popular is-popular-card" style="transition-delay:.08s;padding:40px 32px;border:2px solid #C9F7C5;background:#171B17;border-radius:20px;display:flex;flex-direction:column;text-align:center;position:relative;box-shadow:0 20px 60px rgba(201,247,197,.08);z-index:2;">
         <span style="position:absolute;top:0;inset-inline-end:0;background:#C9F7C5;color:#0E100E;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:8px 16px;border-radius:0 18px 0 14px;display:inline-flex;align-items:center;gap:6px;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l2.9 6.6 7.1.7-5.4 4.8 1.6 7-6.2-3.7-6.2 3.7 1.6-7L2 9.3l7.1-.7z"></path></svg>
           <span data-t="tier3_badge"></span>
         </span>
-        <span data-t="tier3_name" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#C9F7C5;"></span>
+        <span data-t="tier2_name" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#C9F7C5;"></span>
         <div style="margin-top:24px;display:flex;align-items:baseline;justify-content:center;gap:8px;">
-          <span data-t="tier3_price" style="font-family:'Frank Ruhl Libre',serif;font-size:52px;font-weight:400;letter-spacing:-.01em;"></span>
+          <span data-t="tier2_price" style="font-family:'Frank Ruhl Libre',serif;font-size:52px;font-weight:400;letter-spacing:-.01em;"></span>
         </div>
-        <span data-t="tier3_monthly" style="font-family:'IBM Plex Mono',monospace;font-size:12px;opacity:.6;margin-top:8px;"></span>
+        <span data-t="tier2_monthly" data-prefix="+ " style="font-family:'IBM Plex Mono',monospace;font-size:12px;opacity:.6;margin-top:8px;"></span>
+        <p data-t="tier2_sub" style="font-style:italic;font-size:14px;line-height:1.6;opacity:.65;margin:18px 0 0;"></p>
         <hr style="width:100%;border:none;border-top:1px solid rgba(233,235,232,.14);margin:28px 0;">
-        <ul data-t-list="tier3_features" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;font-size:14px;line-height:1.5;text-align:start;flex-grow:1;"></ul>
+        <ul data-t-list="tier2_features" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;font-size:14px;line-height:1.5;text-align:start;flex-grow:1;"></ul>
         <a href="#contact" class="pricing-btn pricing-btn-popular" data-t="pricing_cta" style="margin-top:32px;display:inline-flex;align-items:center;justify-content:center;gap:10px;background:#C9F7C5;color:#0E100E;border-radius:8px;padding:16px 22px;font-size:15px;font-weight:600;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s;"></a>
       </div>
 
       <div data-reveal-stagger class="pricing-card" style="transition-delay:.16s;padding:40px 32px;border:1px solid rgba(233,235,232,.16);background:#131613;border-radius:20px;display:flex;flex-direction:column;text-align:center;transition:border-color .3s,transform .3s cubic-bezier(.16,1,.3,1),opacity .7s cubic-bezier(.16,1,.3,1);">
-        <span data-t="tier2_name" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.6;"></span>
+        <span data-t="tier3_name" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.6;"></span>
         <div style="margin-top:24px;display:flex;align-items:baseline;justify-content:center;gap:8px;">
-          <span data-t="tier2_price" style="font-family:'Frank Ruhl Libre',serif;font-size:46px;font-weight:400;letter-spacing:-.01em;"></span>
+          <span data-t="tier3_price" style="font-family:'Frank Ruhl Libre',serif;font-size:46px;font-weight:400;letter-spacing:-.01em;"></span>
         </div>
-        <span data-t="tier2_monthly" style="font-family:'IBM Plex Mono',monospace;font-size:12px;opacity:.5;margin-top:8px;"></span>
+        <span data-t="tier3_monthly" data-prefix="+ " style="font-family:'IBM Plex Mono',monospace;font-size:12px;opacity:.5;margin-top:8px;"></span>
+        <p data-t="tier3_sub" style="font-style:italic;font-size:14px;line-height:1.6;opacity:.65;margin:18px 0 0;"></p>
         <hr style="width:100%;border:none;border-top:1px solid rgba(233,235,232,.14);margin:28px 0;">
-        <ul data-t-list="tier2_features" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;font-size:14px;line-height:1.5;text-align:start;flex-grow:1;"></ul>
+        <ul data-t-list="tier3_features" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;font-size:14px;line-height:1.5;text-align:start;flex-grow:1;"></ul>
         <a href="#contact" class="pricing-btn" data-t="pricing_cta" style="margin-top:32px;display:inline-flex;align-items:center;justify-content:center;gap:10px;border:1px solid rgba(233,235,232,.28);border-radius:8px;padding:14px 22px;font-size:15px;font-weight:600;transition:border-color .25s,background .25s,color .25s;"></a>
       </div>
     </div>
@@ -486,8 +525,8 @@ a:hover{color:inherit;}
     <div id="copyright" style="border-top:1px solid rgba(233,235,232,.12);padding-top:20px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.5;"></div>
   </div>
 
-  <a id="fab" href="https://wa.me/972549961663" target="_blank" rel="noopener noreferrer" class="fab" style="position:fixed;bottom:28px;inset-inline-end:28px;z-index:80;width:56px;height:56px;background:#C9F7C5;color:#0E100E;display:flex;align-items:center;justify-content:center;animation:mFab 3s ease-in-out infinite;transition:transform .3s cubic-bezier(.2,.8,.2,1);">
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.3-3.9A8 8 0 1 1 12 20a8 8 0 0 1-4-1.1z"></path></svg>
+  <a id="fab" href="https://wa.me/972549961663" target="_blank" rel="noopener noreferrer" class="fab" style="position:fixed;bottom:28px;inset-inline-end:28px;z-index:80;width:56px;height:56px;border-radius:50%;background:#C9F7C5;color:#0E100E;border:1px solid transparent;display:flex;align-items:center;justify-content:center;animation:mFab 3s ease-in-out infinite;transition:transform .3s cubic-bezier(.2,.8,.2,1),background .3s ease,color .3s ease,border-color .3s ease;">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 21l1.65-3.8a9 9 0 1 1 3.4 2.9z"></path><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0zm0 0a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"></path></svg>
   </a>
 </div>
 
@@ -513,6 +552,8 @@ const translations = {
     services_cta: 'יש לכם משהו אחר בראש? בואו נדבר',
     work_title: 'עבודות נבחרות',
     work_sub: 'פרויקטים אמיתיים שבנוי ומופעלים היום. לחצו על כרטיס כדי לעבור לפרויקט הפעיל, ולחצו שוב כדי לבקר באתר החי.',
+    work_watermark: 'פרויקטים',
+    work_lightbox_hint: 'לחצו שוב כדי לבקר באתר',
     testimonials_label: 'המלצות', testimonials_title: 'מה אומרים עליי',
     process_title: 'איך זה עובד',
     step1_title: 'גילוי', step1_body: 'ממפים מטרות, קהל ותוכן — לפני שנוגעים בפיקסל אחד.',
@@ -521,18 +562,25 @@ const translations = {
     step4_title: 'השקה', step4_body: 'עולים לאוויר, עוקבים אחרי השבועות הראשונים, ומעבירים לכם מוצר שאתם יכולים להפעיל.',
     pricing_title: 'תמחור', pricing_sub: 'מחירים התחלתיים לפי היקף הפרויקט. כל פרויקט מתומחר סופית אחרי שיחת אפיון קצרה.',
     pricing_cta: 'בואו נדבר',
-    tier1_name: 'Starter', tier1_price: '₪1,299', tier1_monthly: '+ ₪99 לחודש',
-    tier1_features: ['עד 3 עמודים', 'עיצוב מותאם למובייל', 'הגדרות SEO בסיסיות', 'טופס יצירת קשר'],
-    tier2_name: 'Professional', tier2_price: '₪1,949', tier2_monthly: '+ ₪169 לחודש',
-    tier2_features: ['עד 8 עמודים', 'עיצוב מותאם למובייל', 'הגדרות SEO מתקדמות', 'טופס יצירת קשר + מערכת הזמנות', 'הטמעת אנליטיקס'],
-    tier3_badge: 'הכי פופולרי', tier3_name: 'Premium', tier3_price: '₪4,890', tier3_monthly: '+ ₪319 לחודש',
-    tier3_features: ['עמודים ללא הגבלה', 'עיצוב מותאם למובייל', 'חבילת SEO מלאה', 'טופס יצירת קשר + מערכת הזמנות', 'הטמעת אנליטיקס', 'הגדרת דומיין מותאם אישית', 'תמיכה עדיפה (מענה תוך 48 שעות)', 'ערכת זהות מותגית בסיסית', '3 חודשי תחזוקה חינם', 'עמדת/כרטיס לביקורות גוגל', 'מערכת תורים/הזמנות אונליין', 'תשלום אונליין', 'הגדרת SEO', 'שליחת SMS אוטומטית לשיחות שלא נענו'],
+    tier1_name: 'Starter', tier1_price: '₪1,299', tier1_monthly: '₪99 לחודש',
+    tier1_sub: 'לעסקים קטנים שרוצים נוכחות מקצועית באינטרנט.',
+    tier1_features: ['עד 3 עמודים', 'עיצוב מותאם למובייל', 'עיצוב בהתאמה אישית למותג וללוגו שלכם', 'כפתור WhatsApp + טופס יצירת קשר', 'עזרה בהעלאה לדומיין'],
+    tier2_name: 'Professional', tier2_price: '₪1,949', tier2_monthly: '₪169 לחודש',
+    tier2_sub: 'לעסקים שרוצים אתר מתקדם שמייצר יותר פניות.',
+    tier2_features: ['עד 8 עמודים', 'עיצוב בהתאמה אישית ברמה גבוהה', 'עיצוב מותאם למובייל', 'אנימציות גלילה חלקות', 'כפתורים ואינטראקציות מונפשים', 'הגדרות SEO מתקדמות', 'טופס יצירת קשר', 'אופטימיזציה לחוויית משתמש ולמהירות האתר'],
+    tier3_badge: 'הכי פופולרי', tier3_name: 'Premium', tier3_price: '₪4,890', tier3_monthly: '₪319 לחודש',
+    tier3_sub: 'לעסקים שרוצים אתר מתקדם עם מערכות דיגיטליות שמייעלות את העסק.',
+    tier3_features: ['עמודים ללא הגבלה', 'עיצוב פרימיום בהתאמה אישית מלאה', 'עיצוב מותאם למובייל', 'חבילת SEO מלאה', 'אלמנטים תלת־ממדיים אינטראקטיביים', 'מערכת תורים והזמנות אונליין', 'תשלום אונליין', 'מערכת לאיסוף ביקורות Google', 'הגדרת דומיין מותאם אישית', 'שליחת SMS אוטומטית ללקוחות בעקבות שיחות שלא נענו', 'תמיכה מועדפת — מענה תוך 48 שעות'],
     faq_title: 'שאלות נפוצות',
     faq_items: [
-      { q: 'כמה זמן לוקח לבנות אתר?', a: 'תלוי בהיקף — אתר תדמית פשוט לוקח כשבועיים-שלושה, מערכת מותאמת אישית או פתרון עם AI יכולים לקחת 4-8 שבועות. בשיחת האפיון הראשונה תקבלו לוח זמנים מדויק לפרויקט שלכם.' },
-      { q: 'איך נראה התהליך?', a: 'מתחילים בשיחת גילוי קצרה כדי להבין מטרות וקהל, עוברים לעיצוב שנבנה ישר בדפדפן כדי שתראו את הדבר האמיתי, בונים בקוד נקי, ומשיקים תוך מעקב צמוד בשבועות הראשונים.' },
-      { q: 'כמה סבבי תיקונים כלולים?', a: 'כל חבילה כוללת סבבי עריכה בשלב העיצוב עד שאתם מרוצים מהכיוון, ותיקוני באגים חינם אחרי ההשקה. שינויי תוכן משמעותיים אחרי אישור העיצוב מתואמים בנפרד.' },
-      { q: 'מה קורה אחרי ההשקה?', a: 'החבילה החודשית כוללת אחסון, עדכוני אבטחה וזמינות לתיקונים שוטפים. אני עוקב אחרי הביצועים בשבועות הראשונים ונשאר זמין ישירות — בלי אנשי תיווך — לכל שינוי או שאלה.' }
+      { q: 'כמה עולה לבנות אתר?', a: '<p>המחיר משתנה בהתאם להיקף האתר, רמת העיצוב והפיצ\'רים שתרצו לשלב. אצלנו התמחור <strong>שקוף וברור מראש</strong>, בלי הפתעות בדרך.</p><p>בחרו את החבילה שמתאימה לעסק שלכם וקבלו בדיוק מה שאתם צריכים — החל מאתר תדמית פשוט ומקצועי ועד אתר מתקדם עם מערכות הזמנות, תשלומים ואוטומציות.</p>' },
+      { q: 'כמה זמן לוקח לבנות את האתר?', a: '<p>ברוב המקרים, אתר תדמית יכול להיות מוכן <strong>בתוך כשבועיים עד מספר שבועות</strong>, בהתאם להיקף הפרויקט, כמות התוכן והפיצ\'רים הנדרשים.</p><p>אנחנו עובדים בתהליך מסודר עם שלבים ברורים, כך שאתם יודעים מה קורה בכל שלב — ולא צריכים לרדוף אחרי מי שבונה לכם את האתר.</p>' },
+      { q: 'איך נראה תהליך בניית האתר?', a: '<p>התהליך מתחיל בהבנה של העסק, המטרות והסגנון שאתם מחפשים. משם אנחנו עוברים לעיצוב ולבניית האתר, מציגים לכם את התוצאה, מקבלים את המשוב שלכם ומבצעים את ההתאמות הנדרשות.</p><p>לאחר שהכול מוכן ומאושר, אנחנו דואגים לעלות את האתר לאוויר.</p><p><strong>אתם מביאים את העסק — אנחנו דואגים לצד הדיגיטלי.</strong></p>' },
+      { q: 'מה אני צריך להכין לפני שמתחילים?', a: '<p>לא צריך להגיע עם אתר מוכן או עם ידע טכני.</p><p>כדאי להכין לוגו, תמונות, פרטי העסק וטקסטים שיש לכם. אם חסר לכם משהו — אנחנו נכוון אתכם מה צריך להכין ואיך נכון לבנות את התוכן לאתר.</p><p>המטרה היא להפוך את התהליך לכמה שיותר פשוט עבורכם.</p>' },
+      { q: 'האם האתר מותאם למובייל ולקידום בגוגל?', a: '<p><strong>בהחלט.</strong> כל אתר נבנה עם התאמה למובייל ותשתית טכנית נכונה, הכוללת מבנה אתר מסודר, קוד נקי ומהירות טעינה טובה.</p><p>בנוסף, בהתאם לחבילה שתבחרו, ניתן לקבל הגדרות SEO מתקדמות או חבילת SEO מלאה, כדי לתת לאתר בסיס טוב יותר להופיע ולהתקדם במנועי החיפוש.</p>' },
+      { q: 'האם אני צריך לדאוג לדומיין, אחסון וכל הצד הטכני?', a: '<p>לא. אנחנו יכולים לעזור לכם עם <strong>הדומיין, החיבור וההגדרות הטכניות</strong>, כך שלא תצטרכו להתחיל להתעסק עם מערכות שאתם לא מכירים.</p><p>אם כבר יש לכם דומיין או תשתית קיימת — נוכל לעבוד איתם בהתאם לצורך.</p>' },
+      { q: 'מה קורה אם יש תקלה אחרי שהאתר עולה לאוויר?', a: '<p>אנחנו לא נעלמים אחרי ההשקה.</p><p>בהתאם לחבילה ולמנוי החודשי שלכם, תקבלו <strong>תמיכה וטיפול בתקלות</strong>, כך שתמיד יהיה לכם למי לפנות במקרה שמשהו לא עובד כמו שצריך.</p><p>המטרה שלנו היא לא רק לבנות לכם אתר יפה — אלא לוודא שהוא ממשיך לעבוד גם אחרי שהוא עולה לאוויר.</p>' },
+      { q: 'מה כלול במנוי החודשי?', a: '<p>המנוי החודשי נועד לשמור על האתר שלכם פעיל ומתוחזק לאורך זמן, וכולל את השירותים המפורטים בחבילה שבחרתם.</p><p>בהתאם לחבילה, המנוי יכול לכלול תמיכה, טיפול בתקלות, תחזוקה ושירותים נוספים כמו מערכות הזמנות, תשלומים ואוטומציות.</p><p>כך אתם לא צריכים לדאוג לתפעול השוטף של האתר — <strong>יש לכם כתובת אחת לכל מה שקשור לאתר שלכם.</strong></p>' }
     ],
     work1_name: 'וילה אל נוף פנורמה', work1_tag: 'אתר תדמית לנופש', work1_url: 'https://villa-el-nof-panorama.co.il/',
     work2_name: 'Lifemaxing', work2_tag: 'פלטפורמה אישית', work2_url: 'https://my-lifemaxing.base44.app/',
@@ -546,7 +594,7 @@ const translations = {
     about_name: 'יניר משטא', about_role: 'מייסד, Mashtech',
     about_bio: 'בנייה היא חלק בלתי נפרד ממי שאני. מה שהתחיל כסקרנות לטכנולוגיה התחזק במהלך השירות שלי בתחום הסייבר, והתפתח לתשוקה ליצירת תוכנה מבוססת AI וחוויות דיגיטליות שפותרות בעיות אמיתיות. אני מתמחה בפתרונות מותאמים אישית שמשלבים עיצוב מדויק, טכנולוגיה מתקדמת וערך עסקי מעשי. בין אם זו פלטפורמת אוטומציה חכמה, אתר ממיר או מוצר שאפתני כמו Lifemaxing — המטרה תמיד אחת: לבנות תוכנה שאנשים באמת נהנים להשתמש בה, ושעוזרת לעסקים לצמוח.',
     about_why: 'עובד ישיר מול לקוח אחד לפרויקט — בלי שכבות תיווך, בלי אנשי מכירות. אתם מדברים ישירות עם מי שבונה, מהאפיון הראשוני ועד התחזוקה אחרי ההשקה.',
-    contact_title: 'יש לכם משהו לבנות?', contact_sub: 'ספרו לי מה אתם בונים ולאן זה אמור להגיע — אחזור אליכם תוך יום עם הצעדים הבאים.',
+    contact_title: 'יש לכם משהו לבנות?', contact_sub: 'יש לכם רעיון? ספרו לנו עליו, וביחד נהפוך אותו למציאות.',
     contact_cta: 'שלחו מייל', contact_cta_whatsapp: 'דברו איתי בוואטסאפ',
     fab_label: 'דברו איתי',
     footer_tagline: 'סטודיו של אדם אחד לתוכנה, AI ואתרים.',
@@ -576,6 +624,8 @@ const translations = {
     services_cta: 'Have something else in mind? Let\'s talk',
     work_title: 'Selected work',
     work_sub: 'Real, live projects. Click a card to bring it into focus, click again to visit the live site.',
+    work_watermark: 'Projects',
+    work_lightbox_hint: 'Click again to visit the site',
     testimonials_label: 'Testimonials', testimonials_title: 'What clients say',
     process_title: 'How it runs',
     step1_title: 'Discover', step1_body: 'We map goals, audience and content before a single pixel is drawn.',
@@ -584,18 +634,25 @@ const translations = {
     step4_title: 'Launch', step4_body: 'We ship, watch the first weeks closely, and hand you a product you can run.',
     pricing_title: 'Pricing', pricing_sub: 'Starting prices based on project scope. Every project gets a final quote after a short scoping call.',
     pricing_cta: "Let's talk",
-    tier1_name: 'Starter', tier1_price: '₪1,299', tier1_monthly: '+ ₪99/mo',
-    tier1_features: ['Up to 3 pages', 'Mobile responsive design', 'Basic SEO setup', 'Contact form'],
-    tier2_name: 'Professional', tier2_price: '₪1,949', tier2_monthly: '+ ₪169/mo',
-    tier2_features: ['Up to 8 pages', 'Mobile responsive design', 'On-page SEO setup', 'Contact form + booking integration', 'Analytics setup'],
-    tier3_badge: 'Most popular', tier3_name: 'Premium', tier3_price: '₪4,890', tier3_monthly: '+ ₪319/mo',
-    tier3_features: ['Unlimited pages', 'Mobile responsive design', 'Full SEO package', 'Contact form + booking integration', 'Analytics setup', 'Custom domain setup', 'Priority support (48h response)', 'Basic brand identity kit', '3 months of free maintenance', 'Google Review stand/card', 'Online appointment/booking system', 'Online payment', 'SEO setup', 'Missed-call auto-text'],
+    tier1_name: 'Starter', tier1_price: '₪1,299', tier1_monthly: '₪99/mo',
+    tier1_sub: 'For small businesses that want a professional online presence.',
+    tier1_features: ['Up to 3 pages', 'Mobile-responsive design', 'Custom design matched to your brand and logo', 'WhatsApp button + contact form', 'Help publishing to your domain'],
+    tier2_name: 'Professional', tier2_price: '₪1,949', tier2_monthly: '₪169/mo',
+    tier2_sub: 'For businesses that want an advanced site that generates more leads.',
+    tier2_features: ['Up to 8 pages', 'High-end custom design', 'Mobile-responsive design', 'Smooth scroll animations', 'Animated buttons and interactions', 'Advanced SEO setup', 'Contact form', 'Optimized for user experience and site speed'],
+    tier3_badge: 'Most popular', tier3_name: 'Premium', tier3_price: '₪4,890', tier3_monthly: '₪319/mo',
+    tier3_sub: 'For businesses that want an advanced site with digital systems that streamline the business.',
+    tier3_features: ['Unlimited pages', 'Full premium custom design', 'Mobile-responsive design', 'Full SEO package', 'Interactive 3D elements', 'Online appointment/booking system', 'Online payment', 'Google Review collection system', 'Custom domain setup', 'Automatic SMS to customers after missed calls', 'Priority support — 48h response'],
     faq_title: 'FAQ',
     faq_items: [
-      { q: 'How long does a project take?', a: "It depends on scope — a simple brand site takes about two to three weeks, while a custom system or an AI-powered solution can take four to eight weeks. You'll get an exact timeline for your project after the first scoping call." },
-      { q: "What's the process?", a: "We start with a short discovery call to map goals and audience, move into design that's built straight in the browser so you see the real thing, build it in clean code, and launch with close monitoring in the first weeks." },
-      { q: 'How many revisions are included?', a: 'Every package includes revision rounds during the design phase until you\'re happy with the direction, plus free bug fixes after launch. Major content changes after design sign-off are scoped separately.' },
-      { q: 'What happens after launch?', a: "The monthly plan covers hosting, security updates and availability for ongoing fixes. I track performance closely in the first weeks and stay directly reachable — no account managers — for any change or question." }
+      { q: 'How much does it cost to build a website?', a: '<p>The price varies based on the site\'s scope, the level of design, and the features you want to include. Our pricing is <strong>transparent and clear upfront</strong> — no surprises along the way.</p><p>Choose the package that fits your business and get exactly what you need — from a simple, professional brand site to an advanced site with booking systems, payments and automations.</p>' },
+      { q: 'How long does it take to build the site?', a: "<p>In most cases, a brand site can be ready <strong>within two to a few weeks</strong>, depending on the project's scope, the amount of content, and the features required.</p><p>We work through an organized process with clear stages, so you always know what's happening at each step — no need to chase down whoever's building your site.</p>" },
+      { q: "What's the site-building process like?", a: "<p>The process starts with understanding your business, goals, and the style you're after. From there we move into designing and building the site, show you the result, take your feedback, and make the needed adjustments.</p><p>Once everything is ready and approved, we handle getting the site live.</p><p><strong>You bring the business — we handle the digital side.</strong></p>" },
+      { q: 'What do I need to prepare before we start?', a: "<p>You don't need to arrive with a finished site or technical knowledge.</p><p>It helps to prepare a logo, photos, business details, and any copy you already have. If something's missing, we'll guide you on what to prepare and how to put the content together.</p><p>The goal is to make the process as simple as possible for you.</p>" },
+      { q: 'Is the site optimized for mobile and Google ranking?', a: "<p><strong>Absolutely.</strong> Every site is built mobile-responsive with the right technical foundation — a clean structure, clean code, and good load speed.</p><p>Depending on the package you choose, you can also get advanced SEO setup or a full SEO package, giving the site a stronger base to appear and rank in search engines.</p>" },
+      { q: 'Do I need to handle the domain, hosting and technical side myself?', a: '<p>No. We can help you with <strong>the domain, connection and technical setup</strong>, so you don\'t need to deal with systems you\'re not familiar with.</p><p>If you already have a domain or existing infrastructure, we can work with what you have.</p>' },
+      { q: "What happens if something breaks after the site goes live?", a: "<p>We don't disappear after launch.</p><p>Depending on your package and monthly plan, you'll get <strong>support and issue handling</strong>, so there's always someone to reach out to if something isn't working right.</p><p>Our goal isn't just to build you a beautiful site — it's to make sure it keeps working after it goes live.</p>" },
+      { q: "What's included in the monthly plan?", a: "<p>The monthly plan is designed to keep your site active and maintained over time, and includes the services detailed in the package you chose.</p><p>Depending on the package, the plan can include support, issue handling, maintenance, and additional services like booking systems, payments and automations.</p><p>That way you don't need to worry about the day-to-day running of the site — <strong>you have one point of contact for everything related to your site.</strong></p>" }
     ],
     work1_name: 'Villa El Nof Panorama', work1_tag: 'Hospitality site', work1_url: 'https://villa-el-nof-panorama.co.il/',
     work2_name: 'Lifemaxing', work2_tag: 'Personal platform', work2_url: 'https://my-lifemaxing.base44.app/',
@@ -657,22 +714,22 @@ function renderSteps() {
   const tr = t();
   const types = ['discovery', 'design', 'development', 'launch'];
   const imgs = {
-    discovery: 'assets/process-1-discovery.webp',
-    design: 'assets/process-2-design.webp',
-    development: 'assets/process-3-build.webp',
-    launch: 'assets/process-4-launch.webp'
+    discovery: 'assets/process-4-launch.webp',
+    design: 'assets/process-3-build.webp',
+    development: 'assets/process-2-design.webp',
+    launch: 'assets/process-1-discovery.webp'
   };
   const vids = {
-    discovery: 'assets/video/step1-discovery.mp4',
-    design: 'assets/video/step2-design.mp4',
-    development: 'assets/video/step3-build.mp4',
-    launch: 'assets/video/step4-launch.mp4'
+    discovery: 'assets/video/step4-launch.mp4',
+    design: 'assets/video/step3-build.mp4',
+    development: 'assets/video/step2-design.mp4',
+    launch: 'assets/video/step1-discovery.mp4'
   };
   const posters = {
-    discovery: 'assets/video/step1-discovery-poster.webp',
-    design: 'assets/video/step2-design-poster.webp',
-    development: 'assets/video/step3-build-poster.webp',
-    launch: 'assets/video/step4-launch-poster.webp'
+    discovery: 'assets/video/step4-launch-poster.webp',
+    design: 'assets/video/step3-build-poster.webp',
+    development: 'assets/video/step2-design-poster.webp',
+    launch: 'assets/video/step1-discovery-poster.webp'
   };
   stepsContainer.innerHTML = '';
   types.forEach((type, i) => {
@@ -680,7 +737,7 @@ function renderSteps() {
     const done = i < activeStep;
     const n = String(i + 1).padStart(2, '0');
     const imgScale = isActive ? 'scale(1.06)' : 'scale(1)';
-    const imgFilter = isActive ? 'grayscale(0) brightness(1)' : 'grayscale(.55) brightness(.6)';
+    const imgFilter = 'grayscale(0) brightness(1)';
     const titleOpacity = isActive ? 1 : 0.55;
     const bodyOpacity = isActive ? 0.82 : 0.66;
     const cardBorder = isActive ? '1px solid rgba(201,247,197,.55)' : '1px solid rgba(233,235,232,.14)';
@@ -699,7 +756,6 @@ function renderSteps() {
       <div class="stepMedia" data-step-type="${type}" style="position:relative;flex:none;height:216px;border:${cardBorder};background:${cardBg};box-sizing:border-box;overflow:hidden;transition:border-color .7s ease,background .7s ease;">
         <img src="${imgs[type]}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transform:${imgScale};filter:${imgFilter};transition:transform 1.1s cubic-bezier(.2,.8,.2,1),filter .8s ease;">
         <video class="stepVideo" muted loop playsinline preload="none" poster="${posters[type]}" data-src="${vids[type]}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0;filter:${imgFilter};transition:opacity .9s ease,filter .8s ease;"></video>
-        <span style="position:absolute;inset:0;background:linear-gradient(to top,rgba(14,16,14,.72),rgba(14,16,14,.18) 55%,rgba(14,16,14,.34));"></span>
         <span style="position:absolute;inset-inline-end:14px;bottom:-18px;font-family:'Frank Ruhl Libre',serif;font-weight:300;font-size:92px;color:rgba(233,235,232,.05);line-height:1;">${n}</span>
       </div>
       <div style="flex:none;height:56px;display:flex;align-items:center;">
@@ -750,18 +806,33 @@ if ('IntersectionObserver' in window) {
   const servicePanels = document.querySelectorAll('.service-panel');
   if (servicePanels.length) {
     const imgwraps = Array.from(servicePanels).map((p) => p.querySelector('.service-panel-imgwrap'));
+    const total = servicePanels.length;
     const minScale = 0.55, maxScale = 1;
     let ticking = false;
+    let angle = 0;
     const updateScales = () => {
       ticking = false;
       const vh = window.innerHeight;
       servicePanels.forEach((p, i) => {
         const wrap = imgwraps[i];
-        if (!wrap) return;
-        const rect = p.getBoundingClientRect();
-        const progress = Math.min(1, Math.max(0, (vh - rect.top) / (vh + rect.height)));
-        const scale = minScale + (maxScale - minScale) * progress;
-        wrap.style.setProperty('--imgscale', scale.toFixed(3));
+        if (wrap) {
+          const rect = p.getBoundingClientRect();
+          const progress = Math.min(1, Math.max(0, (vh - rect.top) / (vh + rect.height)));
+          const scale = minScale + (maxScale - minScale) * progress;
+          wrap.style.setProperty('--imgscale', scale.toFixed(3));
+        }
+        // Stacked-card shrink: as the next panel scrolls up and begins covering this
+        // one, scale this panel down slightly toward a per-index target (like a
+        // physical stack of cards compressing), matching the reference glass-cards effect.
+        const next = servicePanels[i + 1];
+        const targetScale = 1 - (total - i) * 0.03;
+        let cardScale = 1;
+        if (next) {
+          const nextRect = next.getBoundingClientRect();
+          const coverProgress = Math.min(1, Math.max(0, (vh - nextRect.top) / vh));
+          cardScale = 1 - (1 - targetScale) * coverProgress;
+        }
+        p.style.setProperty('--cardscale', cardScale.toFixed(4));
       });
     };
     const onScroll = () => {
@@ -773,6 +844,30 @@ if ('IntersectionObserver' in window) {
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
     updateScales();
+
+    // Slowly rotate the electric-border conic-gradient angle for a subtle animated glow,
+    // but only while the services section is actually on screen (IntersectionObserver-gated
+    // to avoid burning a permanent rAF loop when the user has scrolled elsewhere).
+    let spinId = null;
+    const spinBorder = () => {
+      angle = (angle + 0.6) % 360;
+      servicePanels.forEach((p) => p.style.setProperty('--edgeangle', angle + 'deg'));
+      spinId = requestAnimationFrame(spinBorder);
+    };
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+      const servicesSection = document.getElementById('services');
+      const spinObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && spinId === null) {
+            spinId = requestAnimationFrame(spinBorder);
+          } else if (!entry.isIntersecting && spinId !== null) {
+            cancelAnimationFrame(spinId);
+            spinId = null;
+          }
+        });
+      }, { threshold: 0.01 });
+      if (servicesSection) spinObserver.observe(servicesSection);
+    }
   }
 }
 
@@ -797,45 +892,361 @@ function renderWorkFallback() {
   `).join('');
 }
 
-let workShowcaseInstance = null;
+// Drum carousel: a CSS-3D ring of project panels, dragged/scrolled around a
+// fixed radius. Clicking a panel first brings it into focus (scaled forward),
+// clicking the focused panel again shatters it into jagged shards that fly
+// outward before the project's live site opens in a new tab.
+const drumState = {
+  rot: 0,
+  mounted: false,
+  focus: -1,
+  shatter: -1,
+  burst: false,
+  dragging: false,
+};
+const DRUM_SLOTS = workData.length * 2;
+const DRUM_STEP = 360 / DRUM_SLOTS;
+const DRUM_R = 671;
+let drumStageEl = null;
+let drumDragActive = false;
 
-async function initWorkShowcase() {
+function jaggedPolygon() {
+  const pts = 5 + Math.floor(Math.random() * 3);
+  const arr = [];
+  for (let k = 0; k < pts; k++) {
+    const a = (k / pts) * 2 * Math.PI + (Math.random() - 0.5) * 0.4;
+    const rad = 34 + Math.random() * 18;
+    arr.push((50 + Math.cos(a) * rad).toFixed(1) + '% ' + (50 + Math.sin(a) * rad).toFixed(1) + '%');
+  }
+  return 'polygon(' + arr.join(',') + ')';
+}
+function partition(n, jitter) {
+  const w = Array.from({ length: n }, () => 0.4 + Math.random() * jitter);
+  const sum = w.reduce((a, b) => a + b, 0);
+  return w.map((v) => v / sum);
+}
+function buildShards() {
+  const rows = 4 + Math.floor(Math.random() * 2);
+  const cols = 5 + Math.floor(Math.random() * 2);
+  const rowsH = partition(rows, 0.9);
+  const colsW = partition(cols, 0.9);
+  const shards = [];
+  let top = 0;
+  for (let r = 0; r < rows; r++) {
+    const h = rowsH[r];
+    let left = 0;
+    for (let c = 0; c < cols; c++) {
+      const w = colsW[c];
+      const jl = left + w * (Math.random() * 0.1);
+      const jt = top + h * (Math.random() * 0.1);
+      const jw = w * (0.82 + Math.random() * 0.16);
+      const jh = h * (0.82 + Math.random() * 0.16);
+      const dx = (jl + jw / 2 - 0.5) * 2;
+      const dy = (jt + jh / 2 - 0.5) * 2;
+      shards.push({
+        left: (jl * 100).toFixed(2) + '%',
+        top: (jt * 100).toFixed(2) + '%',
+        w: (jw * 100).toFixed(2) + '%',
+        h: (jh * 100).toFixed(2) + '%',
+        clip: jaggedPolygon(),
+        bgSize: (100 / jw).toFixed(1) + '% ' + (100 / jh).toFixed(1) + '%',
+        bg: (jw < 1 ? (jl / (1 - jw) * 100).toFixed(1) : 0) + '% ' + (jh < 1 ? (jt / (1 - jh) * 100).toFixed(1) : 0) + '%',
+        fx: dx * (130 + Math.random() * 220),
+        fy: dy * (100 + Math.random() * 170) - 50,
+        fz: 30 + Math.random() * 300,
+        rot: (Math.random() - 0.5) * 140,
+        scl: (0.55 + Math.random() * 0.5).toFixed(2),
+        delay: (Math.random() * 0.24).toFixed(3) + 's',
+      });
+      left += w;
+    }
+    top += h;
+  }
+  return shards;
+}
+const drumShards = buildShards();
+
+function drumSlot() {
+  return ((Math.round(-drumState.rot / DRUM_STEP) % DRUM_SLOTS) + DRUM_SLOTS) % DRUM_SLOTS;
+}
+function drumShortest(i) {
+  let d = ((i - drumSlot()) % DRUM_SLOTS + DRUM_SLOTS) % DRUM_SLOTS;
+  if (d > DRUM_SLOTS / 2) d -= DRUM_SLOTS;
+  return d;
+}
+function drumSpin(d) {
+  const dir = lang === 'he' ? -d : d;
+  drumState.rot -= dir * DRUM_STEP;
+  drumState.focus = -1;
+  drumState.shatter = -1;
+  index = drumSlot() % workData.length;
+  renderDrum();
+  render();
+}
+function drumGoTo(p) {
+  const cur = Math.round(-drumState.rot / DRUM_STEP);
+  let best = null;
+  for (let k = -DRUM_SLOTS; k <= DRUM_SLOTS; k++) {
+    const s = cur + k;
+    if ((((s % DRUM_SLOTS) + DRUM_SLOTS) % DRUM_SLOTS) % workData.length !== p) continue;
+    if (best === null || Math.abs(k) < Math.abs(best - cur)) best = s;
+  }
+  drumState.rot = -best * DRUM_STEP;
+  drumState.focus = -1;
+  drumState.shatter = -1;
+  index = p;
+  renderDrum();
+}
+function openDrumLightbox(img, url) {
+  const lb = document.getElementById('drumLightbox');
+  const backdrop = document.getElementById('drumLightboxBackdrop');
+  const card = document.getElementById('drumLightboxCard');
+  const frame = document.getElementById('drumLightboxFrame');
+  const imgEl = document.getElementById('drumLightboxImg');
+  const shardsWrap = document.getElementById('drumLightboxShards');
+  if (!lb) return;
+  shardsWrap.innerHTML = '';
+  frame.style.boxShadow = '0 40px 100px -30px rgba(0,0,0,.7),0 0 0 1px rgba(201,247,197,.35)';
+  frame.style.overflow = 'hidden';
+  imgEl.style.opacity = '1';
+  imgEl.src = img;
+  lb.dataset.url = url;
+  lb.style.display = 'flex';
+  requestAnimationFrame(() => {
+    backdrop.style.opacity = '1';
+    card.style.opacity = '1';
+    card.style.transform = 'scale(1) translateY(0)';
+  });
+}
+function closeDrumLightbox() {
+  const lb = document.getElementById('drumLightbox');
+  const backdrop = document.getElementById('drumLightboxBackdrop');
+  const card = document.getElementById('drumLightboxCard');
+  if (!lb || lb.style.display === 'none') return;
+  backdrop.style.opacity = '0';
+  card.style.opacity = '0';
+  card.style.transform = 'scale(.94) translateY(10px)';
+  setTimeout(() => { lb.style.display = 'none'; }, 400);
+  drumState.focus = -1;
+  renderDrum();
+}
+function drumShatterLightbox(url) {
+  const lb = document.getElementById('drumLightbox');
+  const card = document.getElementById('drumLightboxCard');
+  const frame = document.getElementById('drumLightboxFrame');
+  const imgEl = document.getElementById('drumLightboxImg');
+  const shardsWrap = document.getElementById('drumLightboxShards');
+  if (!lb) return;
+  frame.style.boxShadow = 'none';
+  frame.style.overflow = 'visible';
+  shardsWrap.innerHTML = '';
+  drumShards.forEach((s) => {
+    const sd = document.createElement('div');
+    sd.style.cssText = 'position:absolute;left:' + s.left + ';top:' + s.top + ';width:' + s.w + ';height:' + s.h + ';clip-path:' + s.clip + ';background-image:url(\'' + imgEl.src + '\');background-size:' + s.bgSize + ';background-position:' + s.bg + ';transform:none;opacity:1;transition:transform .9s cubic-bezier(.2,.8,.3,1) ' + s.delay + ', opacity .9s ease ' + s.delay + ';';
+    shardsWrap.appendChild(sd);
+  });
+  imgEl.style.opacity = '0';
+  setTimeout(() => {
+    [...shardsWrap.children].forEach((sd, idx) => {
+      const s = drumShards[idx];
+      sd.style.transform = 'translate3d(' + s.fx + 'px,' + s.fy + 'px,' + s.fz + 'px) rotate(' + s.rot + 'deg) scale(' + s.scl + ')';
+      sd.style.opacity = '0';
+    });
+  }, 40);
+  setTimeout(() => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+    closeDrumLightbox();
+  }, 1100);
+}
+function drumActivate(i, img, url) {
+  if (drumSlot() !== i) {
+    drumState.rot -= drumShortest(i) * DRUM_STEP;
+    drumState.focus = -1;
+    drumState.shatter = -1;
+    index = drumSlot() % workData.length;
+    renderDrum();
+    render();
+    return;
+  }
+  if (drumState.focus !== i) {
+    drumState.focus = i;
+    renderDrum();
+    openDrumLightbox(img, url);
+    return;
+  }
+  drumShatterLightbox(url);
+}
+
+function drumBeginDrag(e) {
+  if (drumDragActive) return;
+  if (e.button && e.button !== 0) return;
+  drumDragActive = true;
+  const px = (ev) => (ev.touches && ev.touches[0] ? ev.touches[0].clientX : ev.clientX);
+  const startX = px(e);
+  if (typeof startX !== 'number') { drumDragActive = false; return; }
+  const startRot = drumState.rot;
+  let moved = 0;
+  drumState.dragging = true;
+  drumStageEl.style.cursor = 'grabbing';
+
+  const move = (ev) => {
+    const cx = px(ev);
+    if (typeof cx !== 'number') return;
+    const d = cx - startX;
+    moved = Math.max(moved, Math.abs(d));
+    drumState.rot = startRot + d * 0.28;
+    renderDrum();
+    if (moved > 6 && ev.cancelable) ev.preventDefault();
+  };
+  const up = () => {
+    drumDragActive = false;
+    window.removeEventListener('pointermove', move);
+    window.removeEventListener('mousemove', move);
+    window.removeEventListener('pointerup', up);
+    window.removeEventListener('mouseup', up);
+    window.removeEventListener('pointercancel', up);
+    const dragged = moved > 6;
+    drumSuppressClick = dragged;
+    if (dragged) setTimeout(() => { drumSuppressClick = false; }, 60);
+    drumState.dragging = false;
+    drumStageEl.style.cursor = 'grab';
+    if (!dragged) return;
+    drumState.rot = Math.round(drumState.rot / DRUM_STEP) * DRUM_STEP;
+    drumState.focus = -1;
+    index = drumSlot() % workData.length;
+    renderDrum();
+    render();
+  };
+  window.addEventListener('pointermove', move, { passive: false });
+  window.addEventListener('mousemove', move, { passive: false });
+  window.addEventListener('touchmove', move, { passive: false });
+  window.addEventListener('touchend', up);
+  window.addEventListener('pointerup', up);
+  window.addEventListener('mouseup', up);
+  window.addEventListener('pointercancel', up);
+}
+let drumSuppressClick = false;
+let drumWheelAt = 0;
+
+function renderDrum() {
+  const ringEl = document.getElementById('drumRing');
+  const reflectEl = document.getElementById('drumReflect');
+  if (!ringEl || !reflectEl) return;
+  const tr = t();
+  const cur = drumSlot();
+  const anyFocused = drumState.focus !== -1;
+  const spinT = drumState.dragging ? 'none' : 'transform 1.1s cubic-bezier(.16,1,.3,1)';
+  const ringTransform = 'translateZ(-' + DRUM_R + 'px) rotateX(5deg) rotateY(' + drumState.rot.toFixed(2) + 'deg)';
+  ringEl.style.transition = spinT;
+  ringEl.style.transform = ringTransform;
+  reflectEl.style.transition = spinT;
+  reflectEl.style.transform = ringTransform;
+
+  ringEl.innerHTML = '';
+  reflectEl.innerHTML = '';
+  for (let i = 0; i < DRUM_SLOTS; i++) {
+    const w = workData[i % workData.length];
+    const isCur = i === cur;
+    const focused = drumState.focus === i;
+    const broken = drumState.shatter === i;
+    const dist = Math.min(Math.abs(drumShortest(i)), 4);
+    const base = 'rotateY(' + (i * DRUM_STEP) + 'deg) translateZ(' + DRUM_R + 'px)';
+    const transform = drumState.mounted
+      ? base + ' scale(1)'
+      : 'rotateY(' + (i * DRUM_STEP) + 'deg) translateZ(94px) scale(.4)';
+    const opacity = drumState.mounted ? (broken ? 0 : (anyFocused && !focused ? 0 : 1)) : 0;
+    const delay = (i * 0.06).toFixed(2) + 's';
+    const blur = isCur ? 'none' : 'blur(' + (dist * 0.7).toFixed(1) + 'px)';
+    const veil = broken ? 0 : (focused ? 0 : (anyFocused ? 0.9 : (isCur ? 0 : 0.52)));
+    const ring = focused ? 1 : 0;
+    const shadow = focused
+      ? '0 30px 60px -30px rgba(0,0,0,.55), 0 0 0 1px rgba(201,247,197,.4)'
+      : (isCur ? '0 20px 40px -28px rgba(0,0,0,.45), 0 0 0 1px rgba(233,235,232,.14)' : '0 10px 22px -20px rgba(0,0,0,.4)');
+
+    const panel = document.createElement('div');
+    panel.setAttribute('data-drum-panel', '');
+    panel.style.cssText = 'position:absolute;left:0;top:0;width:499px;height:281px;margin-left:-250px;margin-top:-140px;transform-style:preserve-3d;transform:' + transform + ';opacity:' + opacity + ';transition:transform .7s cubic-bezier(.16,1,.3,1) ' + delay + ', opacity .9s ease ' + delay + ';cursor:pointer;';
+    panel.addEventListener('click', (e) => { e.stopPropagation(); if (!drumSuppressClick) drumActivate(i, w.img, tr[w.key + '_url']); });
+
+    const inner = document.createElement('div');
+    inner.style.cssText = 'position:absolute;inset:0;overflow:hidden;background:#151815;border-radius:5px;box-shadow:' + shadow + ';filter:' + blur + ';transition:filter .7s ease;';
+    inner.innerHTML =
+      '<div style="position:absolute;inset:0;background-image:url(\'' + w.img + '\');background-size:cover;background-position:top center;"></div>' +
+      '<div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,16,14,.42),rgba(14,16,14,0) 22%,rgba(14,16,14,0) 78%,rgba(14,16,14,.42));pointer-events:none;"></div>' +
+      '<div style="position:absolute;inset:0;background:#0E100E;opacity:' + veil + ';transition:opacity .8s ease;pointer-events:none;"></div>' +
+      '<div style="position:absolute;inset:0;border:1px solid rgba(201,247,197,.55);opacity:' + ring + ';transition:opacity .6s ease;pointer-events:none;"></div>';
+    panel.appendChild(inner);
+
+    if (broken) {
+      const shardsWrap = document.createElement('div');
+      shardsWrap.style.cssText = 'position:absolute;inset:0;pointer-events:none;';
+      drumShards.forEach((s) => {
+        const sd = document.createElement('div');
+        const shardTransform = drumState.burst
+          ? 'translate3d(' + s.fx + 'px,' + s.fy + 'px,' + s.fz + 'px) rotate(' + s.rot + 'deg) scale(' + s.scl + ')'
+          : 'none';
+        sd.style.cssText = 'position:absolute;left:' + s.left + ';top:' + s.top + ';width:' + s.w + ';height:' + s.h + ';clip-path:' + s.clip + ';background-image:url(\'' + w.img + '\');background-size:' + s.bgSize + ';background-position:' + s.bg + ';transform:' + shardTransform + ';opacity:' + (drumState.burst ? 0 : 1) + ';transition:transform .9s cubic-bezier(.2,.8,.3,1) ' + s.delay + ', opacity .9s ease ' + s.delay + ';';
+        shardsWrap.appendChild(sd);
+      });
+      panel.appendChild(shardsWrap);
+    }
+    ringEl.appendChild(panel);
+
+    const reflectPanel = document.createElement('div');
+    const reflectTransformOrigin = drumState.mounted ? base : 'rotateY(' + (i * DRUM_STEP) + 'deg) translateZ(94px) scale(.4)';
+    reflectPanel.style.cssText = 'position:absolute;left:0;top:0;width:499px;height:281px;margin-left:-250px;margin-top:-140px;transform-origin:50% 100%;transform:' + reflectTransformOrigin + ' scaleY(-1);opacity:' + opacity + ';transition:transform .7s cubic-bezier(.16,1,.3,1) ' + delay + ';';
+    reflectPanel.innerHTML = '<div style="position:absolute;inset:0;border-radius:5px;background-image:url(\'' + w.img + '\');background-size:cover;background-position:top center;filter:blur(2px);-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 14%,rgba(0,0,0,.85));mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 14%,rgba(0,0,0,.85));"></div>';
+    reflectEl.appendChild(reflectPanel);
+  }
+}
+
+function initWorkShowcase() {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isMobile = mobileMq.matches;
-  const canvasHost = document.getElementById('workShowcaseCanvas');
+  drumStageEl = document.getElementById('drumStage');
 
-  if (reduced || isMobile || !canvasHost || typeof WebGLRenderingContext === 'undefined') {
+  if (reduced || isMobile || !drumStageEl) {
     renderWorkFallback();
     return;
   }
 
-  const section = document.getElementById('workShowcase');
-  if (!section) return;
+  const start = (ev) => drumBeginDrag(ev);
+  drumStageEl.addEventListener('pointerdown', start);
+  drumStageEl.addEventListener('mousedown', start);
+  drumStageEl.addEventListener('click', (e) => {
+    if (drumSuppressClick) return;
+    if (e.target.closest('[data-drum-panel]')) return;
+    const cur = drumSlot();
+    const tr = t();
+    const w = workData[cur % workData.length];
+    drumActivate(cur, w.img, tr[w.key + '_url']);
+  });
 
-  const io = new IntersectionObserver(async (entries) => {
-    const entry = entries[0];
-    if (!entry.isIntersecting || workShowcaseInstance) return;
-    io.disconnect();
-    try {
-      const mod = await import('./assets/js/work-showcase.js');
-      const { projects } = await import('./assets/js/showcase-data.js');
-      workShowcaseInstance = await mod.init(canvasHost, {
-        projects,
-        rtl: lang === 'he',
-        strength: 0.35,
-        onActivate: (proj) => {
-          const tr = t();
-          const url = tr[proj.key + '_url'];
-          if (url) window.open(url, '_blank', 'noopener,noreferrer');
-        },
-      });
-      window.__workShowcase = workShowcaseInstance;
-    } catch (err) {
-      console.error('Work showcase failed to load, falling back to static cards.', err);
-      renderWorkFallback();
-    }
-  }, { threshold: 0.2 });
-  io.observe(section);
+  const lightbox = document.getElementById('drumLightbox');
+  const lightboxCard = document.getElementById('drumLightboxCard');
+  if (lightbox) {
+    lightboxCard.addEventListener('click', (e) => {
+      e.stopPropagation();
+      drumShatterLightbox(lightbox.dataset.url);
+    });
+    lightbox.addEventListener('click', () => closeDrumLightbox());
+  }
+  drumStageEl.addEventListener('wheel', (e) => {
+    const now = Date.now();
+    if (now - drumWheelAt < 320) return;
+    const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+    if (Math.abs(d) < 4) return;
+    drumWheelAt = now;
+    drumSpin(d > 0 ? 1 : -1);
+  }, { passive: true });
+
+  window.__workShowcase = {
+    goTo: drumGoTo,
+    setRtl: () => renderDrum(),
+  };
+
+  setTimeout(() => { drumState.mounted = true; renderDrum(); }, 30);
+  renderDrum();
 }
 
 function renderAccessibleWorkList() {
@@ -897,7 +1308,14 @@ function applyTranslations() {
   document.getElementById('heroTitleA').textContent = tr.hero_title_a;
   document.getElementById('heroTitleMark').textContent = tr.hero_title_mark;
   document.getElementById('heroTitleB').textContent = tr.hero_title_b;
-  document.getElementById('introKickerText').textContent = tr.hero_title_a + tr.hero_title_mark + tr.hero_title_b;
+  document.getElementById('introKickerTextA').textContent = tr.hero_title_a;
+  document.getElementById('introKickerMarkText').textContent = tr.hero_title_mark + tr.hero_title_b;
+  requestAnimationFrame(() => {
+    ['introKickerEyebrow', 'introKickerTextA', 'introKickerTextMark'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('is-in');
+    });
+  });
   document.getElementById('location').textContent = tr.location;
   document.getElementById('location2').textContent = tr.location;
   document.getElementById('availability').textContent = tr.availability;
@@ -932,14 +1350,22 @@ function renderFaq() {
   items.forEach((item, i) => {
     const isOpen = i === openFaq;
     const row = document.createElement('div');
-    row.style.cssText = 'border-bottom:1px solid rgba(233,235,232,.14);';
+    row.className = 'faq-row';
+    row.style.cssText = 'position:relative;border-bottom:1px solid rgba(233,235,232,.14);transition:border-color .3s ease;' + (isOpen ? 'border-bottom-color:rgba(201,247,197,.35);' : '');
     row.innerHTML = `
-      <button aria-expanded="${isOpen}" style="all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:24px;width:100%;padding:28px 0;cursor:pointer;font-family:'Frank Ruhl Libre',serif;font-size:22px;font-weight:400;letter-spacing:-.01em;">
-        <span>${item.q}</span>
-        <span style="flex:none;font-family:'IBM Plex Mono',monospace;font-size:18px;color:#C9F7C5;transform:rotate(${isOpen ? '45deg' : '0deg'});transition:transform .35s ease;">+</span>
+      <span aria-hidden="true" style="position:absolute;inset-inline-start:0;top:0;bottom:0;width:2px;background:#C9F7C5;transform:scaleY(${isOpen ? 1 : 0});transform-origin:top;transition:transform .4s cubic-bezier(.2,.8,.2,1);"></span>
+      <button aria-expanded="${isOpen}" class="faq-btn" style="all:unset;box-sizing:border-box;display:flex;align-items:center;gap:20px;width:100%;padding:26px 8px 26px 16px;cursor:pointer;">
+        <span style="flex:none;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.08em;color:${isOpen ? '#C9F7C5' : 'rgba(233,235,232,.32)'};transition:color .3s ease;">${String(i + 1).padStart(2, '0')}</span>
+        <span style="flex:1;font-family:'Frank Ruhl Libre',serif;font-size:21px;font-weight:400;letter-spacing:-.01em;line-height:1.4;color:${isOpen ? '#F4FFF2' : '#E9EBE8'};transition:color .3s ease;">${item.q}</span>
+        <span aria-hidden="true" style="flex:none;width:30px;height:30px;border-radius:50%;border:1px solid ${isOpen ? '#C9F7C5' : 'rgba(233,235,232,.28)'};display:flex;align-items:center;justify-content:center;transition:border-color .3s ease,background .3s ease;background:${isOpen ? 'rgba(201,247,197,.12)' : 'transparent'};">
+          <span style="position:relative;width:10px;height:10px;">
+            <span style="position:absolute;inset-inline-start:0;top:50%;width:10px;height:1.4px;background:${isOpen ? '#C9F7C5' : '#E9EBE8'};transform:translateY(-50%);transition:background .3s ease;"></span>
+            <span style="position:absolute;top:0;inset-inline-start:50%;width:1.4px;height:10px;background:${isOpen ? '#C9F7C5' : '#E9EBE8'};transform:translateX(-50%) scaleY(${isOpen ? 0 : 1});transition:transform .35s cubic-bezier(.2,.8,.2,1),background .3s ease;"></span>
+          </span>
+        </span>
       </button>
-      <div style="max-height:${isOpen ? '400px' : '0'};overflow:hidden;transition:max-height .45s cubic-bezier(.2,.8,.2,1);">
-        <p style="margin:0 0 28px;font-size:15px;line-height:1.75;opacity:.65;max-width:70ch;">${item.a}</p>
+      <div style="max-height:${isOpen ? '900px' : '0'};overflow:hidden;transition:max-height .6s cubic-bezier(.2,.8,.2,1);">
+        <div class="faq-answer" style="margin:0 16px 28px 46px;font-size:15px;line-height:1.75;opacity:.8;max-width:64ch;">${item.a}</div>
       </div>`;
     row.querySelector('button').addEventListener('click', () => {
       openFaq = isOpen ? -1 : i;
@@ -982,6 +1408,8 @@ window.addEventListener('keydown', (e) => {
 
 /* Scroll: nav shrink (stays transparent until the hero intro animation finishes) */
 const heroScrollEl = document.getElementById('heroScroll');
+const navCtaEl = document.getElementById('navCta');
+const fabEl = document.getElementById('fab');
 function onScroll() {
   const introDone = !heroScrollEl || window.scrollY >= heroScrollEl.offsetHeight - window.innerHeight;
   const on = introDone && window.scrollY > 12;
@@ -990,8 +1418,24 @@ function onScroll() {
   navEl.style.borderBottomColor = on ? 'rgba(233,235,232,.14)' : 'rgba(233,235,232,.10)';
   navEl.style.paddingTop = on ? '15px' : '22px';
   navEl.style.paddingBottom = on ? '15px' : '22px';
+
+  // Keep the "Let's talk" nav button and the floating WhatsApp fab transparent/outlined
+  // for as long as the hero intro animation is still running, then switch to solid.
+  [navCtaEl, fabEl].forEach((el) => {
+    if (!el) return;
+    if (introDone) {
+      el.style.background = '#C9F7C5';
+      el.style.color = '#0E100E';
+      el.style.borderColor = 'transparent';
+    } else {
+      el.style.background = 'transparent';
+      el.style.color = '#E9EBE8';
+      el.style.borderColor = 'rgba(233,235,232,.4)';
+    }
+  });
 }
 window.addEventListener('scroll', onScroll, { passive: true });
+onScroll();
 
 /* Reveal-on-viewport-entry via IntersectionObserver: fades + rises each
    [data-reveal]/[data-reveal-stagger] element once, the first time it enters view. */
@@ -1017,25 +1461,13 @@ function armReveals() {
   navEl.classList.add('nav-in');
 }
 
-/* Work carousel autoplay + process step cycling */
+/* Process step auto-cycling */
 setInterval(() => {
-  if (!procHover) {
-    const r = stepsWrapEl.getBoundingClientRect();
-    if (r.top < window.innerHeight && r.bottom > 0) {
-      stepN++;
-      if (stepN % 90 === 0) { activeStep = (activeStep + 1) % 4; renderSteps(); updateSpine(); }
-    }
-  }
-  if (hover) return;
-  const dur = 5500;
-  progressVal += 50 / dur;
-  if (progressVal >= 1) {
-    progressVal = 0;
-    index = (index + 1) % workData.length;
-    render();
-  } else {
-    const fill = document.getElementById('activeFill');
-    if (fill) fill.style.width = (progressVal * 100) + '%';
+  if (procHover) return;
+  const r = stepsWrapEl.getBoundingClientRect();
+  if (r.top < window.innerHeight && r.bottom > 0) {
+    stepN++;
+    if (stepN % 90 === 0) { activeStep = (activeStep + 1) % 4; renderSteps(); updateSpine(); }
   }
 }, 50);
 
