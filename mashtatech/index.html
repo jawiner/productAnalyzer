@@ -1520,17 +1520,36 @@ function initWorkShowcase() {
   const lightbox = document.getElementById('drumLightbox');
   const lightboxImg = document.getElementById('drumLightboxImg');
   if (lightbox && lightboxImg) {
-    // Only a click on the photo itself opens/shatters it. A click anywhere
-    // else inside the lightbox (the letterboxed edges of the card, or the
-    // backdrop) reads as "move the carousel" instead: it closes the
-    // lightbox and spins the drum toward whichever side was clicked, so a
-    // press meant for a neighbouring project never accidentally opens the
-    // one that's currently focused.
-    lightboxImg.addEventListener('click', (e) => {
-      e.stopPropagation();
-      drumShatterLightbox(lightbox.dataset.url);
-    });
+    // object-fit:contain can letterbox the image inside its own element box
+    // (e.g. a very wide or very tall screenshot), so a click that lands on
+    // the <img> element isn't necessarily a click on the visible picture.
+    // Work out where the actual rendered picture sits within the element
+    // and only treat a click inside that real rectangle as "open it".
+    function imgContentRect(img) {
+      const r = img.getBoundingClientRect();
+      const nw = img.naturalWidth, nh = img.naturalHeight;
+      if (!nw || !nh) return r;
+      const elRatio = r.width / r.height, imgRatio = nw / nh;
+      if (imgRatio > elRatio) {
+        const h = r.width / imgRatio;
+        return { left: r.left, right: r.right, top: r.top + (r.height - h) / 2, bottom: r.top + (r.height + h) / 2 };
+      }
+      const w = r.height * imgRatio;
+      return { left: r.left + (r.width - w) / 2, right: r.left + (r.width + w) / 2, top: r.top, bottom: r.bottom };
+    }
+    // Only a click on the visible photo itself opens/shatters it. A click
+    // anywhere else inside the lightbox (its letterboxed margins, the card's
+    // own edges, or the backdrop) reads as "move the carousel" instead: it
+    // closes the lightbox and spins the drum toward whichever side was
+    // clicked, so a press meant for a neighbouring project never
+    // accidentally opens the one that's currently focused.
     lightbox.addEventListener('click', (e) => {
+      const cr = imgContentRect(lightboxImg);
+      const onPhoto = e.clientX >= cr.left && e.clientX <= cr.right && e.clientY >= cr.top && e.clientY <= cr.bottom;
+      if (onPhoto) {
+        drumShatterLightbox(lightbox.dataset.url);
+        return;
+      }
       const goRight = e.clientX > window.innerWidth / 2;
       closeDrumLightbox();
       drumSpin(goRight ? 1 : -1);
