@@ -22,6 +22,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Frank+Ruhl+Libre:wght@300;400&family=Assistant:wght@200;300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=optional" rel="stylesheet" media="print" onload="this.media='all'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Frank+Ruhl+Libre:wght@300;400&family=Assistant:wght@200;300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=optional" rel="stylesheet"></noscript>
 <style>
+html{scroll-padding-top:80px;}
 body{margin:0;background:#0E100E;overflow-x:hidden;}
 a{color:inherit;text-decoration:none;}
 a:hover{color:inherit;}
@@ -54,15 +55,31 @@ a:hover{color:inherit;}
 .pricing-card-popular:hover{transform:scale(1.08);}
 .pricing-btn:hover{border-color:#C9F7C5;background:#C9F7C5;color:#0E100E;}
 .pricing-btn-popular:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(201,247,197,.3);}
-.service-panel-img{transition:transform 1.1s cubic-bezier(.16,1,.3,1),opacity 1.1s ease;}
-.service-panel.is-active .service-panel-img{transform:scale(1);opacity:.62;}
-[data-reveal]{transition:opacity .8s cubic-bezier(.2,.8,.2,1),transform .8s cubic-bezier(.2,.8,.2,1);}
-[data-reveal-stagger]{opacity:0;transform:translateY(16px);transition:opacity .6s cubic-bezier(.2,.8,.2,1),transform .6s cubic-bezier(.2,.8,.2,1);}
+.service-panel-imgwrap{transform:scale(var(--imgscale,.55));opacity:1;order:2;will-change:transform;}
+.service-panel-text{order:1;}
+.service-panel-img{filter:grayscale(1) brightness(.8) contrast(1.15);}
+.service-panel-imgwrap::after{content:'';position:absolute;inset:0;background:linear-gradient(160deg,rgba(201,247,197,.34),rgba(14,16,14,.55) 65%);mix-blend-mode:color;pointer-events:none;}
+.service-panel-imgwrap::before{content:'';position:absolute;inset:0;background:radial-gradient(120% 120% at 50% 20%,transparent 40%,rgba(14,16,14,.55) 100%);pointer-events:none;z-index:1;}
+[data-reveal]{opacity:0;transform:translateY(40px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);}
+[data-reveal].is-in{opacity:1;transform:translateY(0);}
+[data-reveal-stagger]{opacity:0;transform:translateY(40px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);}
 [data-reveal-stagger].is-in{opacity:1;transform:translateY(0);}
+.reveal-card{opacity:0;transform:translateY(40px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);}
+.reveal-card.is-in{opacity:1;transform:translateY(0);}
+[data-reveal-stagger].is-popular-card{transform:scale(1.06);transition:opacity .7s cubic-bezier(.16,1,.3,1);}
+[data-reveal-stagger].is-popular-card.is-in{opacity:1;transform:scale(1.06);}
+#nav{opacity:0;transform:translateY(-20px);}
+#nav.nav-in{opacity:1;transform:translateY(0);}
 #ctaGlow{position:absolute;inset:0;pointer-events:none;border-radius:24px;opacity:0;transform:scale(.95);transition:opacity 1s ease,transform 1s ease;background:radial-gradient(60% 55% at 50% 100%,rgba(14,16,14,.28),transparent 72%);}
 #ctaGlow.is-in{opacity:1;transform:scale(1);}
 .skip-link{position:absolute;top:-48px;left:12px;z-index:100;background:#C9F7C5;color:#0E100E;padding:12px 20px;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;border-radius:2px;transition:top .2s ease;}
 .skip-link:focus{top:12px;}
+.sketch-reveal-sketch{clip-path:polygon(0 0,0 0,0 100%,0 100%);transition:clip-path 1.1s cubic-bezier(.65,0,.35,1);will-change:clip-path;}
+.sketch-reveal:hover .sketch-reveal-sketch,.sketch-reveal:focus-within .sketch-reveal-sketch{clip-path:polygon(0 0,100% 0,100% 100%,0 100%);}
+@media (prefers-reduced-motion: reduce){
+  .sketch-reveal-sketch{transition:opacity .3s ease;clip-path:none;opacity:0;}
+  .sketch-reveal:hover .sketch-reveal-sketch,.sketch-reveal:focus-within .sketch-reveal-sketch{clip-path:none;opacity:1;}
+}
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
@@ -88,9 +105,11 @@ a:hover{color:inherit;}
   #siteFooter{padding:48px 20px 20px !important;}
   #copyrightWrap{padding:0 20px 32px !important;}
   #services h2, #work h2, #process h2, #pricing h2, #faq h2, #about h2{font-size:28px !important;}
-  .service-panel{height:100vh !important;}
-  .service-panel > div[style*="max-width:1400px"]{padding:0 20px !important;}
-  .service-panel h3{font-size:28px !important;}
+  #servicesStack{padding:0 20px !important;}
+  .service-panel{grid-template-columns:1fr !important;gap:24px !important;padding:32px 0 !important;min-height:0 !important;}
+  .service-panel-imgwrap,.service-panel-text{order:0 !important;}
+  .service-panel-imgwrap{max-width:220px;}
+  .service-panel h3{font-size:24px !important;}
   .service-panel p{font-size:15px !important;}
   #pricingGrid{grid-template-columns:1fr !important;gap:20px !important;}
   .pricing-card-popular{transform:none !important;order:-1;}
@@ -99,7 +118,10 @@ a:hover{color:inherit;}
   #faq > div{padding:0 20px !important;}
   #faqList{grid-template-columns:1fr !important;}
   #faqList button{font-size:18px !important;}
-  #tiltZone{height:300px !important;perspective:none !important;}
+  #workShowcase{height:auto !important;background:none !important;}
+  #workShowcase > div[style*="14%"]{display:none !important;}
+  #workFallback{display:flex !important;}
+  #prevBtn, #nextBtn, #dotsContainer{display:none !important;}
   #testimonialsSection{margin-top:72px !important;padding:0 20px !important;}
   #testimonialsSection > div[style*="grid-template-columns:300px"]{grid-template-columns:1fr !important;}
   #testimonialsSection > div[style*="grid-template-columns:300px"] > div:first-child{border-inline-end:none !important;border-bottom:1px solid rgba(233,235,232,.14);padding-inline-end:0 !important;}
@@ -123,12 +145,13 @@ a:hover{color:inherit;}
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to content</a>
+
 <div id="root" dir="rtl" lang="he" style="background:#0E100E;color:#E9EBE8;font-family:'Assistant',sans-serif;font-weight:300;min-height:100vh;position:relative;">
 
   <canvas id="field" aria-hidden="true" style="position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:0;display:block;"></canvas>
   <div aria-hidden="true" style="position:fixed;inset-inline:0;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,247,197,.6),transparent);pointer-events:none;z-index:0;animation:mHeroScan 11s cubic-bezier(.5,0,.5,1) infinite;"></div>
 
-  <nav id="nav" style="position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:40px;padding:22px 56px;border-bottom:1px solid rgba(233,235,232,.10);background:rgba(14,16,14,0);transition:background .4s ease,border-color .4s ease,padding .4s ease;">
+  <nav id="nav" style="position:fixed;top:0;left:0;right:0;z-index:60;display:flex;align-items:center;gap:40px;padding:22px 56px;border-bottom:1px solid transparent;background:rgba(14,16,14,0);transition:background .4s ease,border-color .4s ease,padding .4s ease,opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);">
     <a href="#top" style="font-family:'Playfair Display',serif;font-size:23px;font-weight:600;letter-spacing:-.01em;display:inline-flex;align-items:center;gap:10px;">
       <span style="width:7px;height:7px;background:#C9F7C5;display:inline-block;animation:mBlink 3.4s ease-in-out infinite;"></span>Mashtech
     </a>
@@ -147,26 +170,28 @@ a:hover{color:inherit;}
   </nav>
 
   <main id="main">
-  <div id="heroPin" style="position:relative;">
+  <div id="heroScroll" style="position:relative;height:300vh;">
   <section id="top" style="position:sticky;top:0;z-index:1;min-height:100vh;display:flex;align-items:center;padding:118px 56px 92px;overflow:hidden;box-sizing:border-box;">
     <div id="heroVideoWrap" aria-hidden="true" style="position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;">
       <img id="heroPoster" src="assets/video/hero-poster.webp" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.34;">
-      <video id="heroVideo" muted loop playsinline preload="none" poster="assets/video/hero-poster.webp" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;">
-        <source data-src="assets/video/hero.mp4" type="video/mp4">
+      <video id="introVideo" muted playsinline preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+        <source src="assets/landingpage-animation-scrub.mp4?v=1" type="video/mp4">
       </video>
-      <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,16,14,.55),rgba(14,16,14,.82) 60%,#0E100E 100%);"></div>
     </div>
+    <h2 id="introKicker" style="position:absolute;top:118px;inset-inline:0;z-index:1;margin:0;text-align:center;font-family:'Frank Ruhl Libre',serif;font-weight:400;font-size:51px;letter-spacing:-.01em;color:#F4FFF2;text-shadow:0 2px 18px rgba(0,0,0,.55),0 1px 3px rgba(0,0,0,.4);opacity:1;transition:opacity .5s ease;pointer-events:none;">
+      <span id="introKickerText"></span>
+    </h2>
     <div style="position:absolute;inset:0;pointer-events:none;z-index:0;display:grid;grid-template-columns:repeat(12,1fr);">
       <span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span><span style="border-inline-start:1px solid rgba(233,235,232,.045);"></span>
     </div>
     <div style="position:relative;z-index:1;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;">
-      <div data-reveal style="display:flex;align-items:center;gap:14px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#C9F7C5;">
+      <div id="heroKicker" data-reveal style="display:flex;align-items:center;gap:14px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#C9F7C5;">
         <span style="width:6px;height:6px;background:#C9F7C5;display:inline-block;"></span><span data-t="hero_kicker"></span>
       </div>
-      <h1 data-reveal style="font-family:'Frank Ruhl Libre',serif;font-weight:300;font-size:88px;line-height:1.08;letter-spacing:-.02em;margin:34px 0 0;max-width:20ch;">
+      <h1 id="heroTitle" data-reveal style="font-family:'Frank Ruhl Libre',serif;font-weight:300;font-size:88px;line-height:1.08;letter-spacing:-.02em;margin:34px 0 0;max-width:20ch;">
         <span id="heroTitleA"></span><span style="white-space:nowrap;"><span style="position:relative;display:inline-block;"><span style="position:absolute;inset-inline-start:-10px;inset-inline-end:-10px;bottom:.1em;height:.76em;background:#C9F7C5;z-index:0;"></span><span id="heroTitleMark" style="position:relative;z-index:1;color:#0E100E;"></span></span></span> <span id="heroTitleB"></span>
       </h1>
-      <div data-reveal style="margin-top:54px;">
+      <div id="heroCtaWrap" data-reveal style="margin-top:54px;">
         <p data-t="hero_sub" style="font-size:19px;line-height:1.7;margin:0;opacity:.68;max-width:56ch;"></p>
         <div style="display:flex;gap:12px;margin-top:44px;">
           <a href="#contact" class="btn-cta-lift" data-t="hero_cta_primary" style="display:inline-flex;align-items:center;gap:12px;background:#C9F7C5;color:#0E100E;padding:17px 30px;font-size:16px;font-weight:600;transition:background .25s,transform .35s cubic-bezier(.2,.8,.2,1);"></a>
@@ -175,6 +200,7 @@ a:hover{color:inherit;}
       </div>
     </div>
   </section>
+  </div>
 
   <div id="techStrip" style="position:relative;z-index:2;background:#0E100E;border-top:1px solid rgba(233,235,232,.12);border-bottom:1px solid rgba(233,235,232,.12);padding:20px 56px;display:flex;align-items:center;gap:52px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;">
     <span data-t="tech_label" style="color:#C9F7C5;opacity:.9;"></span>
@@ -189,60 +215,55 @@ a:hover{color:inherit;}
         <h2 data-t="services_title" style="font-family:'Frank Ruhl Libre',serif;font-size:58px;font-weight:300;letter-spacing:-.02em;margin:0;"></h2>
       </div>
     </div>
-    <div id="servicesStack" style="position:relative;margin-top:64px;">
-      <div class="service-panel" style="position:sticky;top:0;height:100vh;display:flex;align-items:center;overflow:hidden;background:#0E100E;">
-        <img class="service-panel-img" src="assets/villa-el-nof.webp" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.15);opacity:.4;">
-        <div style="position:absolute;inset:0;background:linear-gradient(90deg,#0E100E 18%,rgba(14,16,14,.45) 55%,rgba(14,16,14,.75) 100%);"></div>
-        <div style="position:relative;z-index:1;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;padding:0 56px;">
-          <div style="max-width:44ch;">
-            <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.14em;color:#C9F7C5;">01</span>
-            <h3 data-t="service1_title" style="font-family:'Frank Ruhl Libre',serif;font-size:44px;font-weight:300;margin:20px 0 0;letter-spacing:-.02em;"></h3>
-            <p data-t="service1_body" style="font-size:17px;line-height:1.75;opacity:.72;margin:20px 0 0;"></p>
-          </div>
+    <div id="servicesStack" style="max-width:1400px;margin:64px auto 0;padding:0 56px;position:relative;">
+      <div class="service-panel" style="display:grid;grid-template-columns:1fr 45%;gap:56px;align-items:center;min-height:100vh;padding:48px 56px;position:sticky;top:0;background:linear-gradient(180deg,#1a1d18,#0E100E);border-radius:28px;border:1px solid rgba(233,235,232,.08);z-index:1;">
+        <div class="service-panel-imgwrap" style="width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:20px;position:relative;background:#14171a;border:1px solid rgba(233,235,232,.12);box-shadow:0 24px 60px rgba(0,0,0,.45);">
+          <img class="service-panel-img" src="assets/service-web-design.jpg" alt="" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div class="service-panel-text">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.14em;color:#C9F7C5;">01</span>
+          <h3 data-t="service1_title" style="font-family:'Frank Ruhl Libre',serif;font-size:32px;font-weight:300;margin:16px 0 0;letter-spacing:-.02em;"></h3>
+          <p data-t="service1_body" style="font-size:16px;line-height:1.75;opacity:.65;margin:14px 0 0;max-width:52ch;"></p>
         </div>
       </div>
-      <div class="service-panel" style="position:sticky;top:0;height:100vh;display:flex;align-items:center;overflow:hidden;background:#0E100E;">
-        <img class="service-panel-img" src="assets/talentflow.webp" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.15);opacity:.4;">
-        <div style="position:absolute;inset:0;background:linear-gradient(90deg,#0E100E 18%,rgba(14,16,14,.45) 55%,rgba(14,16,14,.75) 100%);"></div>
-        <div style="position:relative;z-index:1;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;padding:0 56px;">
-          <div style="max-width:44ch;">
-            <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.14em;color:#C9F7C5;">02</span>
-            <h3 data-t="service2_title" style="font-family:'Frank Ruhl Libre',serif;font-size:44px;font-weight:300;margin:20px 0 0;letter-spacing:-.02em;"></h3>
-            <p data-t="service2_body" style="font-size:17px;line-height:1.75;opacity:.72;margin:20px 0 0;"></p>
-          </div>
+      <div class="service-panel" style="display:grid;grid-template-columns:1fr 45%;gap:56px;align-items:center;min-height:100vh;padding:48px 56px;position:sticky;top:0;background:linear-gradient(180deg,#1a1d18,#0E100E);border-radius:28px;border:1px solid rgba(233,235,232,.08);z-index:2;">
+        <div class="service-panel-imgwrap" style="width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:20px;position:relative;background:#14171a;border:1px solid rgba(233,235,232,.12);box-shadow:0 24px 60px rgba(0,0,0,.45);">
+          <img class="service-panel-img" src="assets/service-custom-web-apps.png" alt="" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div class="service-panel-text">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.14em;color:#C9F7C5;">02</span>
+          <h3 data-t="service2_title" style="font-family:'Frank Ruhl Libre',serif;font-size:32px;font-weight:300;margin:16px 0 0;letter-spacing:-.02em;"></h3>
+          <p data-t="service2_body" style="font-size:16px;line-height:1.75;opacity:.65;margin:14px 0 0;max-width:52ch;"></p>
         </div>
       </div>
-      <div class="service-panel" style="position:sticky;top:0;height:100vh;display:flex;align-items:center;overflow:hidden;background:#0E100E;">
-        <img class="service-panel-img" src="assets/lifemaxing.webp" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.15);opacity:.4;">
-        <div style="position:absolute;inset:0;background:linear-gradient(90deg,#0E100E 18%,rgba(14,16,14,.45) 55%,rgba(14,16,14,.75) 100%);"></div>
-        <div style="position:relative;z-index:1;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;padding:0 56px;">
-          <div style="max-width:44ch;">
-            <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.14em;color:#C9F7C5;">03</span>
-            <h3 data-t="service3_title" style="font-family:'Frank Ruhl Libre',serif;font-size:44px;font-weight:300;margin:20px 0 0;letter-spacing:-.02em;"></h3>
-            <p data-t="service3_body" style="font-size:17px;line-height:1.75;opacity:.72;margin:20px 0 0;"></p>
-          </div>
+      <div class="service-panel" style="display:grid;grid-template-columns:1fr 45%;gap:56px;align-items:center;min-height:100vh;padding:48px 56px;position:sticky;top:0;background:linear-gradient(180deg,#1a1d18,#0E100E);border-radius:28px;border:1px solid rgba(233,235,232,.08);z-index:3;">
+        <div class="service-panel-imgwrap" style="width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:20px;position:relative;background:#14171a;border:1px solid rgba(233,235,232,.12);box-shadow:0 24px 60px rgba(0,0,0,.45);">
+          <img class="service-panel-img" src="assets/service-ai-solutions.png" alt="" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div class="service-panel-text">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.14em;color:#C9F7C5;">03</span>
+          <h3 data-t="service3_title" style="font-family:'Frank Ruhl Libre',serif;font-size:32px;font-weight:300;margin:16px 0 0;letter-spacing:-.02em;"></h3>
+          <p data-t="service3_body" style="font-size:16px;line-height:1.75;opacity:.65;margin:14px 0 0;max-width:52ch;"></p>
         </div>
       </div>
-      <div class="service-panel" style="position:sticky;top:0;height:100vh;display:flex;align-items:center;overflow:hidden;background:#0E100E;">
-        <img class="service-panel-img" src="assets/pizza-mashta.webp" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.15);opacity:.4;">
-        <div style="position:absolute;inset:0;background:linear-gradient(90deg,#0E100E 18%,rgba(14,16,14,.45) 55%,rgba(14,16,14,.75) 100%);"></div>
-        <div style="position:relative;z-index:1;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;padding:0 56px;">
-          <div style="max-width:44ch;">
-            <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.14em;color:#C9F7C5;">04</span>
-            <h3 data-t="service4_title" style="font-family:'Frank Ruhl Libre',serif;font-size:44px;font-weight:300;margin:20px 0 0;letter-spacing:-.02em;"></h3>
-            <p data-t="service4_body" style="font-size:17px;line-height:1.75;opacity:.72;margin:20px 0 0;"></p>
-          </div>
+      <div class="service-panel" style="display:grid;grid-template-columns:1fr 45%;gap:56px;align-items:center;min-height:100vh;padding:48px 56px;position:sticky;top:0;background:linear-gradient(180deg,#1a1d18,#0E100E);border-radius:28px;border:1px solid rgba(233,235,232,.08);z-index:4;">
+        <div class="service-panel-imgwrap" style="width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:20px;position:relative;background:#14171a;border:1px solid rgba(233,235,232,.12);box-shadow:0 24px 60px rgba(0,0,0,.45);">
+          <img class="service-panel-img" src="assets/service-business-automation.jpg" alt="" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div class="service-panel-text">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.14em;color:#C9F7C5;">04</span>
+          <h3 data-t="service4_title" style="font-family:'Frank Ruhl Libre',serif;font-size:32px;font-weight:300;margin:16px 0 0;letter-spacing:-.02em;"></h3>
+          <p data-t="service4_body" style="font-size:16px;line-height:1.75;opacity:.65;margin:14px 0 0;max-width:52ch;"></p>
         </div>
       </div>
-      <div class="service-panel" style="position:sticky;top:0;height:100vh;display:flex;align-items:center;overflow:hidden;background:#0E100E;">
-        <img class="service-panel-img" src="assets/villa-el-nof.webp" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.15);opacity:.4;">
-        <div style="position:absolute;inset:0;background:linear-gradient(90deg,#0E100E 18%,rgba(14,16,14,.45) 55%,rgba(14,16,14,.75) 100%);"></div>
-        <div style="position:relative;z-index:1;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;padding:0 56px;">
-          <div style="max-width:44ch;">
-            <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.14em;color:#C9F7C5;">05</span>
-            <h3 data-t="service5_title" style="font-family:'Frank Ruhl Libre',serif;font-size:44px;font-weight:300;margin:20px 0 0;letter-spacing:-.02em;"></h3>
-            <p data-t="service5_body" style="font-size:17px;line-height:1.75;opacity:.72;margin:20px 0 0;"></p>
-          </div>
+      <div class="service-panel" style="display:grid;grid-template-columns:1fr 45%;gap:56px;align-items:center;min-height:100vh;padding:48px 56px;position:sticky;top:0;background:linear-gradient(180deg,#1a1d18,#0E100E);border-radius:28px;border:1px solid rgba(233,235,232,.08);z-index:5;">
+        <div class="service-panel-imgwrap" style="width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:20px;position:relative;background:#14171a;border:1px solid rgba(233,235,232,.12);box-shadow:0 24px 60px rgba(0,0,0,.45);">
+          <img class="service-panel-img" src="assets/service-backend-database.png" alt="" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div class="service-panel-text">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.14em;color:#C9F7C5;">05</span>
+          <h3 data-t="service5_title" style="font-family:'Frank Ruhl Libre',serif;font-size:32px;font-weight:300;margin:16px 0 0;letter-spacing:-.02em;"></h3>
+          <p data-t="service5_body" style="font-size:16px;line-height:1.75;opacity:.65;margin:14px 0 0;max-width:52ch;"></p>
         </div>
       </div>
     </div>
@@ -252,35 +273,33 @@ a:hover{color:inherit;}
       </a>
     </div>
   </section>
-  </div>
 
-  <section id="work" style="position:relative;z-index:1;padding:160px 0 0;overflow:hidden;">
+  <section id="work" style="position:relative;z-index:1;padding:160px 0 0;overflow:hidden;background:#000;">
     <div style="max-width:1400px;margin:0 auto;padding:0 56px;">
-      <div style="display:flex;align-items:baseline;gap:20px;">
+      <div data-reveal style="display:flex;align-items:baseline;gap:20px;">
         <span data-t="nav_work" data-prefix="02 / " style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#C9F7C5;"></span>
         <h2 data-t="work_title" style="font-family:'Frank Ruhl Libre',serif;font-size:58px;font-weight:300;letter-spacing:-.02em;margin:0;"></h2>
       </div>
-      <p data-t="work_sub" style="margin:16px 0 0;font-size:16px;line-height:1.7;opacity:.62;max-width:56ch;"></p>
+      <p data-t="work_sub" data-reveal style="transition-delay:.08s;margin:16px 0 0;font-size:16px;line-height:1.7;opacity:.62;max-width:56ch;"></p>
     </div>
 
-    <div style="position:relative;width:100%;margin-top:72px;">
-      <div id="tiltZone" style="position:relative;width:100%;height:560px;perspective:1700px;perspective-origin:50% 45%;">
-        <div id="tiltInner" style="position:absolute;inset:0;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.22,1,.36,1);">
-          <div id="cardsContainer"></div>
-        </div>
+    <div id="workShowcase" style="position:relative;width:100%;margin-top:72px;height:560px;background:#000;">
+      <div id="workShowcaseCanvas" style="position:absolute;inset:0;overflow:hidden;"></div>
 
-        <div style="position:absolute;left:0;top:0;bottom:0;width:14%;pointer-events:none;background:linear-gradient(90deg,#0E100E 8%,rgba(14,16,14,0));"></div>
-        <div style="position:absolute;right:0;top:0;bottom:0;width:14%;pointer-events:none;background:linear-gradient(270deg,#0E100E 8%,rgba(14,16,14,0));"></div>
+      <div style="position:absolute;left:0;top:0;bottom:0;width:14%;pointer-events:none;background:linear-gradient(90deg,#000 8%,rgba(0,0,0,0));"></div>
+      <div style="position:absolute;right:0;top:0;bottom:0;width:14%;pointer-events:none;background:linear-gradient(270deg,#000 8%,rgba(0,0,0,0));"></div>
 
-        <button id="prevBtn" class="carousel-nav" style="position:absolute;left:5%;top:50%;margin-top:-23px;width:46px;height:46px;border:1px solid rgba(233,235,232,.18);background:rgba(21,24,21,.72);backdrop-filter:blur(14px);color:#E9EBE8;font-family:'IBM Plex Mono',monospace;font-size:17px;cursor:pointer;z-index:60;display:flex;align-items:center;justify-content:center;transition:background .3s,color .3s,border-color .3s;">‹</button>
-        <button id="nextBtn" class="carousel-nav" style="position:absolute;right:5%;top:50%;margin-top:-23px;width:46px;height:46px;border:1px solid rgba(233,235,232,.18);background:rgba(21,24,21,.72);backdrop-filter:blur(14px);color:#E9EBE8;font-family:'IBM Plex Mono',monospace;font-size:17px;cursor:pointer;z-index:60;display:flex;align-items:center;justify-content:center;transition:background .3s,color .3s,border-color .3s;">›</button>
-      </div>
+      <button id="prevBtn" class="carousel-nav" aria-label="" style="position:absolute;left:5%;top:50%;margin-top:-23px;width:46px;height:46px;border:1px solid rgba(233,235,232,.18);background:rgba(21,24,21,.72);backdrop-filter:blur(14px);color:#E9EBE8;font-family:'IBM Plex Mono',monospace;font-size:17px;cursor:pointer;z-index:60;display:flex;align-items:center;justify-content:center;transition:background .3s,color .3s,border-color .3s;">‹</button>
+      <button id="nextBtn" class="carousel-nav" aria-label="" style="position:absolute;right:5%;top:50%;margin-top:-23px;width:46px;height:46px;border:1px solid rgba(233,235,232,.18);background:rgba(21,24,21,.72);backdrop-filter:blur(14px);color:#E9EBE8;font-family:'IBM Plex Mono',monospace;font-size:17px;cursor:pointer;z-index:60;display:flex;align-items:center;justify-content:center;transition:background .3s,color .3s,border-color .3s;">›</button>
+
+      <ul id="workAccessibleList" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:0;padding:0;list-style:none;"></ul>
+
+      <div id="workFallback" style="display:none;position:relative;height:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;gap:16px;padding:0 20px;"></div>
     </div>
 
     <div style="position:relative;margin-top:44px;display:flex;align-items:center;justify-content:center;gap:24px;font-family:'IBM Plex Mono',monospace;">
       <div style="font-size:12px;letter-spacing:.12em;opacity:.55;"><span id="counter" style="color:#E9EBE8;opacity:1;"></span> / <span id="total"></span></div>
       <div id="dotsContainer" style="display:flex;align-items:center;gap:10px;"></div>
-      <div id="statusLabel" style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.55;"></div>
     </div>
 
     <div id="testimonialsSection" style="max-width:1400px;margin:120px auto 0;padding:0 56px;display:none;">
@@ -318,7 +337,7 @@ a:hover{color:inherit;}
 
   <section id="process" style="position:relative;z-index:1;background:#0E100E;padding:160px 0 40px;overflow:hidden;">
     <div style="max-width:1400px;margin:0 auto;padding:0 56px;">
-    <div style="display:flex;align-items:baseline;gap:20px;">
+    <div data-reveal style="display:flex;align-items:baseline;gap:20px;">
       <span data-t="nav_process" data-prefix="04 / " style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#C9F7C5;"></span>
       <h2 data-t="process_title" style="font-family:'Frank Ruhl Libre',serif;font-size:58px;font-weight:300;letter-spacing:-.02em;margin:0;"></h2>
     </div>
@@ -342,7 +361,7 @@ a:hover{color:inherit;}
     </div>
 
     <div id="pricingGrid" style="margin-top:88px;display:grid;grid-template-columns:repeat(3,1fr);gap:28px;align-items:center;">
-      <div data-reveal class="pricing-card" style="padding:40px 32px;border:1px solid rgba(233,235,232,.16);background:#131613;border-radius:20px;display:flex;flex-direction:column;text-align:center;transition:border-color .3s,transform .3s;">
+      <div data-reveal-stagger class="pricing-card" style="transition-delay:0s;padding:40px 32px;border:1px solid rgba(233,235,232,.16);background:#131613;border-radius:20px;display:flex;flex-direction:column;text-align:center;transition:border-color .3s,transform .3s cubic-bezier(.16,1,.3,1),opacity .7s cubic-bezier(.16,1,.3,1);">
         <span data-t="tier1_name" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.6;"></span>
         <div style="margin-top:24px;display:flex;align-items:baseline;justify-content:center;gap:8px;">
           <span data-t="tier1_price" style="font-family:'Frank Ruhl Libre',serif;font-size:46px;font-weight:400;letter-spacing:-.01em;"></span>
@@ -353,7 +372,7 @@ a:hover{color:inherit;}
         <a href="#contact" class="pricing-btn" data-t="pricing_cta" style="margin-top:32px;display:inline-flex;align-items:center;justify-content:center;gap:10px;border:1px solid rgba(233,235,232,.28);border-radius:8px;padding:14px 22px;font-size:15px;font-weight:600;transition:border-color .25s,background .25s,color .25s;"></a>
       </div>
 
-      <div data-reveal class="pricing-card pricing-card-popular" style="padding:48px 32px;border:2px solid #C9F7C5;background:#171B17;border-radius:20px;display:flex;flex-direction:column;text-align:center;position:relative;transform:scale(1.06);box-shadow:0 20px 60px rgba(201,247,197,.08);z-index:2;">
+      <div data-reveal-stagger class="pricing-card pricing-card-popular is-popular-card" style="transition-delay:.08s;padding:48px 32px;border:2px solid #C9F7C5;background:#171B17;border-radius:20px;display:flex;flex-direction:column;text-align:center;position:relative;box-shadow:0 20px 60px rgba(201,247,197,.08);z-index:2;">
         <span style="position:absolute;top:0;inset-inline-end:0;background:#C9F7C5;color:#0E100E;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:8px 16px;border-radius:0 18px 0 14px;display:inline-flex;align-items:center;gap:6px;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l2.9 6.6 7.1.7-5.4 4.8 1.6 7-6.2-3.7-6.2 3.7 1.6-7L2 9.3l7.1-.7z"></path></svg>
           <span data-t="tier3_badge"></span>
@@ -368,7 +387,7 @@ a:hover{color:inherit;}
         <a href="#contact" class="pricing-btn pricing-btn-popular" data-t="pricing_cta" style="margin-top:32px;display:inline-flex;align-items:center;justify-content:center;gap:10px;background:#C9F7C5;color:#0E100E;border-radius:8px;padding:16px 22px;font-size:15px;font-weight:600;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s;"></a>
       </div>
 
-      <div data-reveal class="pricing-card" style="padding:40px 32px;border:1px solid rgba(233,235,232,.16);background:#131613;border-radius:20px;display:flex;flex-direction:column;text-align:center;transition:border-color .3s,transform .3s;">
+      <div data-reveal-stagger class="pricing-card" style="transition-delay:.16s;padding:40px 32px;border:1px solid rgba(233,235,232,.16);background:#131613;border-radius:20px;display:flex;flex-direction:column;text-align:center;transition:border-color .3s,transform .3s cubic-bezier(.16,1,.3,1),opacity .7s cubic-bezier(.16,1,.3,1);">
         <span data-t="tier2_name" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.6;"></span>
         <div style="margin-top:24px;display:flex;align-items:baseline;justify-content:center;gap:8px;">
           <span data-t="tier2_price" style="font-family:'Frank Ruhl Libre',serif;font-size:46px;font-weight:400;letter-spacing:-.01em;"></span>
@@ -394,13 +413,16 @@ a:hover{color:inherit;}
 
   <section id="about" style="position:relative;z-index:1;background:#EAEAE7;color:#1A1C1A;">
     <div id="aboutInner" style="max-width:1400px;margin:0 auto;padding:140px 56px;">
-      <div style="display:flex;align-items:baseline;gap:20px;">
+      <div data-reveal style="display:flex;align-items:baseline;gap:20px;">
         <span data-t="nav_about" data-prefix="07 / " style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;opacity:.62;"></span>
         <h2 data-t="about_section_title" style="font-family:'Frank Ruhl Libre',serif;font-size:58px;font-weight:400;letter-spacing:-.02em;margin:0;"></h2>
       </div>
       <div style="margin-top:64px;border-top:1px solid rgba(26,28,26,.2);display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:0;">
         <div style="border-inline-end:1px solid rgba(26,28,26,.14);padding-block:44px;padding-inline-start:0;padding-inline-end:44px;">
-          <img src="assets/yanir-mashta.webp" data-t-alt="about_name" width="600" height="750" style="width:100%;height:auto;display:block;">
+          <div id="aboutPortrait" class="sketch-reveal" style="position:relative;width:100%;aspect-ratio:600/750;overflow:hidden;">
+            <img class="sketch-reveal-photo" src="assets/yanir-mashta.webp" data-t-alt="about_name" width="600" height="750" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;">
+            <img class="sketch-reveal-sketch" src="assets/yanir-mashta-sketch.jpg" alt="" aria-hidden="true" width="600" height="750" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
         </div>
         <div style="padding-block:44px;padding-inline-end:0;padding-inline-start:56px;">
           <h3 data-t="about_name" style="font-family:'Frank Ruhl Libre',serif;font-size:40px;font-weight:400;letter-spacing:-.02em;margin:0;"></h3>
@@ -423,11 +445,11 @@ a:hover{color:inherit;}
   <section id="contact" style="position:relative;z-index:1;background:#C9F7C5;color:#0E100E;overflow:hidden;">
     <div id="ctaGlow"></div>
     <div id="contactInner" style="position:relative;max-width:1400px;margin:0 auto;padding:150px 56px;">
-      <span data-reveal-stagger style="transition-delay:.05s;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;opacity:.6;display:inline-block;"><span data-t="nav_cta" data-prefix="08 / "></span></span>
-      <h2 data-t="contact_title" data-reveal-stagger style="transition-delay:.15s;font-family:'Frank Ruhl Libre',serif;font-size:76px;font-weight:400;line-height:1.06;letter-spacing:-.03em;margin:28px 0 0;max-width:18ch;"></h2>
+      <span data-reveal-stagger style="transition-delay:0s;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;opacity:.6;display:inline-block;"><span data-t="nav_cta" data-prefix="08 / "></span></span>
+      <h2 data-t="contact_title" data-reveal-stagger style="transition-delay:.08s;font-family:'Frank Ruhl Libre',serif;font-size:76px;font-weight:400;line-height:1.06;letter-spacing:-.03em;margin:28px 0 0;max-width:18ch;"></h2>
       <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:64px;align-items:end;margin-top:48px;">
-        <p data-t="contact_sub" data-reveal-stagger style="transition-delay:.25s;font-size:19px;line-height:1.7;margin:0;max-width:52ch;opacity:.72;"></p>
-        <div data-reveal-stagger style="transition-delay:.4s;display:flex;gap:12px;">
+        <p data-t="contact_sub" data-reveal-stagger style="transition-delay:.16s;font-size:19px;line-height:1.7;margin:0;max-width:52ch;opacity:.72;"></p>
+        <div data-reveal-stagger style="transition-delay:.24s;display:flex;gap:12px;">
           <a href="https://wa.me/972549961663" target="_blank" rel="noopener noreferrer" class="contact-dark" style="display:inline-flex;align-items:center;gap:12px;background:#0E100E;color:#C9F7C5;padding:18px 32px;font-size:16px;font-weight:600;white-space:nowrap;transition:transform .35s cubic-bezier(.2,.8,.2,1);"><span data-t="contact_cta_whatsapp"></span> <span style="font-family:'IBM Plex Mono',monospace;">↖</span></a>
           <a href="mailto:mashtatech@gmail.com" class="contact-outline" data-t="contact_cta" style="display:inline-flex;align-items:center;gap:12px;border:1px solid rgba(14,16,14,.4);padding:18px 32px;font-size:16px;font-weight:500;white-space:nowrap;transition:background .25s,border-color .25s;"></a>
         </div>
@@ -608,11 +630,8 @@ const workData = [
 
 let lang = 'he';
 let index = 0;
-let hover = false;
-let mx = 0, my = 0;
 let activeStep = 0;
 let procHover = false;
-let progressVal = 0;
 let stepN = 0;
 
 const rootEl = document.getElementById('root');
@@ -620,52 +639,18 @@ const navEl = document.getElementById('nav');
 const stepsWrapEl = document.getElementById('stepsWrap');
 const stepsContainer = document.getElementById('stepsContainer');
 const spineFillEl = document.getElementById('spineFill');
-const cardsContainer = document.getElementById('cardsContainer');
 const dotsContainer = document.getElementById('dotsContainer');
-const tiltInner = document.getElementById('tiltInner');
-const tiltZone = document.getElementById('tiltZone');
 const fieldCanvas = document.getElementById('field');
 
 function t() { return translations[lang]; }
 
-function offsetOfWork(i) {
-  const n = workData.length;
-  let o = ((i - index) % n + n) % n;
-  if (o > n / 2) o -= n;
-  return o;
-}
-
 const mobileMq = window.matchMedia('(max-width: 760px)');
-
-function workCardCss(o) {
-  const s = o < 0 ? -1 : 1;
-  const a = Math.abs(o);
-  const isMobile = mobileMq.matches;
-  const w = isMobile ? Math.min(360, window.innerWidth - 64) : 720;
-  const h = Math.round(w * (372 / 560));
-  const depthUnit = isMobile ? w * 0.7 : 220;
-  let transform, opacity, filter, zIndex, boxShadow;
-  if (a === 0) {
-    transform = 'translate3d(0,0,0) rotateY(0deg) scale(1)'; opacity = 1; filter = 'none'; zIndex = 40;
-    boxShadow = '0 40px 80px -30px rgba(0,0,0,.9), 0 0 0 1px rgba(233,235,232,.10)';
-  } else if (a === 1) {
-    transform = 'translate3d(' + (s * 61) + '%, 8px, -' + Math.round(depthUnit) + 'px) rotateY(' + (-s * 19) + 'deg) scale(.97)';
-    opacity = .5; filter = 'blur(2px)'; zIndex = 30;
-    boxShadow = '0 28px 56px -30px rgba(0,0,0,.85), 0 0 0 1px rgba(233,235,232,.06)';
-  } else if (a === 2) {
-    transform = 'translate3d(' + (s * 102) + '%, 14px, -' + Math.round(depthUnit * 2) + 'px) rotateY(' + (-s * 23) + 'deg) scale(.94)';
-    opacity = .16; filter = 'blur(5px)'; zIndex = 20; boxShadow = 'none';
-  } else {
-    transform = 'translate3d(' + (s * 130) + '%, 0, -' + Math.round(depthUnit * 3) + 'px) scale(.9)'; opacity = 0; zIndex = 10; boxShadow = 'none';
-  }
-  return `position:absolute; left:50%; top:50%; width:${w}px; height:${h}px; margin-left:-${w / 2}px; margin-top:-${h / 2}px; transform-style:preserve-3d; cursor:pointer; transition:transform 1s cubic-bezier(.16,1,.3,1), opacity .9s cubic-bezier(.16,1,.3,1), filter .9s ease, box-shadow .9s ease; transform:${transform}; opacity:${opacity}; filter:${filter}; z-index:${zIndex}; box-shadow:${boxShadow};`;
-}
 
 function goWork(d) {
   const n = workData.length;
-  progressVal = 0;
   index = (index + d + n) % n;
   render();
+  if (window.__workShowcase && window.__workShowcase.goTo) window.__workShowcase.goTo(index);
 }
 
 function renderSteps() {
@@ -764,12 +749,30 @@ if ('IntersectionObserver' in window) {
 
   const servicePanels = document.querySelectorAll('.service-panel');
   if (servicePanels.length) {
-    const panelIo = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        e.target.classList.toggle('is-active', e.isIntersecting);
+    const imgwraps = Array.from(servicePanels).map((p) => p.querySelector('.service-panel-imgwrap'));
+    const minScale = 0.55, maxScale = 1;
+    let ticking = false;
+    const updateScales = () => {
+      ticking = false;
+      const vh = window.innerHeight;
+      servicePanels.forEach((p, i) => {
+        const wrap = imgwraps[i];
+        if (!wrap) return;
+        const rect = p.getBoundingClientRect();
+        const progress = Math.min(1, Math.max(0, (vh - rect.top) / (vh + rect.height)));
+        const scale = minScale + (maxScale - minScale) * progress;
+        wrap.style.setProperty('--imgscale', scale.toFixed(3));
       });
-    }, { threshold: 0.6 });
-    servicePanels.forEach((p) => panelIo.observe(p));
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(updateScales);
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    updateScales();
   }
 }
 
@@ -777,51 +780,78 @@ function updateSpine() {
   spineFillEl.style.width = (((activeStep + 1) / 4) * 100) + '%';
 }
 
-function renderCards() {
+function renderWorkFallback() {
   const tr = t();
-  cardsContainer.innerHTML = '';
-  workData.forEach((it, i) => {
-    const o = offsetOfWork(i);
-    const active = o === 0;
-    const url = tr[it.key + '_url'];
-    const card = document.createElement('div');
-    card.style.cssText = workCardCss(o);
-    card.setAttribute('role', 'button');
-    card.setAttribute('tabindex', active ? '0' : '-1');
-    card.setAttribute('aria-labelledby', 'workCardName' + i + ' workCardTag' + i + ' workCardHint' + i);
-    const activate = () => {
-      if (!active) { progressVal = 0; index = i; render(); }
-      else window.open(url, '_blank', 'noopener,noreferrer');
-    };
-    card.addEventListener('click', activate);
-    card.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
-    });
-
-    const sheenOpacity = active ? 1 : 0;
-    const captionTransform = active ? 'translateY(0)' : 'translateY(14px)';
-    const captionOpacity = active ? 1 : 0;
-    const veilOpacity = active ? 0 : 1;
-
-    card.innerHTML = `
-      <div style="position:absolute;inset:0;overflow:hidden;background:#151815;">
-        <div aria-hidden="true" style="position:absolute;inset:0;background-image:url('${it.img}');background-size:cover;background-position:top center;animation:mKen 26s ease-in-out infinite alternate;"></div>
-        <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(14,16,14,.92) 0%, rgba(14,16,14,.20) 46%, rgba(14,16,14,0) 72%);pointer-events:none;"></div>
-        <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;opacity:${sheenOpacity};transition:opacity .8s ease;">
-          <div style="position:absolute;top:-30%;left:0;width:20%;height:160%;background:linear-gradient(90deg, rgba(201,247,197,0), rgba(201,247,197,.14), rgba(201,247,197,0));animation:mSheen 8s cubic-bezier(.5,0,.3,1) infinite 1.6s;"></div>
-        </div>
+  const el = document.getElementById('workFallback');
+  if (!el) return;
+  el.style.display = 'flex';
+  el.innerHTML = workData.map((it) => `
+    <a href="${tr[it.key + '_url']}" target="_blank" rel="noopener noreferrer" style="flex:none;width:min(320px,80vw);scroll-snap-align:start;display:block;position:relative;aspect-ratio:1.4/1;border-radius:20px;overflow:hidden;background:#151815;">
+      <img src="${it.img}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+      <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.85), rgba(0,0,0,.1) 55%);"></div>
+      <div style="position:absolute;left:16px;right:16px;bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <span style="color:#fff;font-family:'Frank Ruhl Libre',serif;font-size:20px;">${tr[it.key + '_name']}</span>
+        <span aria-hidden="true" style="flex:none;width:38px;height:38px;border-radius:50%;background:rgba(14,16,14,.82);color:#fff;display:flex;align-items:center;justify-content:center;">&#8594;</span>
       </div>
-      <div style="position:absolute;left:18px;right:18px;bottom:18px;height:76px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 14px 0 22px;background:rgba(14,16,14,.72);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(233,235,232,.12);transform:${captionTransform};opacity:${captionOpacity};transition:transform .9s cubic-bezier(.16,1,.3,1) .12s, opacity .7s ease;">
-        <div style="display:flex;flex-direction:column;gap:5px;min-width:0;">
-          <div id="workCardName${i}" style="font-size:19px;font-weight:500;letter-spacing:-.01em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${tr[it.key + '_name']}</div>
-          <div id="workCardTag${i}" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#C9F7C5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${tr[it.key + '_tag']}</div>
-        </div>
-        <div class="work-arrow" aria-hidden="true" style="flex:none;width:46px;height:46px;background:#C9F7C5;color:#0E100E;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:17px;transition:transform .45s cubic-bezier(.16,1,.3,1);">↖</div>
-      </div>
-      <div style="position:absolute;inset:0;pointer-events:none;background:rgba(14,16,14,.6);opacity:${veilOpacity};transition:opacity .9s ease;"></div>
-      <span id="workCardHint${i}" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;">${active ? (tr.aria_visit_project || 'Visit') : ''}</span>
-    `;
-    cardsContainer.appendChild(card);
+    </a>
+  `).join('');
+}
+
+let workShowcaseInstance = null;
+
+async function initWorkShowcase() {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isMobile = mobileMq.matches;
+  const canvasHost = document.getElementById('workShowcaseCanvas');
+
+  if (reduced || isMobile || !canvasHost || typeof WebGLRenderingContext === 'undefined') {
+    renderWorkFallback();
+    return;
+  }
+
+  const section = document.getElementById('workShowcase');
+  if (!section) return;
+
+  const io = new IntersectionObserver(async (entries) => {
+    const entry = entries[0];
+    if (!entry.isIntersecting || workShowcaseInstance) return;
+    io.disconnect();
+    try {
+      const mod = await import('./assets/js/work-showcase.js');
+      const { projects } = await import('./assets/js/showcase-data.js');
+      workShowcaseInstance = await mod.init(canvasHost, {
+        projects,
+        rtl: lang === 'he',
+        strength: 0.35,
+        onActivate: (proj) => {
+          const tr = t();
+          const url = tr[proj.key + '_url'];
+          if (url) window.open(url, '_blank', 'noopener,noreferrer');
+        },
+      });
+      window.__workShowcase = workShowcaseInstance;
+    } catch (err) {
+      console.error('Work showcase failed to load, falling back to static cards.', err);
+      renderWorkFallback();
+    }
+  }, { threshold: 0.2 });
+  io.observe(section);
+}
+
+function renderAccessibleWorkList() {
+  const tr = t();
+  const list = document.getElementById('workAccessibleList');
+  if (!list) return;
+  list.innerHTML = '';
+  workData.forEach((it) => {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = tr[it.key + '_url'];
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = `${tr[it.key + '_name']} — ${tr[it.key + '_tag']}`;
+    li.appendChild(a);
+    list.appendChild(li);
   });
 }
 
@@ -833,12 +863,11 @@ function renderDots() {
     const btn = document.createElement('button');
     btn.setAttribute('aria-label', tr[it.key + '_name']);
     btn.style.cssText = `position:relative;width:${isActive ? '44px' : '24px'};height:24px;padding:0;border:none;cursor:pointer;background:none;display:flex;align-items:center;transition:width .8s cubic-bezier(.16,1,.3,1);`;
-    btn.addEventListener('click', () => { progressVal = 0; index = i; render(); });
+    btn.addEventListener('click', () => { index = i; render(); if (window.__workShowcase) window.__workShowcase.goTo(i); });
     const track = document.createElement('span');
     track.style.cssText = `position:relative;display:block;width:100%;height:8px;overflow:hidden;background:rgba(233,235,232,.20);transition:background .4s;`;
     const fill = document.createElement('span');
-    fill.style.cssText = 'position:absolute;left:0;top:0;bottom:0;background:#C9F7C5;width:0%;transition:width .12s linear;';
-    if (isActive) fill.id = 'activeFill';
+    fill.style.cssText = `position:absolute;left:0;top:0;bottom:0;background:#C9F7C5;width:${isActive ? '100' : '0'}%;`;
     track.appendChild(fill);
     btn.appendChild(track);
     dotsContainer.appendChild(btn);
@@ -868,18 +897,16 @@ function applyTranslations() {
   document.getElementById('heroTitleA').textContent = tr.hero_title_a;
   document.getElementById('heroTitleMark').textContent = tr.hero_title_mark;
   document.getElementById('heroTitleB').textContent = tr.hero_title_b;
+  document.getElementById('introKickerText').textContent = tr.hero_title_a + tr.hero_title_mark + tr.hero_title_b;
   document.getElementById('location').textContent = tr.location;
   document.getElementById('location2').textContent = tr.location;
   document.getElementById('availability').textContent = tr.availability;
   document.getElementById('counter').textContent = String(index + 1).padStart(2, '0');
   document.getElementById('total').textContent = String(workData.length).padStart(2, '0');
-  document.getElementById('statusLabel').textContent = hover ? tr.status_paused : tr.status_auto;
   document.getElementById('copyright').textContent = tr.copyright;
   document.getElementById('fab').setAttribute('aria-label', tr.fab_label);
-}
-
-function applyTilt() {
-  tiltInner.style.transform = 'rotateY(' + (mx * 4).toFixed(2) + 'deg) rotateX(' + (-my * 2.4).toFixed(2) + 'deg)';
+  document.getElementById('prevBtn').setAttribute('aria-label', tr.aria_prev_project || 'Previous project');
+  document.getElementById('nextBtn').setAttribute('aria-label', tr.aria_next_project || 'Next project');
 }
 
 function renderPricingFeatures() {
@@ -928,31 +955,23 @@ function render() {
   document.documentElement.setAttribute('dir', t().dir);
   document.documentElement.setAttribute('lang', t().langCode);
   applyTranslations();
-  renderCards();
+  renderAccessibleWorkList();
   renderDots();
   renderTestimonial();
   renderPricingFeatures();
   renderFaq();
-  applyTilt();
 }
 
 document.getElementById('langToggle').addEventListener('click', () => {
   lang = lang === 'he' ? 'en' : 'he';
   render();
+  if (window.__workShowcase && window.__workShowcase.setRtl) window.__workShowcase.setRtl(lang === 'he');
 });
 document.getElementById('prevBtn').addEventListener('click', () => goWork(-1));
 document.getElementById('nextBtn').addEventListener('click', () => goWork(1));
 document.getElementById('testPrevBtn').addEventListener('click', () => goWork(-1));
 document.getElementById('testNextBtn').addEventListener('click', () => goWork(1));
 
-tiltZone.addEventListener('mouseenter', () => { hover = true; applyTranslations(); });
-tiltZone.addEventListener('mouseleave', () => { hover = false; mx = 0; my = 0; applyTranslations(); applyTilt(); });
-tiltZone.addEventListener('mousemove', (e) => {
-  const r = tiltZone.getBoundingClientRect();
-  mx = (e.clientX - r.left) / r.width - .5;
-  my = (e.clientY - r.top) / r.height - .5;
-  applyTilt();
-});
 stepsWrapEl.addEventListener('mouseenter', () => { procHover = true; });
 stepsWrapEl.addEventListener('mouseleave', () => { procHover = false; });
 
@@ -961,39 +980,41 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowLeft') goWork(lang === 'he' ? 1 : -1);
 });
 
-/* Scroll: nav shrink + reveal-on-scroll */
+/* Scroll: nav shrink (stays transparent until the hero intro animation finishes) */
+const heroScrollEl = document.getElementById('heroScroll');
 function onScroll() {
-  const on = window.scrollY > 12;
+  const introDone = !heroScrollEl || window.scrollY >= heroScrollEl.offsetHeight - window.innerHeight;
+  const on = introDone && window.scrollY > 12;
   navEl.style.background = on ? 'rgba(14,16,14,.82)' : 'rgba(14,16,14,0)';
   navEl.style.backdropFilter = on ? 'blur(16px)' : 'none';
   navEl.style.borderBottomColor = on ? 'rgba(233,235,232,.14)' : 'rgba(233,235,232,.10)';
   navEl.style.paddingTop = on ? '15px' : '22px';
   navEl.style.paddingBottom = on ? '15px' : '22px';
-
-  const line = window.innerHeight * 0.92;
-  document.querySelectorAll('[data-reveal]').forEach((el) => {
-    if (el.getBoundingClientRect().top < line) {
-      el.style.opacity = '1';
-      el.style.transform = 'translateY(0)';
-    }
-  });
-  document.querySelectorAll('[data-reveal-stagger]').forEach((el) => {
-    if (el.getBoundingClientRect().top < line) el.classList.add('is-in');
-  });
-  const glow = document.getElementById('ctaGlow');
-  if (glow && glow.getBoundingClientRect().top < line) glow.classList.add('is-in');
 }
 window.addEventListener('scroll', onScroll, { passive: true });
 
+/* Reveal-on-viewport-entry via IntersectionObserver: fades + rises each
+   [data-reveal]/[data-reveal-stagger] element once, the first time it enters view. */
+const revealObserver = ('IntersectionObserver' in window)
+  ? new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-in');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' })
+  : null;
+
 function armReveals() {
-  const line = window.innerHeight * 0.92;
-  document.querySelectorAll('[data-reveal]').forEach((el) => {
-    if (el.getBoundingClientRect().top >= line) {
-      el.style.opacity = '0';
-      el.style.transform = 'translateY(24px)';
-    }
-  });
-  onScroll();
+  // Hero text is revealed by initIntroScrub once the video scrub finishes, not on generic viewport entry.
+  const targets = document.querySelectorAll('[data-reveal]:not(#heroKicker):not(#heroTitle):not(#heroCtaWrap), [data-reveal-stagger], #ctaGlow');
+  if (revealObserver) {
+    targets.forEach((el) => revealObserver.observe(el));
+  } else {
+    targets.forEach((el) => el.classList.add('is-in'));
+  }
+  navEl.classList.add('nav-in');
 }
 
 /* Work carousel autoplay + process step cycling */
@@ -1160,57 +1181,6 @@ setInterval(() => {
   else setTimeout(start, 200);
 })();
 
-/* Hero background video: deferred start, viewport-gated, reduced-motion safe */
-(function () {
-  const heroVideo = document.getElementById('heroVideo');
-  const heroPosterImg = document.getElementById('heroPoster');
-  const heroSection = document.getElementById('top');
-  if (!heroVideo || !heroSection) return;
-  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduced || mobileMq.matches) return;
-
-  let started = false;
-  function startHeroVideo() {
-    if (started) return;
-    started = true;
-    const source = heroVideo.querySelector('source');
-    if (source && source.dataset.src) source.src = source.dataset.src;
-    heroVideo.load();
-    heroVideo.play().then(() => {
-      heroVideo.style.opacity = '1';
-      if (heroPosterImg) heroPosterImg.style.opacity = '0';
-    }).catch(() => {});
-  }
-
-  if ('IntersectionObserver' in window) {
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) {
-          if (!started) {
-            if ('requestIdleCallback' in window) requestIdleCallback(startHeroVideo, { timeout: 1500 });
-            else setTimeout(startHeroVideo, 300);
-          } else {
-            heroVideo.play().catch(() => {});
-          }
-        } else if (started) {
-          heroVideo.pause();
-        }
-      });
-    }, { threshold: 0.1 });
-    io.observe(heroSection);
-  } else if ('requestIdleCallback' in window) {
-    requestIdleCallback(startHeroVideo, { timeout: 1500 });
-  } else {
-    setTimeout(startHeroVideo, 300);
-  }
-})();
-
-let resizeTimer;
-function scheduleCardsResize() {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(renderCards, 150);
-}
-window.addEventListener('resize', scheduleCardsResize);
 function resetViewportZoom() {
   const vp = document.querySelector('meta[name="viewport"]');
   if (!vp) return;
@@ -1220,16 +1190,102 @@ function resetViewportZoom() {
 }
 
 window.addEventListener('orientationchange', () => {
-  renderCards();
   resetViewportZoom();
-  setTimeout(() => { renderCards(); resetViewportZoom(); }, 100);
-  setTimeout(() => { renderCards(); resetViewportZoom(); }, 400);
+  setTimeout(resetViewportZoom, 100);
+  setTimeout(resetViewportZoom, 400);
 });
 
 render();
 renderSteps();
 updateSpine();
 requestAnimationFrame(armReveals);
+initWorkShowcase();
+
+(function initIntroScrub() {
+  const wrap = document.getElementById('heroScroll');
+  const video = document.getElementById('introVideo');
+  const introKicker = document.getElementById('introKicker');
+  const heroBits = [
+    document.getElementById('heroKicker'),
+    document.getElementById('heroTitle'),
+    document.getElementById('heroCtaWrap'),
+  ].filter(Boolean);
+  if (!wrap || !video) return;
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isMobile = window.matchMedia('(max-width: 760px)').matches;
+  let duration = 0;
+
+  const revealHero = () => heroBits.forEach((el) => el.classList.add('is-in'));
+  const hideHero = () => heroBits.forEach((el) => el.classList.remove('is-in'));
+
+  if (reduceMotion || isMobile) {
+    wrap.style.height = 'auto';
+    if (introKicker) introKicker.style.display = 'none';
+    revealHero();
+    return;
+  }
+
+  const onMeta = () => { duration = video.duration || 0; };
+  video.addEventListener('loadedmetadata', onMeta);
+  video.load();
+
+  let targetProgress = 0;
+  let currentProgress = 0;
+  let rafId = null;
+  let heroRevealed = false;
+
+  const readScroll = () => {
+    const rect = wrap.getBoundingClientRect();
+    const total = wrap.offsetHeight - window.innerHeight;
+    const scrolled = Math.min(Math.max(-rect.top, 0), total);
+    targetProgress = total > 0 ? scrolled / total : 0;
+  };
+
+  const loop = () => {
+    currentProgress += (targetProgress - currentProgress) * 0.12;
+    if (Math.abs(targetProgress - currentProgress) < 0.0004) {
+      currentProgress = targetProgress;
+      rafId = null;
+    }
+    if (duration > 0) {
+      video.currentTime = currentProgress * duration;
+    }
+    if (introKicker) {
+      const kickerFadeEnd = 0.15;
+      introKicker.style.opacity = currentProgress >= kickerFadeEnd ? '0' : String(1 - currentProgress / kickerFadeEnd);
+    }
+    // Crossfade the video's own baked-in mockup text out as the real HTML text fades in,
+    // so the two never appear on screen together (video mockup text becomes legible
+    // well before the final frame).
+    const fadeStart = 0.9;
+    if (currentProgress >= fadeStart) {
+      const fade = Math.min(1, (currentProgress - fadeStart) / (1 - fadeStart));
+      video.style.opacity = String(1 - fade);
+    } else if (video.style.opacity !== '1') {
+      video.style.opacity = '1';
+    }
+    if (!heroRevealed && targetProgress >= 0.98) {
+      heroRevealed = true;
+      revealHero();
+    } else if (heroRevealed && targetProgress < 0.98) {
+      heroRevealed = false;
+      hideHero();
+    }
+    if (rafId !== null) {
+      rafId = requestAnimationFrame(loop);
+    }
+  };
+
+  const onScroll = () => {
+    readScroll();
+    if (rafId === null) { rafId = requestAnimationFrame(loop); }
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+
+  onScroll();
+})();
 </script>
 </body>
 </html>
