@@ -150,6 +150,38 @@ html.a11y-readable h1, html.a11y-readable h2, html.a11y-readable h3{font-family:
 html.a11y-stop-anim *, html.a11y-stop-anim *::before, html.a11y-stop-anim *::after{animation-play-state:paused !important;transition:none !important;}
 html.a11y-big-cursor, html.a11y-big-cursor *{cursor:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"><path d="M5 3l6.5 16 2-6.7L20 10.5z" fill="%23C9F7C5" stroke="%230E100E" stroke-width="1.2"/></svg>') 4 4, auto !important;}
 
+/* Section-move: navbar clicks close a curtain over the page, squash the
+   logo to a line, draw the target section as a wireframe, then fade the
+   real content in. See initSectionMove(). */
+:root{--sm-curtain:520ms;--sm-logo:900ms;--sm-draw:420ms;--sm-fade:520ms;--sm-stagger:50ms;--sm-blur:6px;}
+.curtain-pn::after{content:'';position:absolute;background:#C9F7C5;opacity:1;transition:opacity 200ms ease;}
+.curtain-pn.t::after{left:0;right:0;bottom:0;height:3px;}
+.curtain-pn.b::after{left:0;right:0;top:0;height:3px;}
+.curtain-pn.l::after{top:0;bottom:0;inset-inline-end:0;width:3px;}
+.curtain-pn.r::after{top:0;bottom:0;inset-inline-start:0;width:3px;}
+#curtain.is-shown .curtain-pn{transform:none !important;}
+#curtain.is-shown .curtain-pn::after{opacity:0;transition-delay:calc(var(--sm-curtain) * .9);}
+#curtain.is-shown #curtainGrid,#curtain.is-shown #curtainLogo{opacity:1;transition-delay:calc(var(--sm-curtain) * .6);}
+#curtain.is-playing #curtainLogo{animation:smSquash var(--sm-logo) cubic-bezier(.7,0,.2,1) forwards;}
+#curtain.is-playing #curtainLine{animation:smLine var(--sm-logo) cubic-bezier(.7,0,.2,1) forwards;}
+@keyframes smSquash{0%,45%{transform:scale(1);opacity:1;}70%{transform:scaleY(.05) scaleX(1.15);opacity:1;}100%{transform:scaleY(.05) scaleX(2.6);opacity:0;}}
+@keyframes smLine{0%,60%{transform:scaleX(0);opacity:0;}70%{transform:scaleX(1);opacity:1;}100%{transform:scaleX(3.4);opacity:0;}}
+
+.sm-target [data-reveal],.sm-target [data-reveal-stagger]{transition-delay:calc(var(--i,0) * var(--sm-stagger)) !important;}
+.sm-target.sm-priming [data-reveal],.sm-target.sm-priming [data-reveal-stagger]{opacity:0 !important;filter:blur(var(--sm-blur));transition-delay:0ms !important;}
+.sm-wire{position:absolute;inset:0;pointer-events:none;z-index:2;opacity:1;transition:opacity var(--sm-fade) ease;}
+.sm-wire.is-out{opacity:0;}
+.sm-wire .ln{position:absolute;background:rgba(233,235,232,.14);transform-origin:0 0;transition:transform var(--sm-draw) cubic-bezier(.22,1,.36,1);}
+.sm-wire .ln.h{height:1px;left:0;right:0;transform:scaleX(0);}
+.sm-wire .ln.v{width:1px;top:0;bottom:0;transform:scaleY(0);}
+.sm-wire .bx{position:absolute;border:1px solid rgba(233,235,232,.14);opacity:0;transition:opacity 220ms ease;}
+.sm-wire .bx.fill{background:#C9F7C5;border-color:#C9F7C5;opacity:0;transform:scaleX(0);transform-origin:0 50%;transition:opacity 220ms ease,transform var(--sm-draw) cubic-bezier(.22,1,.36,1);}
+.sm-wire.is-drawing .ln,.sm-wire.is-drawing .bx.fill{transform:none;}
+.sm-wire.is-drawing .bx{opacity:.6;}
+.sm-wire.is-drawing .bx.fill{opacity:1;}
+html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !important;}
+@media (prefers-reduced-motion:reduce){#curtain,.sm-wire{display:none !important;}}
+
 @media (max-width: 760px) {
   #navLinks{display:none !important;}
   #nav{padding:14px 16px !important;gap:12px !important;}
@@ -682,6 +714,18 @@ html.a11y-big-cursor, html.a11y-big-cursor *{cursor:url('data:image/svg+xml;utf8
       </button>
     </div>
     <p style="margin:16px 0 0;font-size:12px;line-height:1.6;opacity:.55;">ההגדרות נשמרות בדפדפן שלכם בלבד.</p>
+  </div>
+
+  <div id="curtain" aria-hidden="true" style="position:fixed;inset:0;z-index:95;display:grid;place-items:center;pointer-events:none;overflow:hidden;">
+    <div class="curtain-pn t" style="position:absolute;left:0;right:0;top:0;height:50.5%;background:#0E100E;transform:translateY(-101%);transition:transform var(--sm-curtain,520ms) cubic-bezier(.7,0,.2,1);"></div>
+    <div class="curtain-pn b" style="position:absolute;left:0;right:0;bottom:0;height:50.5%;background:#0E100E;transform:translateY(101%);transition:transform var(--sm-curtain,520ms) cubic-bezier(.7,0,.2,1);"></div>
+    <div class="curtain-pn l" style="position:absolute;top:0;bottom:0;left:0;width:50.5%;background:#0E100E;transform:translateX(-101%);transition:transform var(--sm-curtain,520ms) cubic-bezier(.7,0,.2,1);"></div>
+    <div class="curtain-pn r" style="position:absolute;top:0;bottom:0;right:0;width:50.5%;background:#0E100E;transform:translateX(101%);transition:transform var(--sm-curtain,520ms) cubic-bezier(.7,0,.2,1);"></div>
+    <div id="curtainGrid" style="position:absolute;inset:0;opacity:0;transition:opacity 160ms ease;background-image:linear-gradient(rgba(233,235,232,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(233,235,232,.08) 1px,transparent 1px);background-size:33.34% 33.34%;background-position:-1px -1px;"></div>
+    <div id="curtainLogo" style="position:relative;z-index:1;display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-size:23px;font-weight:600;letter-spacing:-.01em;color:#E9EBE8;opacity:0;transition:opacity 160ms ease;transform-origin:50% 50%;">
+      <span style="width:7px;height:7px;background:#C9F7C5;display:inline-block;flex:none;"></span>Mashtech
+    </div>
+    <div id="curtainLine" style="position:absolute;z-index:1;left:50%;top:50%;width:120px;height:2px;margin-inline-start:-60px;background:#C9F7C5;transform:scaleX(0);opacity:0;"></div>
   </div>
 </div>
 
@@ -1653,6 +1697,139 @@ document.getElementById('mobileLangToggle').addEventListener('click', () => {
 
 // Accessibility panel: font scaling, contrast/grayscale, link underline,
 // a readable font, paused animations, and a bigger cursor. Preferences are
+// Section move: clicking a navbar / mobile-menu / footer link that points at
+// an on-page section (#services, #work, ...) closes a curtain over the
+// current view, squashes the Mashtech mark into a line, jumps to the target
+// section and draws its header as a wireframe, then fades the real content
+// in. Falls back to a plain anchor jump for prefers-reduced-motion, when the
+// link's target isn't one of the tracked sections, or while the sequence is
+// already busy (a second click just re-targets once the current run ends).
+function initSectionMove() {
+  const curtain = document.getElementById('curtain');
+  if (!curtain) return;
+  const grid = document.getElementById('curtainGrid');
+  const logo = document.getElementById('curtainLogo');
+  const line = document.getElementById('curtainLine');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // #top is excluded: its hero text is gated by the scroll-scrub intro
+  // animation (initIntroScrub), not the generic reveal system, so it gets a
+  // plain anchor jump rather than the wireframe treatment.
+  const SECTION_IDS = ['services', 'work', 'process', 'pricing', 'faq', 'about', 'contact'];
+  let busy = false;
+  let queued = null;
+
+  function cssMs(name) {
+    const v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name));
+    return isNaN(v) ? 0 : v;
+  }
+  function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
+  function navHeight() { return navEl ? navEl.offsetHeight : 0; }
+
+  function buildWire(section) {
+    const old = section.querySelector('.sm-wire');
+    if (old) old.remove();
+    const wire = document.createElement('div');
+    wire.className = 'sm-wire';
+    const sr = section.getBoundingClientRect();
+    const items = section.querySelectorAll('[data-reveal], [data-reveal-stagger]');
+    const ys = new Set(), xs = new Set();
+    let i = 0;
+    items.forEach((item) => {
+      const r = item.getBoundingClientRect();
+      if (r.width < 4 || r.height < 4) return;
+      item.style.setProperty('--i', i);
+      const top = r.top - sr.top, left = r.left - sr.left;
+      const isCta = item.querySelector('a, button') && getComputedStyle(item).display !== 'grid';
+      const box = document.createElement('div');
+      box.className = 'bx' + (isCta ? ' fill' : '');
+      box.style.cssText = 'top:' + top + 'px;left:' + left + 'px;width:' + r.width + 'px;height:' + r.height + 'px;transition-delay:' + (i * 40) + 'ms;';
+      wire.appendChild(box);
+      ys.add(Math.round(top));
+      xs.add(Math.round(left));
+      xs.add(Math.round(left + r.width));
+      i++;
+    });
+    const yk = [...ys].slice(0, 5);
+    yk.forEach((y, idx) => {
+      const l = document.createElement('div');
+      l.className = 'ln h';
+      l.style.top = y + 'px';
+      l.style.transitionDelay = (idx * 60) + 'ms';
+      wire.appendChild(l);
+    });
+    const xk = [...xs].sort((a, b) => a - b);
+    const xPick = [xk[0], xk[xk.length - 1]].filter((x) => x !== undefined);
+    xPick.forEach((x, idx) => {
+      const l = document.createElement('div');
+      l.className = 'ln v';
+      l.style.left = x + 'px';
+      l.style.transitionDelay = (80 + idx * 60) + 'ms';
+      wire.appendChild(l);
+    });
+    section.style.position = section.style.position || 'relative';
+    section.appendChild(wire);
+    return wire;
+  }
+
+  async function runMove(id) {
+    const target = document.getElementById(id);
+    if (!target) return;
+    busy = true;
+    const tCurtain = cssMs('--sm-curtain'), tLogo = cssMs('--sm-logo'), tDraw = cssMs('--sm-draw'), tFade = cssMs('--sm-fade'), tStagger = cssMs('--sm-stagger');
+
+    curtain.classList.remove('is-playing');
+    void curtain.offsetWidth;
+    curtain.classList.add('is-shown');
+    await wait(tCurtain);
+
+    curtain.classList.add('is-playing');
+    document.documentElement.classList.add('sm-no-tr');
+    const y = target.getBoundingClientRect().top + window.scrollY - (id === 'top' ? 0 : navHeight());
+    window.scrollTo(0, Math.max(0, y));
+    target.classList.add('sm-target', 'sm-priming');
+    const wire = buildWire(target);
+    void document.body.offsetWidth;
+    document.documentElement.classList.remove('sm-no-tr');
+    await wait(tLogo);
+
+    curtain.classList.remove('is-shown');
+    wire.classList.add('is-drawing');
+    await wait(tDraw);
+
+    target.classList.remove('sm-priming');
+    target.querySelectorAll('[data-reveal], [data-reveal-stagger]').forEach((el) => el.classList.add('is-in'));
+    wire.classList.add('is-out');
+    await wait(tFade + tStagger * 8 + 50);
+    wire.remove();
+    target.classList.remove('sm-target');
+    curtain.classList.remove('is-playing');
+    busy = false;
+    if (queued) { const next = queued; queued = null; runMove(next); }
+  }
+
+  function go(id) {
+    if (reduce) {
+      const target = document.getElementById(id);
+      if (target) target.scrollIntoView();
+      return;
+    }
+    if (busy) { queued = id; return; }
+    runMove(id);
+  }
+
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    const id = a.getAttribute('href').slice(1);
+    if (SECTION_IDS.indexOf(id) === -1) return;
+    if (!document.getElementById(id)) return;
+    e.preventDefault();
+    go(id);
+  });
+}
+
+// Accessibility panel: font scaling, contrast/grayscale, link underline,
+// a readable font, paused animations, and a bigger cursor. Preferences are
 // stored per-browser in localStorage; the button also carries the "is-active"
 // mint highlight whenever any option is currently on.
 (function initA11yPanel() {
@@ -2002,6 +2179,7 @@ renderSteps();
 updateSpine();
 requestAnimationFrame(armReveals);
 initWorkShowcase();
+initSectionMove();
 
 (function initIntroScrub() {
   const wrap = document.getElementById('heroScroll');
