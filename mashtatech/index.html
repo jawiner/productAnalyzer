@@ -403,6 +403,12 @@ body.menu-open #fab{visibility:hidden !important;}
         <div id="drumLightboxFrame" style="position:relative;border-radius:8px;overflow:hidden;background:#151815;box-shadow:0 40px 100px -30px rgba(0,0,0,.7),0 0 0 1px rgba(201,247,197,.35);transition:box-shadow .35s ease;">
           <img id="drumLightboxImg" src="" alt="" style="display:block;width:100%;height:auto;max-height:80vh;object-fit:contain;background:#0E100E;">
           <div id="drumLightboxShards" style="position:absolute;inset:0;pointer-events:none;"></div>
+          <div id="drumLightboxCaption" style="display:none;position:absolute;left:18px;right:18px;bottom:18px;align-items:center;justify-content:space-between;gap:16px;padding:16px 22px;background:rgba(14,16,14,.72);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(233,235,232,.12);border-radius:8px;pointer-events:none;">
+            <div style="display:flex;flex-direction:column;gap:5px;min-width:0;">
+              <div id="drumLightboxName" style="font-size:19px;font-weight:500;letter-spacing:-.01em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+              <div id="drumLightboxTag" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#C9F7C5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+            </div>
+          </div>
         </div>
         <div style="margin-top:18px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;color:rgba(233,235,232,.55);" data-t="work_lightbox_hint">לחצו שוב כדי לבקר באתר</div>
       </div>
@@ -1153,19 +1159,26 @@ function drumGoTo(p) {
   index = p;
   renderDrum();
 }
-function openDrumLightbox(img, url) {
+function openDrumLightbox(img, url, name, tag) {
   const lb = document.getElementById('drumLightbox');
   const backdrop = document.getElementById('drumLightboxBackdrop');
   const card = document.getElementById('drumLightboxCard');
   const frame = document.getElementById('drumLightboxFrame');
   const imgEl = document.getElementById('drumLightboxImg');
   const shardsWrap = document.getElementById('drumLightboxShards');
+  const nameEl = document.getElementById('drumLightboxName');
+  const tagEl = document.getElementById('drumLightboxTag');
+  const captionEl = document.getElementById('drumLightboxCaption');
   if (!lb) return;
   shardsWrap.innerHTML = '';
   frame.style.boxShadow = '0 40px 100px -30px rgba(0,0,0,.7),0 0 0 1px rgba(201,247,197,.35)';
   frame.style.overflow = 'hidden';
   imgEl.style.opacity = '1';
   imgEl.src = img;
+  imgEl.alt = name || '';
+  if (nameEl) nameEl.textContent = name || '';
+  if (tagEl) tagEl.textContent = tag || '';
+  if (captionEl) captionEl.style.display = name ? 'flex' : 'none';
   lb.dataset.url = url;
   lb.style.display = 'flex';
   requestAnimationFrame(() => {
@@ -1195,6 +1208,8 @@ function drumShatterLightbox(url) {
   if (!lb) return;
   frame.style.boxShadow = 'none';
   frame.style.overflow = 'visible';
+  const captionEl = document.getElementById('drumLightboxCaption');
+  if (captionEl) captionEl.style.display = 'none';
   shardsWrap.innerHTML = '';
   drumShards.forEach((s) => {
     const sd = document.createElement('div');
@@ -1214,7 +1229,7 @@ function drumShatterLightbox(url) {
     closeDrumLightbox();
   }, 1100);
 }
-function drumActivate(i, img, url) {
+function drumActivate(i, img, url, name, tag) {
   if (drumSlot() !== i) {
     drumState.rot -= drumShortest(i) * DRUM_STEP;
     drumState.focus = -1;
@@ -1227,7 +1242,7 @@ function drumActivate(i, img, url) {
   if (drumState.focus !== i) {
     drumState.focus = i;
     renderDrum();
-    openDrumLightbox(img, url);
+    openDrumLightbox(img, url, name, tag);
     return;
   }
   drumShatterLightbox(url);
@@ -1322,7 +1337,7 @@ function renderDrum() {
     const panel = document.createElement('div');
     panel.setAttribute('data-drum-panel', '');
     panel.style.cssText = 'position:absolute;left:0;top:0;width:499px;height:281px;margin-left:-250px;margin-top:-140px;transform-style:preserve-3d;transform:' + transform + ';opacity:' + opacity + ';transition:transform .7s cubic-bezier(.16,1,.3,1) ' + delay + ', opacity .9s ease ' + delay + ';cursor:pointer;';
-    panel.addEventListener('click', (e) => { e.stopPropagation(); if (!drumSuppressClick) drumActivate(i, w.img, tr[w.key + '_url']); });
+    panel.addEventListener('click', (e) => { e.stopPropagation(); if (!drumSuppressClick) drumActivate(i, w.img, tr[w.key + '_url'], tr[w.key + '_name'], tr[w.key + '_tag']); });
 
     const inner = document.createElement('div');
     inner.style.cssText = 'position:absolute;inset:0;overflow:hidden;background:#151815;border-radius:5px;box-shadow:' + shadow + ';filter:' + blur + ';transition:filter .7s ease;';
@@ -1381,7 +1396,7 @@ function initWorkShowcase() {
     const cur = drumSlot();
     const tr = t();
     const w = workData[cur % workData.length];
-    drumActivate(cur, w.img, tr[w.key + '_url']);
+    drumActivate(cur, w.img, tr[w.key + '_url'], tr[w.key + '_name'], tr[w.key + '_tag']);
   });
 
   const lightbox = document.getElementById('drumLightbox');
