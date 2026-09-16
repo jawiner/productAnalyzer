@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /index.html.production-backup
+Disallow: /Mashtatech.dc.html
+
+Sitemap: https://www.mashtech.co.il/sitemap.xml
