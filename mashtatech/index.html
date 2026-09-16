@@ -1518,13 +1518,23 @@ function initWorkShowcase() {
   });
 
   const lightbox = document.getElementById('drumLightbox');
-  const lightboxCard = document.getElementById('drumLightboxCard');
-  if (lightbox) {
-    lightboxCard.addEventListener('click', (e) => {
+  const lightboxImg = document.getElementById('drumLightboxImg');
+  if (lightbox && lightboxImg) {
+    // Only a click on the photo itself opens/shatters it. A click anywhere
+    // else inside the lightbox (the letterboxed edges of the card, or the
+    // backdrop) reads as "move the carousel" instead: it closes the
+    // lightbox and spins the drum toward whichever side was clicked, so a
+    // press meant for a neighbouring project never accidentally opens the
+    // one that's currently focused.
+    lightboxImg.addEventListener('click', (e) => {
       e.stopPropagation();
       drumShatterLightbox(lightbox.dataset.url);
     });
-    lightbox.addEventListener('click', () => closeDrumLightbox());
+    lightbox.addEventListener('click', (e) => {
+      const goRight = e.clientX > window.innerWidth / 2;
+      closeDrumLightbox();
+      drumSpin(goRight ? 1 : -1);
+    });
   }
   drumStageEl.addEventListener('wheel', (e) => {
     const now = Date.now();
