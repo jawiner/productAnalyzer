@@ -51,6 +51,19 @@ a:hover{color:inherit;}
 @keyframes mHeroScan{0%{transform:translateY(0);opacity:0;}8%{opacity:.85;}70%{opacity:.3;}100%{transform:translateY(100vh);opacity:0;}}
 @keyframes workWatermarkShine{0%{background-position:140% 0;}100%{background-position:-40% 0;}}
 .hoverline:hover{color:#C9F7C5;border-bottom-color:#C9F7C5;}
+/* Navbar letter-roll hover: each link holds two stacked rows of letters; on
+   hover the top row slides up out of view while the bottom row slides in from
+   below, staggered outward from the middle letter. */
+.nav-roll{display:inline-block;position:relative;overflow:hidden;line-height:1.2;vertical-align:bottom;}
+.nav-roll-row{display:block;white-space:nowrap;}
+.nav-roll-row--b{position:absolute;inset:0;}
+.nav-roll-l{display:inline-block;transform:translateY(0);transition:transform .3s cubic-bezier(.45,0,.55,1);will-change:transform;}
+.nav-roll-row--b .nav-roll-l{transform:translateY(100%);}
+#navLinks a:hover .nav-roll-row--a .nav-roll-l{transform:translateY(-100%);}
+#navLinks a:hover .nav-roll-row--b .nav-roll-l{transform:translateY(0);}
+@media (prefers-reduced-motion:reduce){
+  .nav-roll-l{transition:none !important;}
+}
 .faq-row{background:transparent;transition:background .3s ease;}
 .faq-row:hover{background:rgba(233,235,232,.03);}
 .faq-btn:hover span:last-child{border-color:#C9F7C5 !important;}
@@ -1627,6 +1640,39 @@ function renderTestimonial() {
   document.getElementById('testimonialPhotoLabel').textContent = tr.photo_placeholder;
 }
 
+/* Navbar letter-roll: rebuild each #navLinks link as two rows of per-letter
+   spans (see .nav-roll CSS). Runs after every translation pass because
+   applyTranslations() overwrites the link's textContent. */
+const NAV_ROLL_STAGGER = 0.035; // seconds per letter, measured from the middle letter
+function buildNavRoll() {
+  document.querySelectorAll('#navLinks a[data-t]').forEach((a) => {
+    const text = a.textContent.trim();
+    if (!text) return;
+    const letters = Array.from(text);
+    const mid = (letters.length - 1) / 2;
+    const row = (cls) => {
+      const r = document.createElement('span');
+      r.className = 'nav-roll-row ' + cls;
+      letters.forEach((ch, i) => {
+        const l = document.createElement('span');
+        l.className = 'nav-roll-l';
+        l.textContent = ch === ' ' ? ' ' : ch;
+        l.style.transitionDelay = (NAV_ROLL_STAGGER * Math.abs(i - mid)).toFixed(3) + 's';
+        r.appendChild(l);
+      });
+      return r;
+    };
+    const wrap = document.createElement('span');
+    wrap.className = 'nav-roll';
+    wrap.setAttribute('aria-hidden', 'true');
+    wrap.appendChild(row('nav-roll-row--a'));
+    wrap.appendChild(row('nav-roll-row--b'));
+    a.setAttribute('aria-label', text);
+    a.textContent = '';
+    a.appendChild(wrap);
+  });
+}
+
 function applyTranslations() {
   const tr = t();
   document.querySelectorAll('[data-t]').forEach((el) => {
@@ -1634,6 +1680,7 @@ function applyTranslations() {
     const prefix = el.getAttribute('data-prefix') || '';
     if (tr[key] !== undefined) el.textContent = prefix + tr[key];
   });
+  buildNavRoll();
   document.querySelectorAll('[data-t-alt]').forEach((el) => {
     const key = el.getAttribute('data-t-alt');
     if (tr[key] !== undefined) el.setAttribute('alt', tr[key]);
