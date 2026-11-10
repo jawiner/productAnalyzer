@@ -1,0 +1,3 @@
+# Local board ids (not secret, but specific to this machine's Notion board)
+board.json
+__pycache__/

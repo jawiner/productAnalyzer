@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ book.title }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300..700&family=Heebo:wght@400..600&family=Inter:wght@400..700&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&display=block">
+<style>
+{% include "book.css.j2" %}
+</style>
+</head>
+<body>
+
+{# ── macros ─────────────────────────────────────────────────────────── #}
+
+{% macro mood_legend(counts=None, show_none=False) -%}
+<div class="legend">
+  {%- for m in moods %}
+  {%- if counts is none or counts[m] %}
+  <span><i style="background:{{ mood_colors[m] }}"></i>{{ m|capitalize }}{% if counts is not none %} <b>{{ counts[m] }}</b>{% endif %}</span>
+  {%- endif %}
+  {%- endfor %}
+  {%- if show_none %}<span><i class="none"></i>No mood logged</span>{% endif %}
+</div>
+{%- endmacro %}
+
+{% macro photo_block(rows) -%}
+<div class="photos">
+  {%- for row in rows %}
+  <div class="photo-row">
+    {%- for cell in row %}
+    <img src="{{ cell.photo.uri }}" style="width:{{ '%.2f'|format(cell.w) }}mm;height:{{ '%.2f'|format(cell.h) }}mm" alt="">
+    {%- endfor %}
+  </div>
+  {%- endfor %}
+</div>
+{%- endmacro %}
+
+{% macro footer(entry, day, with_day) -%}
+{#- one block under each entry: the day's goals, then (on the day's last entry) what the app logged -#}
+{%- set clocked = day.clocked|clock_summary if with_day else [] %}
+{%- set show_day = with_day and (day.habits_possible or day.workouts or day.gym or clocked or day.tasks_done or day.habit_notes) %}
+{%- if entry.goals_review or entry.goals_tomorrow or show_day %}
+<div class="ledger">
+  {%- if entry.goals_review %}
+  <div class="row"><div class="k">Yesterday's goals</div><div class="v">
+    {%- for text, done in entry.goals_review %}
+    <div class="goal{% if done %} done{% endif %}"><span class="box">{{ '✓' if done else '○' }}</span><span class="t" dir="auto">{{ text }}</span></div>
+    {%- endfor %}
+  </div></div>
+  {%- endif %}
+  {%- if entry.goals_tomorrow %}
+  <div class="row"><div class="k">For tomorrow</div><div class="v">
+    {%- for text in entry.goals_tomorrow %}
+    <div class="goal"><span class="box">○</span><span class="t" dir="auto">{{ text }}</span></div>
+    {%- endfor %}
+  </div></div>
+  {%- endif %}
+  {%- if show_day %}
+  {%- if day.habits_possible %}
+  <div class="row"><div class="k">Habits</div><div class="v"><b>{{ day.habits_done|length }}</b> of {{ day.habits_possible }} checked off</div></div>
+  {%- endif %}
+  {%- if day.workouts %}
+  <div class="row"><div class="k">Training</div><div class="v">
+    {%- for w in day.workouts %}
+    <div><b>{{ w.name }}</b>{% if w.detail %} · {{ w.detail }}{% endif %}{% for n in w.notes %} — <span class="note" dir="auto">{{ n }}</span>{% endfor %}</div>
+    {%- endfor %}
+  </div></div>
+  {%- endif %}
+  {%- if day.gym %}
+  <div class="row"><div class="k">Gym</div><div class="v">
+    {%- for g in day.gym %}
+    <div><b dir="auto">{{ g.exercise }}</b>{% if g.sets %} · {{ g.sets }}{% endif %}{% if g.muscle %}<span class="tag">{{ g.muscle }}</span>{% endif %}{% if g.notes %} — <span class="note" dir="auto">{{ g.notes }}</span>{% endif %}</div>
+    {%- endfor %}
+  </div></div>
+  {%- endif %}
+  {%- if clocked %}
+  <div class="row"><div class="k">Clocked</div><div class="v">
+    {%- for c in clocked %}
+    <div><b dir="auto">{{ c.label }}</b> · {{ c.duration }}{% if c.summaries %} — <span class="note" dir="auto">{{ c.summaries|join('; ') }}</span>{% endif %}</div>
+    {%- endfor %}
+  </div></div>
+  {%- endif %}
+  {%- if day.tasks_done %}
+  <div class="row"><div class="k">Done</div><div class="v">
+    {%- for t in day.tasks_done %}
+    <div dir="auto">✓ {{ t.title }}{% if t.folder %}<span class="tag">{{ t.folder }}</span>{% endif %}</div>
+    {%- endfor %}
+  </div></div>
+  {%- endif %}
+  {%- if day.habit_notes %}
+  <div class="row"><div class="k">Notes</div><div class="v">
+    {%- for name, note in day.habit_notes %}
+    <div><b>{{ name }}</b> — <span class="note" dir="auto">{{ note|replace('\n', ' · ') }}</span></div>
+    {%- endfor %}
+  </div></div>
+  {%- endif %}
+  {%- endif %}
+</div>
+{%- endif %}
+{%- endmacro %}
+
+{# ── cover ──────────────────────────────────────────────────────────── #}
+
+<section class="cover{% if not cover %} no-photo{% endif %}">
+  {%- if cover %}<img class="cover-img" src="{{ cover.uri }}" alt="">{% endif %}
+  <div class="cover-shade"></div>
+  <div class="cover-text">
+    <div class="kicker">Lifemaxing</div>
+    <div class="cover-title">{{ book.title }}</div>
+    <div class="cover-sub">{{ span_label }}</div>
+    {%- if book.author %}<div class="cover-author">{{ book.author }}</div>{% endif %}
+  </div>
+</section>
+
+<section class="title-page">
+  <div class="tp-title">{{ book.title }}</div>
+  {%- if book.subtitle %}<div class="tp-sub">{{ book.subtitle }}</div>{% endif %}
+  <div class="tp-range">{{ book.start|full_date }} – {{ book.end|full_date }}</div>
+  {%- if book.author %}<div class="tp-author">{{ book.author }}</div>{% endif %}
+  <div class="tp-note">Every journal entry in this book is printed exactly as it was written in the Lifemaxing app, one evening at a time.</div>
+</section>
+
+<section class="contents">
+  <h1>Contents</h1>
+  <ol class="toc">
+    <li class="group">Overview</li>
+    <li><span class="num"></span><span class="label">At a glance</span><span class="dots"></span><span class="pg">{{ pg('At a glance') }}</span></li>
+    <li class="group">The months</li>
+    {%- for month in book.months %}
+    <li><span class="num">{{ month.index }}</span><span class="label">{{ month.title }}<small>{{ month.stats.entries }} {{ 'entry' if month.stats.entries == 1 else 'entries' }}</small></span><span class="dots"></span><span class="pg">{{ pg(month.title) }}</span></li>
+    {%- endfor %}
+    <li class="group">At the end</li>
+    {%- for title in end_titles %}
+    <li><span class="num"></span><span class="label">{{ title }}</span><span class="dots"></span><span class="pg">{{ pg(title) }}</span></li>
+    {%- endfor %}
+  </ol>
+</section>
+
+{# ── at a glance ────────────────────────────────────────────────────── #}
+
+<section class="part" style="page: p-glance">
+  <h1>At a glance</h1>
+  <p class="lede">{{ book.start|full_date }} to {{ book.end|full_date }}: {{ book.stats.span_days }} days, {{ book.stats.days_journaled }} of them written down.</p>
+  <div class="tiles">
+    {%- for t in tiles %}
+    <div class="tile"><div class="t-label">{{ t.label }}</div><div class="t-value">{{ t.value }}</div>{% if t.sub %}<div class="t-sub">{{ t.sub }}</div>{% endif %}</div>
+    {%- endfor %}
+  </div>
+
+  <div class="sec">
+    <h2>How the days felt</h2>
+    {{ charts.pixels|safe }}
+    {{ mood_legend(None, True) }}
+    <h3 class="sub">All {{ book.stats.mood_counts.values()|sum }} logged moods</h3>
+    {{ charts.mood_bar|safe }}
+    {{ mood_legend(book.stats.mood_counts) }}
+    {%- if charts.score %}
+    <h3 class="sub">Day score</h3>
+    {{ charts.score|safe }}
+    <p class="caption">Each dot is one day's score out of 100 ({{ book.stats.scored_days }} scored days from {{ book.stats.score_since|full_date }}, average {{ book.stats.avg_score }}). The line is the average of the last seven scored days, and it breaks wherever scoring stopped for more than ten days.</p>
+    {%- endif %}
+  </div>
+
+  {%- if charts.habits %}
+  <div class="sec">
+    <h2>Habits</h2>
+    {{ charts.habits|safe }}
+    <p class="caption">Each bar is the share of days a habit was checked off, counted from the day it was added. "Best run" is its longest unbroken streak.{% if book.challenge and book.challenge.required %} ◆ marks the {{ book.challenge.required|length }} required habits of the challenge that started on {{ book.challenge.start|full_date }}.{% endif %}</p>
+  </div>
+  {%- endif %}
+
+  {%- if book.milestones %}
+  <div class="sec">
+    <h2>Milestones</h2>
+    <ul class="milestones">
+      {%- for date, text, url in book.milestones %}
+      <li>
+        {%- if url and photos.get(url) %}<img src="{{ photos[url].thumb_uri }}" alt="">{% else %}<div class="noimg"></div>{% endif %}
+        <div><div class="when">{{ date|weekday }}, {{ date|full_date }}</div><div class="what" dir="auto">{{ text }}</div></div>
+      </li>
+      {%- endfor %}
+    </ul>
+  </div>
+  {%- endif %}
+</section>
+
+{# ── months ─────────────────────────────────────────────────────────── #}
+
+{%- for month in book.months %}
+{%- set ms = month.stats %}
+{%- set hero = photos.get(month.hero_url) if month.hero_url else None %}
+<section class="chapter" style="page: m-{{ month.key }}">
+  <div class="opener{% if not hero %} no-photo{% endif %}">
+    {%- if hero %}
+    <img class="hero" src="{{ hero.uri }}" alt="">
+    <div class="o-photo-note">{{ month.hero_date|day_month }}</div>
+    {%- endif %}
+    <div class="o-text">
+      <div class="kicker">Chapter {{ month.index }}</div>
+      <h1><span class="mname">{{ month.name }}</span> <span class="myear">{{ month.year }}</span></h1>
+      <div class="o-stats">
+        <b>{{ ms.entries }}</b> {{ 'entry' if ms.entries == 1 else 'entries' }} · <b>{{ '{:,}'.format(ms.words) }}</b> words · <b>{{ ms.photos }}</b> photos
+        {%- if ms.habit_rate is not none %} · habits <b>{{ (ms.habit_rate * 100)|round|int }}%</b>{% endif %}
+        {%- if ms.milestones %} · <b>{{ ms.milestones|length }}</b> {{ 'milestone' if ms.milestones|length == 1 else 'milestones' }}{% endif %}
+      </div>
+      {{ charts.months[month.key].mood_bar|safe }}
+      {{ mood_legend(ms.mood_counts) }}
+    </div>
+  </div>
+
+  <div class="glance-page">
+    <h2>{{ month.name }} at a glance</h2>
+    {{ charts.months[month.key].calendar|safe }}
+    {{ mood_legend(None, True) }}
+    <p class="caption">The small number is the day score. ★ marks a milestone.</p>
+    {%- if charts.months[month.key].grid %}
+    <h3 class="sub">Habits</h3>
+    {{ charts.months[month.key].grid|safe }}
+    <p class="caption">A dot means the habit was checked off that day. Shaded columns are weekends.</p>
+    {%- endif %}
+  </div>
+
+  {%- if month.plan and month.plan.intentions %}
+  <div class="plan-block">
+    <h3 class="sub">{{ month.name }}'s plan, set at the start of the month</h3>
+    <dl class="plan">
+      {%- for label, paras in month.plan.intentions %}
+      <dt>{{ label }}</dt>
+      <dd>{% for p in paras %}<p dir="auto">{{ p }}</p>{% endfor %}</dd>
+      {%- endfor %}
+    </dl>
+  </div>
+  {%- endif %}
+
+  <div class="entries">
+    {%- for day in month.days %}
+    {%- for entry in day.entries %}
+    <article class="entry">
+      <div class="entry-head">
+        <h2><span class="wd">{{ entry.date|weekday }}{% if not loop.first %} · later{% endif %}</span> <span class="dt">{{ entry.date|day_month }}</span></h2>
+        <div class="entry-meta">
+          {%- if entry.mood %}<span class="chip"><i style="background:{{ mood_colors[entry.mood] }}"></i>{{ entry.mood|capitalize }}</span>{% endif %}
+          {%- if entry.day_score is not none %}<span class="score">Score <b>{{ entry.day_score }}</b></span>{% endif %}
+        </div>
+      </div>
+      {%- if entry.milestone %}
+      <div class="milestone"><span class="kicker">★ Milestone</span><span class="m-text" dir="auto">{{ entry.milestone }}</span></div>
+      {%- endif %}
+      {%- if entry.paragraphs %}
+      <div class="text">
+        {%- for p in entry.paragraphs %}
+        <p dir="auto">{{ p }}</p>
+        {%- endfor %}
+      </div>
+      {%- elif not entry.photo_urls %}
+      <p class="empty-note">No words this day, just the check-in.</p>
+      {%- endif %}
+      {%- set rows = photo_rows[entry.id] %}
+      {%- if rows %}{{ photo_block(rows) }}{% endif %}
+      {%- if entry.video_count %}
+      <p class="video-note">▶ {{ entry.video_count }} {{ 'video' if entry.video_count == 1 else 'videos' }} from this day {{ 'isn’t' if entry.video_count == 1 else 'aren’t' }} shown in print.</p>
+      {%- endif %}
+      {%- if entry.insight %}
+      <div class="insight"><div class="kicker">Insight</div><p dir="auto">{{ entry.insight }}</p></div>
+      {%- endif %}
+      {{ footer(entry, day, loop.last) }}
+    </article>
+    {%- endfor %}
+    {%- endfor %}
+  </div>
+
+  {%- if month.plan and (month.plan.reflection or month.plan.prompts) %}
+  <div class="reflection">
+    <h2>Looking back on {{ month.name }}</h2>
+    <p class="byline">Written by the Lifemaxing app's monthly review at the time.</p>
+    {%- if month.plan.reflection %}<div class="md">{{ month.plan.reflection|markdown|safe }}</div>{% endif %}
+    {%- if month.plan.prompts %}
+    <h3 class="sub">Questions it left me with</h3>
+    <ul class="prompts">{% for q in month.plan.prompts %}<li dir="auto">{{ q }}</li>{% endfor %}</ul>
+    {%- endif %}
+  </div>
+  {%- endif %}
+</section>
+{%- endfor %}
+
+{# ── end matter ─────────────────────────────────────────────────────── #}
+
+{%- if book.insights %}
+<section class="end" style="page: p-insights">
+  <h1>Things I learned</h1>
+  <p class="lede">Every insight from the journal, in the order it came.</p>
+  <ul class="quotes">
+    {%- for date, text in book.insights %}
+    <li><div class="when">{{ date|full_date }}</div><div class="q" dir="auto">{{ text }}</div></li>
+    {%- endfor %}
+  </ul>
+</section>
+{%- endif %}
+
+{%- if has_ahead %}
+<section class="end ahead" style="page: p-ahead">
+  <h1>Looking ahead</h1>
+  <p class="lede">What was still on the horizon on {{ book.end|full_date }}.</p>
+  {%- set upcoming = book.training_goals|selectattr('upcoming')|list %}
+  {%- set past = book.training_goals|rejectattr('upcoming')|list %}
+  {%- if upcoming %}
+  <h3 class="sub">Races on the calendar</h3>
+  {%- for g in upcoming %}
+  <div class="item"><div class="name">{{ g.name }}{% if g.target_time %} · {{ g.target_time }}{% endif %}</div>
+    <div class="det">{{ g.target_date|full_date }} · <b>{{ g.days_out }}</b> days after the last entry{% if g.description %} · <span dir="auto">{{ g.description }}</span>{% endif %}</div></div>
+  {%- endfor %}
+  {%- endif %}
+  {%- if past %}
+  <h3 class="sub">Targets that came due along the way</h3>
+  {%- for g in past %}
+  <div class="item"><div class="name">{{ g.name }}{% if g.target_time %} · {{ g.target_time }}{% endif %}</div>
+    <div class="det">Target date {{ g.target_date|full_date if g.target_date else 'not set' }}</div></div>
+  {%- endfor %}
+  {%- endif %}
+  {%- if last_goals %}
+  <h3 class="sub">The last goals I set</h3>
+  <ul class="tasks">{% for g in last_goals %}<li><span class="box">○</span><span dir="auto">{{ g }}</span></li>{% endfor %}</ul>
+  {%- endif %}
+  {%- if book.open_tasks %}
+  <h3 class="sub">Still on the list</h3>
+  <ul class="tasks">
+    {%- for t in book.open_tasks %}
+    <li><span class="box">○</span><span><span dir="auto">{{ t.title }}</span>{% if t.folder or t.due %}<br><span class="folder" dir="auto">{{ t.folder }}{% if t.folder and t.due %} · {% endif %}{% if t.due %}due {{ t.due|full_date }}{% endif %}</span>{% endif %}</span></li>
+    {%- endfor %}
+  </ul>
+  {%- endif %}
+  {%- if book.projects %}
+  <h3 class="sub">Projects</h3>
+  {%- for p in book.projects %}
+  <div class="item"><div class="name" dir="auto">{{ p.title }}</div>
+    <div class="det">{% if p.description %}<span dir="auto">{{ p.description }}</span> · {% endif %}{{ p.status|capitalize }}{% if p.start %} · started {{ p.start|full_date }}{% endif %}</div></div>
+  {%- endfor %}
+  {%- endif %}
+</section>
+{%- endif %}
+
+{%- if sheet %}
+<section class="end" style="page: p-photos">
+  <h1>Every photo</h1>
+  <p class="lede">All {{ sheet|length }} photos, in the order they were taken into the journal.</p>
+  <div class="sheet">
+    {%- for p in sheet %}<img src="{{ p.thumb_uri }}" alt="">{% endfor %}
+  </div>
+</section>
+{%- endif %}
+
+<section class="colophon">
+  <div class="kicker">About this book</div>
+  <p>Made on {{ book.generated|full_date }} from <i>{{ book.source_name }}</i>: {{ book.stats.entries }} journal entries, {{ '{:,}'.format(book.stats.checkins) }} habit check-ins, {{ book.stats.workouts }} logged workouts and {{ book.stats.photos }} photos, from {{ book.start|full_date }} to {{ book.end|full_date }}.</p>
+  <p>The journal is printed as it was written. Stats and charts are counted straight from the export{% if book.reflections_count %}, and the {{ book.reflections_count }} monthly {{ 'reflection was' if book.reflections_count == 1 else 'reflections were' }} written by the Lifemaxing app at the time{% endif %}.{% if book.stats.videos %} {{ book.stats.videos }} {{ 'video is' if book.stats.videos == 1 else 'videos are' }} not shown in print.{% endif %}{% if book.hidden_habits %} {{ book.hidden_habits|length }} {{ 'habit was' if book.hidden_habits|length == 1 else 'habits were' }} left out of this edition.{% endif %}</p>
+  <p>Set in Newsreader and Inter.</p>
+</section>
+
+</body>
+</html>
