@@ -79,6 +79,29 @@ a:hover{color:inherit;}
 .btn-outline:hover{border-color:#C9F7C5;color:#C9F7C5;}
 .service-cell:hover{background:rgba(233,235,232,.03);}
 .work-arrow:hover{transform:scale(1.08);}
+.film-btn{display:inline-flex;align-items:center;gap:9px;height:42px;padding:0 16px;border:1px solid rgba(233,235,232,.22);background:rgba(14,16,14,.5);color:#E9EBE8;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;white-space:nowrap;cursor:pointer;border-radius:6px;transition:background .25s cubic-bezier(.16,1,.3,1),color .25s,border-color .25s,transform .25s cubic-bezier(.16,1,.3,1);}
+.film-btn:hover{border-color:#C9F7C5;color:#C9F7C5;}
+.film-btn:active{transform:scale(.97);}
+.film-btn:focus-visible,.film-play:focus-visible{outline:2px solid #C9F7C5;outline-offset:3px;}
+.film-btn--solid{background:#C9F7C5;border-color:#C9F7C5;color:#0E100E;}
+.film-btn--solid:hover{background:#E9EBE8;border-color:#E9EBE8;color:#0E100E;}
+.film-btn--icon{width:42px;padding:0;justify-content:center;font-size:14px;letter-spacing:0;}
+.film-btn__tri{width:0;height:0;border-style:solid;border-width:5px 0 5px 8px;border-color:transparent transparent transparent currentColor;}
+.film-play{position:absolute;display:flex;align-items:center;justify-content:center;width:52px;height:52px;padding:0;border:none;border-radius:50%;background:#C9F7C5;color:#0E100E;cursor:pointer;box-shadow:0 10px 30px -10px rgba(0,0,0,.7);transition:transform .25s cubic-bezier(.16,1,.3,1),background .25s;}
+.film-play:hover{transform:scale(1.08);background:#E9EBE8;}
+.film-play .film-btn__tri{border-width:7px 0 7px 11px;margin-inline-start:3px;}
+#filmModal{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:4vh 4vw;}
+#filmModal[hidden]{display:none;}
+#filmModalBackdrop{position:absolute;inset:0;background:rgba(6,7,6,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;transition:opacity .4s ease;}
+#filmModalCard{position:relative;width:min(1180px,100%,calc((92vh - 96px) * 16 / 9));opacity:0;transform:scale(.96) translateY(12px);transition:opacity .45s cubic-bezier(.16,1,.3,1),transform .45s cubic-bezier(.16,1,.3,1);}
+#filmModal.is-open #filmModalBackdrop{opacity:1;}
+#filmModal.is-open #filmModalCard{opacity:1;transform:none;}
+#filmModalVideo{display:block;width:100%;aspect-ratio:16/9;background:#0E100E;border-radius:8px;box-shadow:0 40px 100px -30px rgba(0,0,0,.8),0 0 0 1px rgba(201,247,197,.3);}
+#filmModalBar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:14px;}
+#filmModalName{font-size:19px;font-weight:500;letter-spacing:-.01em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#filmModalTag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#C9F7C5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+@media (prefers-reduced-motion: reduce){#filmModalBackdrop,#filmModalCard,.film-btn,.film-play{transition:none;}}
+@media (max-width:760px){#filmModal{padding:2vh 12px;}#drumLightboxCaption{flex-wrap:wrap;}}
 .carousel-nav:hover{background:#C9F7C5;border-color:#C9F7C5;color:#0E100E;}
 .testimonial-nav:hover{background:#C9F7C5;border-color:#C9F7C5;color:#0E100E;}
 .social-icon:hover{background:#C9F7C5;border-color:#C9F7C5;color:#0E100E;}
@@ -520,9 +543,30 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
               <div id="drumLightboxName" style="font-size:19px;font-weight:500;letter-spacing:-.01em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
               <div id="drumLightboxTag" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#C9F7C5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
             </div>
+            <div data-lb-action style="display:flex;align-items:center;gap:10px;flex:none;pointer-events:auto;">
+              <button type="button" id="drumLightboxWatch" class="film-btn film-btn--solid"><span aria-hidden="true" class="film-btn__tri"></span><span data-t="work_watch_film">צפו בסרטון</span></button>
+              <button type="button" id="drumLightboxVisit" class="film-btn"><span data-t="work_live_site">לאתר החי</span><span aria-hidden="true">↗</span></button>
+            </div>
           </div>
         </div>
         <div style="margin-top:18px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;color:rgba(233,235,232,.55);" data-t="work_lightbox_hint">לחצו שוב כדי לבקר באתר</div>
+      </div>
+    </div>
+
+    <div id="filmModal" role="dialog" aria-modal="true" aria-labelledby="filmModalName" hidden>
+      <div id="filmModalBackdrop"></div>
+      <div id="filmModalCard">
+        <video id="filmModalVideo" controls playsinline preload="none"></video>
+        <div id="filmModalBar">
+          <div style="display:flex;flex-direction:column;gap:5px;min-width:0;">
+            <div id="filmModalName"></div>
+            <div id="filmModalTag"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex:none;">
+            <a id="filmModalVisit" class="film-btn" target="_blank" rel="noopener noreferrer"><span data-t="work_live_site">לאתר החי</span><span aria-hidden="true">↗</span></a>
+            <button type="button" id="filmModalClose" class="film-btn film-btn--icon" aria-label="סגירת הסרטון">✕</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -832,6 +876,7 @@ const translations = {
     work_watermark: 'פרויקטים',
     work_lightbox_hint: 'לחצו שוב כדי לבקר באתר',
     work_open_label: 'לביקור באתר',
+    work_watch_film: 'צפו בסרטון', work_live_site: 'לאתר החי', aria_close_film: 'סגירת הסרטון',
     testimonials_label: 'המלצות', testimonials_title: 'מה אומרים עליי',
     process_title: 'איך זה עובד',
     process_sub: 'ארבעה שלבים ברורים, לוח זמנים ריאלי, ותקשורת ישירה איתי לאורך כל הדרך — בלי הפתעות ובלי שכבות תיווך.',
@@ -912,6 +957,7 @@ const translations = {
     work_watermark: 'Projects',
     work_lightbox_hint: 'Click again to visit the site',
     work_open_label: 'Visit site',
+    work_watch_film: 'Watch the film', work_live_site: 'Live site', aria_close_film: 'Close the film',
     testimonials_label: 'Testimonials', testimonials_title: 'What clients say',
     process_title: 'How it runs',
     process_sub: 'Four clear stages, a realistic timeline, and direct communication with me the whole way through — no surprises, no middlemen.',
@@ -966,10 +1012,10 @@ const translations = {
 };
 
 const workData = [
-  { key: 'work1', img: 'assets/villa-el-nof.webp' },
-  { key: 'work2', img: 'assets/lifemaxing.webp' },
-  { key: 'work3', img: 'assets/talentflow.webp' },
-  { key: 'work4', img: 'assets/pizza-mashta.webp' }
+  { key: 'work1', img: 'assets/villa-el-nof.webp', film: { he: 'assets/video/film-villa-el-nof.mp4', en: 'assets/video/film-villa-el-nof-en.mp4' } },
+  { key: 'work2', img: 'assets/lifemaxing.webp', film: { he: 'assets/video/film-lifemaxing.mp4', en: 'assets/video/film-lifemaxing-en.mp4' } },
+  { key: 'work3', img: 'assets/talentflow.webp', film: { he: 'assets/video/film-castly.mp4' } },
+  { key: 'work4', img: 'assets/pizza-mashta.webp', film: { he: 'assets/video/film-pizza-mashta.mp4' } }
 ];
 
 let lang = 'he';
@@ -1343,8 +1389,9 @@ function renderWorkFallback() {
     card.setAttribute('role', 'button');
     card.setAttribute('tabindex', active ? '0' : '-1');
     card.setAttribute('aria-label', tr[it.key + '_name']);
-    card.addEventListener('click', () => {
+    card.addEventListener('click', (e) => {
       if (workSwipeMoved) return;
+      if (e.target.closest('[data-film-btn]')) { openFilm(it); return; }
       if (!active) { index = i; goWork(0); }
       else window.open(url, '_blank', 'noopener,noreferrer');
     });
@@ -1359,8 +1406,70 @@ function renderWorkFallback() {
         <div aria-hidden="true" style="flex:none;width:40px;height:40px;border-radius:50%;background:#C9F7C5;color:#0E100E;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:16px;">↖</div>
       </div>
       <div style="position:absolute;inset:0;pointer-events:none;background:rgba(14,16,14,.55);opacity:${active ? 0 : 1};transition:opacity .8s ease;"></div>`;
+    if (active && filmFor(it)) card.appendChild(filmPlayButton(it, 'top:12px;inset-inline-start:12px;width:46px;height:46px;z-index:2;'));
     el.appendChild(card);
   });
+}
+
+// Project films: one player for every card. Opened by a real click, so it plays with sound.
+function filmFor(w) { return w.film ? (w.film[lang] || w.film.he) : null; }
+let filmReturnFocus = null;
+function openFilm(w) {
+  const src = filmFor(w);
+  const modal = document.getElementById('filmModal');
+  const video = document.getElementById('filmModalVideo');
+  if (!src || !modal || !video) return;
+  const tr = t();
+  filmReturnFocus = document.activeElement;
+  document.getElementById('filmModalName').textContent = tr[w.key + '_name'];
+  document.getElementById('filmModalTag').textContent = tr[w.key + '_tag'];
+  document.getElementById('filmModalVisit').href = tr[w.key + '_url'];
+  document.getElementById('filmModalClose').setAttribute('aria-label', tr.aria_close_film);
+  video.poster = src.replace('.mp4', '-poster.jpg');
+  video.src = src;
+  modal.hidden = false;
+  document.documentElement.style.overflow = 'hidden';
+  requestAnimationFrame(() => modal.classList.add('is-open'));
+  const playing = video.play();
+  if (playing && playing.catch) playing.catch(() => {});
+  document.getElementById('filmModalClose').focus({ preventScroll: true });
+}
+function closeFilm() {
+  const modal = document.getElementById('filmModal');
+  const video = document.getElementById('filmModalVideo');
+  if (!modal || modal.hidden) return;
+  video.pause();
+  modal.classList.remove('is-open');
+  document.documentElement.style.overflow = '';
+  setTimeout(() => { modal.hidden = true; video.removeAttribute('src'); video.load(); }, 400);
+  if (filmReturnFocus && filmReturnFocus.focus && document.contains(filmReturnFocus)) filmReturnFocus.focus({ preventScroll: true });
+}
+function initFilmModal() {
+  const modal = document.getElementById('filmModal');
+  if (!modal) return;
+  document.body.appendChild(modal); // out of the section, so nothing above it can clip or cover it
+  document.getElementById('filmModalBackdrop').addEventListener('click', closeFilm);
+  document.getElementById('filmModalClose').addEventListener('click', closeFilm);
+  window.addEventListener('keydown', (e) => {
+    if (modal.hidden) return;
+    if (e.key === 'Escape') { e.stopPropagation(); closeFilm(); return; }
+    if (e.key !== 'Tab') return;
+    const items = [...modal.querySelectorAll('video, a[href], button')];
+    const first = items[0], last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }, true);
+}
+function filmPlayButton(w, css) {
+  const tr = t();
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'film-play';
+  btn.setAttribute('data-film-btn', '');
+  btn.setAttribute('aria-label', tr.work_watch_film + ': ' + tr[w.key + '_name']);
+  btn.style.cssText = css;
+  btn.innerHTML = '<span aria-hidden="true" class="film-btn__tri"></span>';
+  return btn;
 }
 
 let workSwipeMoved = false;
@@ -1492,7 +1601,7 @@ function drumGoTo(p) {
   index = p;
   renderDrum();
 }
-function openDrumLightbox(img, url, name, tag) {
+function openDrumLightbox(img, url, name, tag, w) {
   const lb = document.getElementById('drumLightbox');
   const backdrop = document.getElementById('drumLightboxBackdrop');
   const card = document.getElementById('drumLightboxCard');
@@ -1512,6 +1621,10 @@ function openDrumLightbox(img, url, name, tag) {
   if (nameEl) nameEl.textContent = name || '';
   if (tagEl) tagEl.textContent = tag || '';
   if (captionEl) captionEl.style.display = name ? 'flex' : 'none';
+  const watchBtn = document.getElementById('drumLightboxWatch');
+  if (watchBtn) { watchBtn.style.display = w && filmFor(w) ? '' : 'none'; watchBtn.onclick = (e) => { e.stopPropagation(); openFilm(w); }; }
+  const visitBtn = document.getElementById('drumLightboxVisit');
+  if (visitBtn) visitBtn.onclick = (e) => { e.stopPropagation(); drumShatterLightbox(url); };
   lb.dataset.url = url;
   lb.style.display = 'flex';
   requestAnimationFrame(() => {
@@ -1562,7 +1675,7 @@ function drumShatterLightbox(url) {
     closeDrumLightbox();
   }, 1100);
 }
-function drumActivate(i, img, url, name, tag) {
+function drumActivate(i, img, url, name, tag, w) {
   if (drumSlot() !== i) {
     drumState.rot -= drumShortest(i) * DRUM_STEP;
     drumState.focus = -1;
@@ -1575,7 +1688,7 @@ function drumActivate(i, img, url, name, tag) {
   if (drumState.focus !== i) {
     drumState.focus = i;
     renderDrum();
-    openDrumLightbox(img, url, name, tag);
+    openDrumLightbox(img, url, name, tag, w);
     return;
   }
   drumShatterLightbox(url);
@@ -1583,7 +1696,7 @@ function drumActivate(i, img, url, name, tag) {
 function drumActivateSlot(i) {
   const tr = t();
   const w = workData[i % workData.length];
-  drumActivate(i, w.img, tr[w.key + '_url'], tr[w.key + '_name'], tr[w.key + '_tag']);
+  drumActivate(i, w.img, tr[w.key + '_url'], tr[w.key + '_name'], tr[w.key + '_tag'], w);
 }
 // Whether a click lands inside the front panel's on-screen rectangle. The
 // ring's rotateX tilts the upper half of the front panel just behind the flat
@@ -1595,6 +1708,15 @@ function drumFrontHit(e) {
   const front = ringEl && ringEl.children[drumSlot()];
   if (!front) return false;
   const r = front.getBoundingClientRect();
+  return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+}
+
+// The play button sits on the tilted front panel, so the browser can report the click on
+// the panel or the stage instead of the button. Match against its on-screen rectangle.
+function drumPlayHit(e) {
+  const play = document.querySelector('#drumRing [data-film-btn]');
+  if (!play) return false;
+  const r = play.getBoundingClientRect();
   return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
 }
 
@@ -1686,7 +1808,12 @@ function renderDrum() {
     const panel = document.createElement('div');
     panel.setAttribute('data-drum-panel', '');
     panel.style.cssText = 'position:absolute;left:0;top:0;width:499px;height:281px;margin-left:-250px;margin-top:-140px;transform-style:preserve-3d;transform:' + transform + ';opacity:' + opacity + ';transition:transform .7s cubic-bezier(.16,1,.3,1) ' + delay + ', opacity .9s ease ' + delay + ';cursor:pointer;';
-    panel.addEventListener('click', (e) => { e.stopPropagation(); if (!drumSuppressClick) drumActivateSlot(drumFrontHit(e) ? drumSlot() : i); });
+    panel.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (drumSuppressClick) return;
+      if (drumPlayHit(e)) { openFilm(workData[drumSlot() % workData.length]); return; }
+      drumActivateSlot(drumFrontHit(e) ? drumSlot() : i);
+    });
 
     const inner = document.createElement('div');
     inner.style.cssText = 'position:absolute;inset:0;overflow:hidden;background:#151815;border-radius:5px;box-shadow:' + shadow + ';filter:' + blur + ';transition:filter .7s ease;';
@@ -1696,6 +1823,13 @@ function renderDrum() {
       '<div style="position:absolute;inset:0;background:#0E100E;opacity:' + veil + ';transition:opacity .8s ease;pointer-events:none;"></div>' +
       '<div style="position:absolute;inset:0;border:1px solid rgba(201,247,197,.55);opacity:' + ring + ';transition:opacity .6s ease;pointer-events:none;"></div>';
     panel.appendChild(inner);
+    if (isCur && !anyFocused && drumState.mounted && filmFor(w)) {
+      const play = filmPlayButton(w, 'left:16px;bottom:16px;');
+      play.addEventListener('click', (e) => { e.stopPropagation(); if (!drumSuppressClick) openFilm(w); });
+      play.addEventListener('pointerdown', (e) => e.stopPropagation());
+      play.addEventListener('mousedown', (e) => e.stopPropagation());
+      panel.appendChild(play);
+    }
 
     if (broken) {
       const shardsWrap = document.createElement('div');
@@ -1750,7 +1884,11 @@ function initWorkShowcase() {
   drumStageEl.addEventListener('click', (e) => {
     if (drumSuppressClick) return;
     if (e.target.closest('[data-drum-panel]')) return;
-    if (drumFrontHit(e)) { drumActivateSlot(drumSlot()); return; }
+    if (drumFrontHit(e)) {
+      if (drumPlayHit(e)) { openFilm(workData[drumSlot() % workData.length]); return; }
+      drumActivateSlot(drumSlot());
+      return;
+    }
     const r = drumStageEl.getBoundingClientRect();
     const offset = e.clientX - (r.left + r.width / 2);
     if (Math.abs(offset) < r.width * 0.08) return;
@@ -1784,6 +1922,7 @@ function initWorkShowcase() {
     // clicked, so a press meant for a neighbouring project never
     // accidentally opens the one that's currently focused.
     lightbox.addEventListener('click', (e) => {
+      if (e.target.closest('[data-lb-action]')) return;
       const cr = imgContentRect(lightboxImg);
       const onPhoto = e.clientX >= cr.left && e.clientX <= cr.right && e.clientY >= cr.top && e.clientY <= cr.bottom;
       if (onPhoto) {
@@ -2485,6 +2624,7 @@ updateSpine();
 initDecks();
 requestAnimationFrame(armReveals);
 initWorkShowcase();
+initFilmModal();
 initSectionMove();
 
 (function initIntroScrub() {
