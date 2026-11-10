@@ -62,9 +62,29 @@ tools/          # Python scripts for deterministic execution
 workflows/      # Markdown SOPs defining what to do and how
 .env            # API keys and environment variables (NEVER store secrets anywhere else)
 credentials.json, token.json  # Google OAuth (gitignored)
+
+websites/       # Client sites (brochure / marketing sites built for clients)
+saas/           # Software products with sign-up, dashboards, backends (+ their promo projects)
+internal/       # My own brand and tools: agency site, portfolio, internal apps
 ```
 
+**Where new projects go:** every new project gets its own folder inside one of the three
+category folders above, never directly in the root. Most projects are their own git repo;
+the root repo only tracks the WAT core plus `internal/mashtatech` and `internal/work-showcase`.
+
 **Core principle:** Local files are just for processing. Anything I need to see or use lives in cloud services. Everything in `.tmp/` is disposable.
+
+## Lessons Learned
+
+**Mobile responsive layouts: don't gate JS behavior on a one-time `window.innerWidth` read.**
+On phones, rotating the device changes which dimension is "width," so a mobile/desktop
+breakpoint check like `window.innerWidth <= 760` can flip incorrectly on rotation (landscape
+width often exceeds common breakpoints) and can read a stale value right when the
+`orientationchange` event fires, leaving layout (e.g. computed card widths in a JS-rendered
+carousel) stuck wrong after rotating back. Fix: use `window.matchMedia('(max-width: Npx)')` as
+the single source of truth (same query as the CSS breakpoint), and re-run any size-dependent
+JS on `orientationchange` with a couple of delayed retries (e.g. +100ms, +400ms) in addition to
+`resize`, since mobile browsers settle dimensions asynchronously after rotating.
 
 ## Bottom Line
 

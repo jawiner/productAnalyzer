@@ -9,3 +9,11 @@ __pycache__/
 *.pyc
 .DS_Store
 .claude/settings.local.json
+maslul/
+.playwright-cli/
+
+# Project folders: each project keeps its own git repo.
+# internal/mashtatech and internal/work-showcase stay tracked here.
+websites/
+saas/
+internal/intake-studio/
