@@ -1498,8 +1498,8 @@ function initWorkSwipe() {
 
 // Drum carousel: a CSS-3D ring of project panels, dragged/scrolled around a
 // fixed radius. Clicking a panel first brings it into focus (scaled forward),
-// clicking the focused panel again shatters it into jagged shards that fly
-// outward before the project's live site opens in a new tab.
+// clicking the opened picture breaks it like glass (see GLASS below) while the
+// project's live site opens in a new tab.
 const drumState = {
   rot: 0,
   mounted: false,
@@ -1514,61 +1514,72 @@ const DRUM_R = 671;
 let drumStageEl = null;
 let drumDragActive = false;
 
-function jaggedPolygon() {
-  const pts = 5 + Math.floor(Math.random() * 3);
-  const arr = [];
-  for (let k = 0; k < pts; k++) {
-    const a = (k / pts) * 2 * Math.PI + (Math.random() - 0.5) * 0.4;
-    const rad = 34 + Math.random() * 18;
-    arr.push((50 + Math.cos(a) * rad).toFixed(1) + '% ' + (50 + Math.sin(a) * rad).toFixed(1) + '%');
-  }
-  return 'polygon(' + arr.join(',') + ')';
-}
-function partition(n, jitter) {
-  const w = Array.from({ length: n }, () => 0.4 + Math.random() * jitter);
-  const sum = w.reduce((a, b) => a + b, 0);
-  return w.map((v) => v / sum);
-}
-function buildShards() {
-  const rows = 4 + Math.floor(Math.random() * 2);
-  const cols = 5 + Math.floor(Math.random() * 2);
-  const rowsH = partition(rows, 0.9);
-  const colsW = partition(cols, 0.9);
-  const shards = [];
-  let top = 0;
-  for (let r = 0; r < rows; r++) {
-    const h = rowsH[r];
-    let left = 0;
-    for (let c = 0; c < cols; c++) {
-      const w = colsW[c];
-      const jl = left + w * (Math.random() * 0.1);
-      const jt = top + h * (Math.random() * 0.1);
-      const jw = w * (0.82 + Math.random() * 0.16);
-      const jh = h * (0.82 + Math.random() * 0.16);
-      const dx = (jl + jw / 2 - 0.5) * 2;
-      const dy = (jt + jh / 2 - 0.5) * 2;
-      shards.push({
-        left: (jl * 100).toFixed(2) + '%',
-        top: (jt * 100).toFixed(2) + '%',
-        w: (jw * 100).toFixed(2) + '%',
-        h: (jh * 100).toFixed(2) + '%',
-        clip: jaggedPolygon(),
-        bgSize: (100 / jw).toFixed(1) + '% ' + (100 / jh).toFixed(1) + '%',
-        bg: (jw < 1 ? (jl / (1 - jw) * 100).toFixed(1) : 0) + '% ' + (jh < 1 ? (jt / (1 - jh) * 100).toFixed(1) : 0) + '%',
-        fx: dx * (130 + Math.random() * 220),
-        fy: dy * (100 + Math.random() * 170) - 50,
-        fz: 30 + Math.random() * 300,
-        rot: (Math.random() - 0.5) * 140,
-        scl: (0.55 + Math.random() * 0.5).toFixed(2),
-        delay: (Math.random() * 0.24).toFixed(3) + 's',
-      });
-      left += w;
+// Glass break. Pressing the open project's picture cracks it like a pane of glass, outward from
+// the point that was pressed, and the pieces rush past the viewer while the live site opens in a
+// new tab. Times are in ms from the press (life is in seconds).
+const GLASS = { crack: 140, hold: 210, spread: 140, life: 0.62, open: 880, end: 1040 };
+let drumBreaking = false;
+
+/** Cuts a W x H picture into pieces around the point (ix, iy): rays from the point crossed by
+ *  rough rings, the way glass cracks around an impact. The pieces cover the picture exactly. */
+function glassCells(W, H, ix, iy) {
+  const rnd = Math.random, TAU = Math.PI * 2;
+  // Rays always pass through the four corners, so the edge of the picture between two
+  // neighbouring rays is one straight piece.
+  const corner = [[0, 0], [W, 0], [W, H], [0, H]].map((c) => Math.atan2(c[1] - iy, c[0] - ix)).sort((a, b) => a - b);
+  const angles = [];
+  corner.forEach((a0, c) => {
+    const a1 = c === 3 ? corner[0] + TAU : corner[c + 1];
+    const n = Math.max(1, Math.round((a1 - a0) / (TAU / 15)));
+    for (let j = 0; j < n; j++) angles.push(a0 + (a1 - a0) * (j + (j ? (rnd() - 0.5) * 0.55 : 0)) / n);
+  });
+  const reach = (a) => {
+    const dx = Math.cos(a), dy = Math.sin(a);
+    return Math.min(dx > 1e-9 ? (W - ix) / dx : dx < -1e-9 ? -ix / dx : Infinity, dy > 1e-9 ? (H - iy) / dy : dy < -1e-9 ? -iy / dy : Infinity);
+  };
+  const far = Math.max.apply(null, angles.map(reach));
+  const radii = [];
+  for (let r = Math.hypot(W, H) * 0.035; r * 0.8 < far; r *= 1.7 + rnd() * 0.3) radii.push(r);
+  const K = radii.length;
+  // vert[ray][k]: k = 0 is the pressed point, 1..K the rings, K + 1 the edge of the picture.
+  const vert = angles.map((a) => {
+    const t = reach(a), dx = Math.cos(a), dy = Math.sin(a), row = [[ix, iy]];
+    radii.forEach((r) => { const d = Math.min(r * (0.8 + rnd() * 0.4), t); row.push([ix + dx * d, iy + dy * d]); });
+    row.push([ix + dx * t, iy + dy * t]);
+    return row;
+  });
+  const cells = [];
+  for (let i = 0; i < angles.length; i++) {
+    const A = vert[i], B = vert[(i + 1) % angles.length];
+    for (let k = 0; k <= K; k++) {
+      const raw = k === 0 ? [A[0], A[1], B[1]] : [A[k], A[k + 1], B[k + 1], B[k]];
+      const pts = raw.filter((p, j) => { const q = raw[(j + 1) % raw.length]; return Math.hypot(p[0] - q[0], p[1] - q[1]) > 0.6; });
+      if (pts.length < 3) continue;
+      const size = Math.abs(glassArea(pts));
+      if (size < 24) continue;
+      // A big outer piece often breaks once more, corner to corner.
+      if (pts.length === 4 && size > W * H * 0.01 && rnd() < 0.65) {
+        const o = rnd() < 0.5 ? 0 : 1;
+        cells.push([pts[o], pts[o + 1], pts[o + 2]], [pts[o], pts[o + 2], pts[(o + 3) % 4]]);
+      } else cells.push(pts);
     }
-    top += h;
   }
-  return shards;
+  return cells;
 }
-const drumShards = buildShards();
+function glassArea(pts) {
+  let s = 0;
+  pts.forEach((a, j) => { const b = pts[(j + 1) % pts.length]; s += a[0] * b[1] - b[0] * a[1]; });
+  return s / 2;
+}
+/** Where the picture really sits on screen: object-fit:contain can leave empty bars inside the <img>. */
+function glassPictureRect(img) {
+  const r = img.getBoundingClientRect();
+  const nw = img.naturalWidth, nh = img.naturalHeight;
+  if (!nw || !nh || !r.width || !r.height) return { left: r.left, top: r.top, width: r.width, height: r.height };
+  if (nw / nh > r.width / r.height) { const h = r.width * nh / nw; return { left: r.left, top: r.top + (r.height - h) / 2, width: r.width, height: h }; }
+  const w = r.height * nw / nh;
+  return { left: r.left + (r.width - w) / 2, top: r.top, width: w, height: r.height };
+}
 
 function drumSlot() {
   return ((Math.round(-drumState.rot / DRUM_STEP) % DRUM_SLOTS) + DRUM_SLOTS) % DRUM_SLOTS;
@@ -1615,16 +1626,20 @@ function openDrumLightbox(img, url, name, tag, w) {
   shardsWrap.innerHTML = '';
   frame.style.boxShadow = '0 40px 100px -30px rgba(0,0,0,.7),0 0 0 1px rgba(201,247,197,.35)';
   frame.style.overflow = 'hidden';
+  frame.style.background = '#151815';
   imgEl.style.opacity = '1';
   imgEl.src = img;
   imgEl.alt = name || '';
   if (nameEl) nameEl.textContent = name || '';
   if (tagEl) tagEl.textContent = tag || '';
-  if (captionEl) captionEl.style.display = name ? 'flex' : 'none';
+  if (captionEl) { captionEl.style.display = name ? 'flex' : 'none'; captionEl.style.opacity = '1'; }
+  const hintEl = card.querySelector('[data-t="work_lightbox_hint"]');
+  if (hintEl) hintEl.style.opacity = '';
+  if (!reducedMotion) setTimeout(glassSetup, 500); // have the break ready before the picture is pressed
   const watchBtn = document.getElementById('drumLightboxWatch');
   if (watchBtn) { watchBtn.style.display = w && filmFor(w) ? '' : 'none'; watchBtn.onclick = (e) => { e.stopPropagation(); openFilm(w); }; }
   const visitBtn = document.getElementById('drumLightboxVisit');
-  if (visitBtn) visitBtn.onclick = (e) => { e.stopPropagation(); drumShatterLightbox(url); };
+  if (visitBtn) visitBtn.onclick = (e) => { e.stopPropagation(); drumShatterLightbox(url, e.clientX || e.clientY ? { x: e.clientX, y: e.clientY } : null); };
   lb.dataset.url = url;
   lb.style.display = 'flex';
   requestAnimationFrame(() => {
@@ -1645,35 +1660,287 @@ function closeDrumLightbox() {
   drumState.focus = -1;
   renderDrum();
 }
-function drumShatterLightbox(url) {
+// The pieces are one WebGL mesh: the graphics card moves and lights every piece itself, so the whole
+// break is three draw calls a frame. (Tried first as a hundred separately clipped, 3D-turned elements,
+// which stuttered badly, and as canvas fills, which ran unevenly.)
+const GLASS_PIECE_VS = `
+attribute vec2 aPos;   // corner of a piece, px of the picture
+attribute vec2 aCen;   // middle of that piece
+attribute vec3 aVel;   // px/s; z is towards the viewer
+attribute vec3 aSpin;  // rad/s about x, y, z
+attribute vec2 aTime;  // ms: when the crack reaches it, when it lets go
+attribute vec4 aLook;  // twist in its seat (rad), resting brightness, glint phase (rad), direction of its band of light (rad)
+attribute vec3 aEdge;  // 1 on the cut edge and 0 in the middle; px from the middle to this side; size of the piece
+uniform float uT;
+uniform vec2 uPress, uPic, uView;
+varying vec2 vAt;
+varying float vEdge, vSide, vAlpha, vLight, vBand;
+void main() {
+  vec2 q = aPos - aCen;
+  vec3 p = vec3(aPos, 0.0);
+  float alpha = 1.0;
+  float light = aLook.y;
+  if (uT < aTime.x) {
+    alpha = 0.0; // the crack has not reached this piece
+  } else if (uT < aTime.y) {
+    // cracked but still held: it sits a touch askew in its place
+    float c = cos(aLook.x), s = sin(aLook.x);
+    p.xy = aCen + vec2(c * q.x - s * q.y, s * q.x + c * q.y);
+  } else {
+    float dt = (uT - aTime.y) / 1000.0;
+    float age = dt / LIFE;
+    float e = (1.0 - exp(-DRAG * dt)) / DRAG; // air slows it
+    vec3 a = aSpin * dt;
+    a.z += aLook.x;
+    float cz = cos(a.z), sz = sin(a.z), cy = cos(a.y), sy = sin(a.y), cx = cos(a.x), sx = sin(a.x);
+    vec3 r = vec3(cz * q.x - sz * q.y, sz * q.x + cz * q.y, 0.0);
+    r = vec3(cy * r.x + sy * r.z, r.y, cy * r.z - sy * r.x);
+    r = vec3(r.x, cx * r.y - sx * r.z, sx * r.y + cx * r.z);
+    p = vec3(aCen, 0.0) + r + vec3(aVel.xy * e + vec2(0.0, 0.5 * FALL * dt * dt), aVel.z * e);
+    alpha = age >= 1.0 ? 0.0 : (age < 0.5 ? 1.0 : 1.0 - (age - 0.5) / 0.5);
+    light += 0.7 * pow(abs(sin(a.y + aLook.z)), 8.0); // it catches the light once or twice as it turns
+  }
+  // Seen from EYE px in front of the pane, looking at the point that was pressed.
+  float zoom = EYE / (EYE - min(p.z, EYE - 200.0));
+  vec2 px = uPic + uPress + (p.xy - uPress) * zoom;
+  gl_Position = alpha > 0.0 ? vec4(px.x / uView.x * 2.0 - 1.0, 1.0 - px.y / uView.y * 2.0, 0.0, 1.0) : vec4(2.0, 2.0, 2.0, 1.0);
+  vAt = aPos;
+  vEdge = aEdge.x;
+  vSide = aEdge.y;
+  vAlpha = alpha;
+  vLight = light;
+  vBand = dot(q, vec2(cos(aLook.w), sin(aLook.w))) / aEdge.z;
+}`;
+const GLASS_PIECE_FS = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform sampler2D uTex;
+uniform vec2 uSize;
+uniform float uOpen; // 0: the picture is still whole, only cracks are drawn. 1: the pieces carry the picture.
+varying vec2 vAt;
+varying float vEdge, vSide, vAlpha, vLight, vBand;
+const vec3 CUT = vec3(0.91, 1.0, 0.898);
+void main() {
+  float rim = (1.0 - smoothstep(0.8, 1.8, (1.0 - vEdge) * vSide)) * 0.9; // the bright cut edge of the glass
+  float shine = (1.0 - smoothstep(0.0, 0.6, abs(vBand))) * min(vLight, 1.0);
+  vec3 col = mix(texture2D(uTex, vAt / uSize).rgb, CUT, max(rim, 1.0 - uOpen));
+  col += (1.0 - col) * shine;
+  float a = vAlpha * mix(max(rim, shine), 1.0, uOpen);
+  gl_FragColor = vec4(col * a, a);
+}`;
+// A soft disc of light: the glow behind the pane and the spark of the hit.
+const GLASS_DISC_VS = `
+attribute vec2 aQ;
+uniform vec2 uView;
+varying vec2 vP;
+void main() { vP = vec2((aQ.x + 1.0) * 0.5 * uView.x, (1.0 - aQ.y) * 0.5 * uView.y); gl_Position = vec4(aQ, 0.0, 1.0); }`;
+const GLASS_DISC_FS = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform vec2 uAt;
+uniform float uR, uAlpha;
+uniform vec4 uFall; // strength in the middle, strength at the knee, knee, end (as parts of the radius)
+uniform vec3 uIn, uOut;
+varying vec2 vP;
+void main() {
+  float f = distance(vP, uAt) / uR;
+  float a = f < uFall.z ? mix(uFall.x, uFall.y, f / uFall.z) : mix(uFall.y, 0.0, clamp((f - uFall.z) / (uFall.w - uFall.z), 0.0, 1.0));
+  a *= uAlpha;
+  gl_FragColor = vec4(mix(uIn, uOut, clamp(f / uFall.z, 0.0, 1.0)) * a, a);
+}`;
+let glassGL = null; // made on the first break, then kept
+function glassSetup() {
+  if (glassGL) return glassGL;
+  const cv = document.createElement('canvas');
+  cv.style.cssText = 'position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;';
+  const gl = cv.getContext('webgl', { alpha: true, antialias: true, premultipliedAlpha: true });
+  if (!gl) return null;
+  const consts = 'const float LIFE = ' + GLASS.life.toFixed(3) + '; const float DRAG = 1.5; const float FALL = 700.0; const float EYE = 1100.0;\n';
+  const build = (vs, fs) => {
+    const prog = gl.createProgram();
+    [[gl.VERTEX_SHADER, vs], [gl.FRAGMENT_SHADER, fs]].forEach(([type, text]) => {
+      const sh = gl.createShader(type);
+      gl.shaderSource(sh, text);
+      gl.compileShader(sh);
+      if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh));
+      gl.attachShader(prog, sh);
+    });
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+    const at = (name) => gl.getUniformLocation(prog, name);
+    return { prog, at };
+  };
+  try {
+    const piece = build(consts + GLASS_PIECE_VS, GLASS_PIECE_FS), disc = build(GLASS_DISC_VS, GLASS_DISC_FS);
+    const quad = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+    glassGL = { cv, gl, piece, disc, quad, mesh: gl.createBuffer(), tex: gl.createTexture() };
+  } catch (e) { return null; }
+  return glassGL;
+}
+
+function drumShatterLightbox(url, at) {
   const lb = document.getElementById('drumLightbox');
-  const card = document.getElementById('drumLightboxCard');
   const frame = document.getElementById('drumLightboxFrame');
   const imgEl = document.getElementById('drumLightboxImg');
-  const shardsWrap = document.getElementById('drumLightboxShards');
-  if (!lb) return;
-  frame.style.boxShadow = 'none';
-  frame.style.overflow = 'visible';
   const captionEl = document.getElementById('drumLightboxCaption');
-  if (captionEl) captionEl.style.display = 'none';
-  shardsWrap.innerHTML = '';
-  drumShards.forEach((s) => {
-    const sd = document.createElement('div');
-    sd.style.cssText = 'position:absolute;left:' + s.left + ';top:' + s.top + ';width:' + s.w + ';height:' + s.h + ';clip-path:' + s.clip + ';background-image:url(\'' + imgEl.src + '\');background-size:' + s.bgSize + ';background-position:' + s.bg + ';transform:none;opacity:1;transition:transform .9s cubic-bezier(.2,.8,.3,1) ' + s.delay + ', opacity .9s ease ' + s.delay + ';';
-    shardsWrap.appendChild(sd);
-  });
-  imgEl.style.opacity = '0';
-  setTimeout(() => {
-    [...shardsWrap.children].forEach((sd, idx) => {
-      const s = drumShards[idx];
-      sd.style.transform = 'translate3d(' + s.fx + 'px,' + s.fy + 'px,' + s.fz + 'px) rotate(' + s.rot + 'deg) scale(' + s.scl + ')';
-      sd.style.opacity = '0';
+  const hintEl = document.querySelector('#drumLightboxCard [data-t="work_lightbox_hint"]');
+  if (!lb || drumBreaking) return;
+  const visit = () => window.open(url, '_blank', 'noopener,noreferrer');
+  const plain = () => { visit(); closeDrumLightbox(); }; // no animation: reduced motion, or a browser without WebGL
+  const pr = glassPictureRect(imgEl);
+  const W = pr.width, H = pr.height;
+  if (reducedMotion || W < 40 || H < 40 || !imgEl.naturalWidth) { plain(); return; }
+  const G = glassSetup();
+  if (!G) { plain(); return; }
+  const gl = G.gl, cv = G.cv;
+
+  const rnd = Math.random;
+  const within = (v, size) => Math.min(size * 0.94, Math.max(size * 0.06, v));
+  // The glass breaks from where it was pressed.
+  const ix = within(at ? at.x - pr.left : W * (0.42 + rnd() * 0.16), W);
+  const iy = within(at ? at.y - pr.top : H * (0.4 + rnd() * 0.14), H);
+  const far = Math.max(Math.hypot(ix, iy), Math.hypot(W - ix, iy), Math.hypot(ix, H - iy), Math.hypot(W - ix, H - iy));
+  const DEG = Math.PI / 180;
+
+  // Each piece is a fan of triangles around its middle; every corner carries the piece's whole flight.
+  const mesh = [];
+  glassCells(W, H, ix, iy).map((pts) => {
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    const size = Math.max(Math.max.apply(null, xs) - Math.min.apply(null, xs), Math.max.apply(null, ys) - Math.min.apply(null, ys));
+    const cx = xs.reduce((a, b) => a + b, 0) / pts.length, cy = ys.reduce((a, b) => a + b, 0) / pts.length;
+    const d = Math.hypot(cx - ix, cy - iy), dn = Math.min(1, d / far);
+    const ang = d > 1 ? Math.atan2(cy - iy, cx - ix) : rnd() * Math.PI * 2;
+    const speed = (760 - 400 * dn) * (0.7 + rnd() * 0.6);
+    const spin = Math.min(1.7, Math.max(0.6, 110 / size)); // small pieces tumble faster
+    const turn = (lo, hi) => (rnd() < 0.5 ? -1 : 1) * (lo + rnd() * (hi - lo)) * spin * DEG;
+    return { pts, cx, cy, d, size, flight: [
+      Math.cos(ang) * speed, Math.sin(ang) * speed, (1500 - 900 * dn) * (0.6 + rnd() * 0.8),
+      turn(180, 560), turn(180, 560), turn(40, 220),
+      dn * GLASS.crack * (0.85 + rnd() * 0.3), GLASS.hold + dn * GLASS.spread + rnd() * 30,
+      (rnd() - 0.5) * 0.014, rnd() < 0.5 ? 0 : 0.06 + rnd() * 0.12, rnd() * Math.PI, rnd() * Math.PI * 2,
+    ] };
+  }).sort((a, b) => b.d - a.d).forEach((s) => { // the pieces nearest the press fly closest to the viewer: draw them last
+    s.pts.forEach((p, j) => {
+      const q = s.pts[(j + 1) % s.pts.length];
+      const ex = q[0] - p[0], ey = q[1] - p[1];
+      const side = Math.abs(ex * (s.cy - p[1]) - ey * (s.cx - p[0])) / (Math.hypot(ex, ey) || 1);
+      [[s.cx, s.cy, 0], [p[0], p[1], 1], [q[0], q[1], 1]].forEach((v) => {
+        mesh.push(v[0], v[1], s.cx, s.cy);
+        for (let k = 0; k < s.flight.length; k++) mesh.push(s.flight[k]);
+        mesh.push(v[2], side, s.size);
+      });
     });
-  }, 40);
-  setTimeout(() => {
-    window.open(url, '_blank', 'noopener,noreferrer');
+  });
+
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(6e6 / (vw * vh)));
+  cv.width = Math.round(vw * dpr);
+  cv.height = Math.round(vh * dpr);
+  const STRIDE = 19 * 4;
+  try {
+    gl.viewport(0, 0, cv.width, cv.height);
+    gl.clearColor(0, 0, 0, 0);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    gl.bindTexture(gl.TEXTURE_2D, G.tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgEl);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.bindBuffer(gl.ARRAY_BUFFER, G.mesh);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(mesh), gl.DYNAMIC_DRAW);
+  } catch (e) { plain(); return; }
+  drumBreaking = true;
+  lb.appendChild(cv);
+
+  const point = (prog, name, count, offset, buffer, stride) => {
+    const loc = gl.getAttribLocation(prog, name);
+    if (loc < 0) return;
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, count, gl.FLOAT, false, stride, offset * 4);
+  };
+  const disc = (scale, radius, alpha, fall, inner, outer) => {
+    if (alpha <= 0.004) return;
+    gl.useProgram(G.disc.prog);
+    point(G.disc.prog, 'aQ', 2, 0, G.quad, 0);
+    gl.uniform2f(G.disc.at('uView'), vw, vh);
+    gl.uniform2f(G.disc.at('uAt'), pr.left + ix, pr.top + iy);
+    gl.uniform1f(G.disc.at('uR'), radius * scale);
+    gl.uniform1f(G.disc.at('uAlpha'), alpha);
+    gl.uniform4fv(G.disc.at('uFall'), fall);
+    gl.uniform3fv(G.disc.at('uIn'), inner);
+    gl.uniform3fv(G.disc.at('uOut'), outer);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+  };
+  const pieces = (t, opened) => {
+    const P = G.piece.prog;
+    gl.useProgram(P);
+    [['aPos', 2], ['aCen', 2], ['aVel', 3], ['aSpin', 3], ['aTime', 2], ['aLook', 4], ['aEdge', 3]].reduce((offset, a) => { point(P, a[0], a[1], offset, G.mesh, STRIDE); return offset + a[1]; }, 0);
+    gl.uniform1f(G.piece.at('uT'), t);
+    gl.uniform1f(G.piece.at('uOpen'), opened ? 1 : 0);
+    gl.uniform2f(G.piece.at('uPress'), ix, iy);
+    gl.uniform2f(G.piece.at('uPic'), pr.left, pr.top);
+    gl.uniform2f(G.piece.at('uView'), vw, vh);
+    gl.uniform2f(G.piece.at('uSize'), W, H);
+    gl.uniform1i(G.piece.at('uTex'), 0);
+    gl.drawArrays(gl.TRIANGLES, 0, mesh.length / 19);
+  };
+
+  if (captionEl) { captionEl.style.transition = 'opacity .14s ease'; captionEl.style.opacity = '0'; }
+  if (hintEl) { hintEl.style.transition = 'opacity .2s ease'; hintEl.style.opacity = '0'; }
+
+  const out = (v) => 1 - Math.pow(1 - v, 3);
+  const MINT = [201 / 255, 247 / 255, 197 / 255], PALE = [232 / 255, 1, 229 / 255];
+  const R = Math.max(W, H) * 0.55;
+  const t0 = performance.now();
+  let raf = 0, open = false, done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    cancelAnimationFrame(raf);
+    document.removeEventListener('visibilitychange', onHide);
+    cv.remove();
     closeDrumLightbox();
-  }, 1100);
+    drumBreaking = false;
+  };
+  // The new tab takes the screen and this one stops drawing: tidy up at once, not when the visitor returns.
+  const onHide = () => { if (document.hidden) finish(); };
+  const tick = (now) => {
+    if (done) return;
+    const t = now - t0;
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    // light from behind the pane, seen through the hole as it opens
+    const g = Math.min(1, Math.max(0, (t - GLASS.hold) / (GLASS.end - GLASS.hold)));
+    disc(0.2 + 1.5 * out(g), R, Math.max(0, Math.sin(Math.PI * Math.min(1, g * 1.15))), [0.4, 0.13, 0.34, 0.68], MINT, MINT);
+    pieces(t, t >= GLASS.hold);
+    // the spark of the hit
+    const f = Math.min(1, t / 240);
+    disc(0.3 + 3.2 * out(f), 30, 0.95 * (1 - f), [0.95, 0.5, 0.3, 0.7], [1, 1, 1], PALE);
+    if (!open && t >= GLASS.hold) {
+      // the glass lets go: the canvas has just drawn the whole picture as pieces, so the real one can
+      // go and only the empty frame stays behind
+      open = true;
+      imgEl.style.opacity = '0';
+      frame.style.background = 'transparent';
+      frame.style.boxShadow = '0 0 0 1px rgba(201,247,197,.35)';
+      if (captionEl) captionEl.style.display = 'none';
+    }
+    if (t >= GLASS.end) finish(); else raf = requestAnimationFrame(tick);
+  };
+  document.addEventListener('visibilitychange', onHide);
+  raf = requestAnimationFrame(tick);
+  setTimeout(visit, GLASS.open);
+  setTimeout(finish, GLASS.end + 200); // in case this tab stops drawing before the last frame
 }
 function drumActivate(i, img, url, name, tag, w) {
   if (drumSlot() !== i) {
@@ -1831,19 +2098,6 @@ function renderDrum() {
       panel.appendChild(play);
     }
 
-    if (broken) {
-      const shardsWrap = document.createElement('div');
-      shardsWrap.style.cssText = 'position:absolute;inset:0;pointer-events:none;';
-      drumShards.forEach((s) => {
-        const sd = document.createElement('div');
-        const shardTransform = drumState.burst
-          ? 'translate3d(' + s.fx + 'px,' + s.fy + 'px,' + s.fz + 'px) rotate(' + s.rot + 'deg) scale(' + s.scl + ')'
-          : 'none';
-        sd.style.cssText = 'position:absolute;left:' + s.left + ';top:' + s.top + ';width:' + s.w + ';height:' + s.h + ';clip-path:' + s.clip + ';background-image:url(\'' + w.img + '\');background-size:' + s.bgSize + ';background-position:' + s.bg + ';transform:' + shardTransform + ';opacity:' + (drumState.burst ? 0 : 1) + ';transition:transform .9s cubic-bezier(.2,.8,.3,1) ' + s.delay + ', opacity .9s ease ' + s.delay + ';';
-        shardsWrap.appendChild(sd);
-      });
-      panel.appendChild(shardsWrap);
-    }
     ringEl.appendChild(panel);
 
     const reflectPanel = document.createElement('div');
@@ -1922,11 +2176,11 @@ function initWorkShowcase() {
     // clicked, so a press meant for a neighbouring project never
     // accidentally opens the one that's currently focused.
     lightbox.addEventListener('click', (e) => {
-      if (e.target.closest('[data-lb-action]')) return;
+      if (e.target.closest('[data-lb-action]') || drumBreaking) return;
       const cr = imgContentRect(lightboxImg);
       const onPhoto = e.clientX >= cr.left && e.clientX <= cr.right && e.clientY >= cr.top && e.clientY <= cr.bottom;
       if (onPhoto) {
-        drumShatterLightbox(lightbox.dataset.url);
+        drumShatterLightbox(lightbox.dataset.url, { x: e.clientX, y: e.clientY });
         return;
       }
       const goRight = e.clientX > window.innerWidth / 2;
