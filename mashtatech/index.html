@@ -254,6 +254,11 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
   #top p{font-size:16px !important;}
   #top [data-reveal]:last-child > div{flex-direction:column !important;align-items:stretch !important;}
   #top [data-reveal]:last-child a{justify-content:center !important;}
+  /* Phone scroll film: the hero pins for the length of the scrub, like on desktop. */
+  html.m-scrub #top{min-height:100vh !important;min-height:100svh !important;display:flex !important;align-items:center !important;padding:88px 20px calc(32px + env(safe-area-inset-bottom)) !important;}
+  html.m-scrub #heroScrim{opacity:1;}
+  #introKicker{top:calc(84px + 3svh) !important;padding-inline:20px;font-size:clamp(31px,8.8vw,40px) !important;line-height:1.18;}
+  #introKickerEyebrow{font-size:11px !important;letter-spacing:.2em !important;margin-bottom:12px !important;}
   #techStrip{padding:14px 20px !important;gap:20px !important;overflow-x:auto !important;white-space:nowrap !important;font-size:11px !important;}
   #techStrip span:last-child{margin-inline-start:0 !important;}
   #services{padding:72px 20px 0 !important;}
@@ -412,9 +417,8 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
   <section id="top" style="position:sticky;top:0;z-index:1;min-height:100vh;display:flex;align-items:center;padding:118px 56px 92px;overflow:hidden;box-sizing:border-box;">
     <div id="heroVideoWrap" aria-hidden="true" style="position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;">
       <img id="heroPoster" src="assets/video/hero-poster.webp" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.34;">
-      <video id="introVideo" muted playsinline preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
-        <source src="assets/landingpage-animation-scrub.mp4?v=1" type="video/mp4">
-      </video>
+      <video id="introVideo" muted playsinline preload="auto" data-src-wide="assets/landingpage-animation-scrub.mp4?v=1" data-src-tall="assets/landingpage-animation-scrub-mobile.mp4?v=1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"></video>
+      <div id="heroScrim" style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(14,16,14,.62) 0%,rgba(14,16,14,.18) 16%,transparent 30%);opacity:0;transition:opacity .4s ease;"></div>
     </div>
     <div id="introKicker" aria-hidden="true" style="position:absolute;top:106px;inset-inline:0;z-index:1;margin:0;text-align:center;font-family:'Frank Ruhl Libre',serif;font-weight:400;font-size:51px;letter-spacing:-.01em;color:#F4FFF2;text-shadow:0 2px 18px rgba(0,0,0,.55),0 1px 3px rgba(0,0,0,.4);opacity:1;transition:opacity .5s ease;pointer-events:none;">
       <span style="font-family:'IBM Plex Mono','Assistant',monospace;font-size:12px;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:#C9F7C5;display:block;margin-bottom:16px;opacity:0;transform:translateY(10px);transition:opacity .6s ease,transform .6s ease;" id="introKickerEyebrow" data-t="hero_kicker">פיתוח אתרים ומערכות · פתרונות AI</span>
@@ -2686,7 +2690,7 @@ const heroScrollEl = document.getElementById('heroScroll');
 const navCtaEl = document.getElementById('navCta');
 const fabEl = document.getElementById('fab');
 function onScroll() {
-  const introDone = mobileMq.matches || !heroScrollEl || window.scrollY >= heroScrollEl.offsetHeight - window.innerHeight;
+  const introDone = !heroScrollEl || window.scrollY >= heroScrollEl.offsetHeight - window.innerHeight - 1;
   const on = introDone && window.scrollY > 12;
   navEl.style.background = on ? 'rgba(14,16,14,.82)' : 'rgba(14,16,14,0)';
   navEl.style.backdropFilter = on ? 'blur(16px)' : 'none';
@@ -2923,13 +2927,12 @@ initSectionMove();
   if (!wrap || !video) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const isMobile = window.matchMedia('(max-width: 760px)').matches;
   let duration = 0;
 
   const revealHero = () => heroBits.forEach((el) => el.classList.add('is-in'));
   const hideHero = () => heroBits.forEach((el) => el.classList.remove('is-in'));
 
-  if (reduceMotion || isMobile) {
+  if (reduceMotion) {
     wrap.style.height = 'auto';
     if (introKicker) introKicker.style.display = 'none';
     video.style.display = 'none';
@@ -2937,14 +2940,63 @@ initSectionMove();
     return;
   }
 
-  const onMeta = () => { duration = video.duration || 0; };
-  video.addEventListener('loadedmetadata', onMeta);
-  video.load();
-
   let targetProgress = 0;
   let currentProgress = 0;
   let rafId = null;
   let heroRevealed = false;
+  const schedule = () => { if (rafId === null) rafId = requestAnimationFrame(loop); };
+
+  // Phones get their own portrait (9:16) cut of the film and a shorter pin.
+  // mobileMq (same query as the CSS) decides, and the source is swapped if a
+  // rotation crosses the breakpoint. On phones the whole file is fetched first:
+  // iOS Safari only scrubs smoothly when every frame is already local.
+  let source = '';
+  let blobUrl = null;
+  const primeVideo = () => {
+    const p = video.play();
+    if (p && p.then) p.then(() => { video.pause(); schedule(); }).catch(() => {});
+  };
+  const pickSource = () => {
+    const phone = mobileMq.matches;
+    document.documentElement.classList.toggle('m-scrub', phone);
+    wrap.style.height = phone ? '240vh' : '300vh';
+    const next = phone ? video.dataset.srcTall : video.dataset.srcWide;
+    if (!next || next === source) return;
+    source = next;
+    duration = 0;
+    if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = null; }
+    if (phone) video.poster = 'assets/landingpage-animation-mobile-poster.webp';
+    else video.removeAttribute('poster');
+    if (phone && window.fetch && window.URL && URL.createObjectURL) {
+      const direct = () => {
+        if (source !== next) return;
+        if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = null; }
+        video.src = next;
+        video.load();
+        primeVideo();
+      };
+      fetch(next)
+        .then((r) => (r.ok ? r.blob() : Promise.reject(r.status)))
+        .then((b) => {
+          if (source !== next) return;
+          blobUrl = URL.createObjectURL(b);
+          const url = blobUrl;
+          // Some browsers refuse a video from memory: then play the file itself.
+          video.addEventListener('error', () => { if (blobUrl === url) direct(); }, { once: true });
+          video.src = url;
+          video.load();
+          primeVideo();
+        })
+        .catch(direct);
+    } else {
+      video.src = next;
+      video.load();
+    }
+  };
+  video.addEventListener('loadedmetadata', () => { duration = video.duration || 0; schedule(); });
+  // A seek that was skipped while the previous one was still running gets
+  // picked up here, so the frame always ends up matching the scroll position.
+  video.addEventListener('seeked', schedule);
 
   const readScroll = () => {
     const rect = wrap.getBoundingClientRect();
@@ -2959,8 +3011,9 @@ initSectionMove();
       currentProgress = targetProgress;
       rafId = null;
     }
-    if (duration > 0) {
-      video.currentTime = currentProgress * duration;
+    if (duration > 0 && !video.seeking) {
+      const t = Math.min(currentProgress * duration, duration - 0.001);
+      if (Math.abs(video.currentTime - t) > 0.004) video.currentTime = t;
     }
     if (introKicker) {
       const kickerFadeEnd = 0.15;
@@ -2994,7 +3047,16 @@ initSectionMove();
   };
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll);
+  const onLayoutChange = () => { pickSource(); onScroll(); };
+  mobileMq.addEventListener('change', onLayoutChange);
+  // Phones settle their size a moment after rotating, so check again shortly after.
+  window.addEventListener('orientationchange', () => {
+    onLayoutChange();
+    setTimeout(onLayoutChange, 100);
+    setTimeout(onLayoutChange, 400);
+  });
 
+  pickSource();
   onScroll();
 })();
 </script>
