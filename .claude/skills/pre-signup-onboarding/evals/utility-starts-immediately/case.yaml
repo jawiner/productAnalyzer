@@ -1,0 +1,9 @@
+schema_version: "1.1"
+name: utility-starts-immediately
+expected_outcome: |
+  Runs the "does an answer change anything" test on the five proposed questions and finds that none changes the first experience.
+  Recommends immediate use, says so plainly even though a quiz was requested, and explains the reasoning from intent and effort.
+  Places the account prompt where batch upload or history becomes useful, with copy that names it.
+  Treats "quiz funnels convert" as vendor-level evidence that does not transfer, without quoting a lift.
+  Gives the marketing lead an appropriate way to learn about users, and says what happens if they insist: the smallest honest quiz as a test, or a plain statement that none exists here.
+  Measures a value outcome per eligible entrant against the current flow.

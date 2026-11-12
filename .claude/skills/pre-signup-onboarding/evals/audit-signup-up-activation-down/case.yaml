@@ -1,0 +1,10 @@
+schema_version: "1.1"
+name: audit-signup-up-activation-down
+expected_outcome: |
+  Multiplies through to first lessons per landing visitor (about 9.4% before, about 8.1% after) and says the quiz is not winning on activation.
+  Says the before/after comparison limits what can be concluded, and proposes a randomized test over all assigned visitors.
+  Finds that the answers are thrown away at signup and that language and level are asked twice, and ranks that first or near first.
+  Finds the questions that change nothing, the unsupported fluency promise and the fake delay.
+  Gives fixes in priority order, separating "fix now" from "test".
+  Lists the missing events.
+  Offers causes for the mixed result as hypotheses with something to check.

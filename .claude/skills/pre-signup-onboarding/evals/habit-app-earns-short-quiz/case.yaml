@@ -1,0 +1,10 @@
+schema_version: "1.1"
+name: habit-app-earns-short-quiz
+expected_outcome: |
+  Chooses a short questionnaire because goal, obstacle and available time each change the starting habit, and says what would change that decision.
+  Works backward from a real result (a starter habit with a size, a reminder and a mode) to the fewest questions that fill it.
+  Writes the copy for every screen and matches the entry to the TikTok promise.
+  Gives every question options, a traced effect and a working skip.
+  Shows two answer sets ending in different results built only from listed capabilities.
+  Specifies a handoff that survives OAuth, email confirmation and an existing account, and opens the saved result.
+  Measures first check-in per eligible entrant against the current flow, and labels length, progress and account timing as things to test.

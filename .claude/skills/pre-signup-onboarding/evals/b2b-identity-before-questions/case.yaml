@@ -1,0 +1,9 @@
+schema_version: "1.1"
+name: b2b-identity-before-questions
+expected_outcome: |
+  Separates the two arrivals and decides each one independently.
+  Sends invited approvers through sign-in to their waiting invoices with no quiz, and explains in the copy why sign-in is needed.
+  Considers the sandbox company as a labelled demo for evaluators before or alongside the trial account.
+  Keeps only questions that change the experience (role), and moves sales qualification to a labelled path that doesn't gate the product.
+  Covers invite expiry, SSO failure and existing accounts.
+  Measures each arrival by its own activation event per eligible entrant.
