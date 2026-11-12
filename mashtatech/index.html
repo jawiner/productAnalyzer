@@ -310,14 +310,38 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
   #siteFooter{padding:48px 20px 20px !important;}
   #copyrightWrap{padding:0 20px 32px !important;}
   #services h2, #work h2, #process h2, #pricing h2, #faq h2, #about h2{font-size:28px !important;}
-  #servicesStack{padding:0 20px !important;}
-  .service-panel{grid-template-columns:1fr !important;gap:24px !important;padding:32px 0 !important;min-height:0 !important;}
+  /* Services on phones: a deck of cards. Each card sticks just under the nav,
+     10px lower than the one before, so the cards it covers show as a stack of
+     edges. JS gives every card the tallest card's height (--svc-h) and the nav's
+     height (--svc-top), and drops to a plain list (.svc-flat) if a card would
+     not fit on the screen. */
+  #servicesStack{padding:0 14px !important;margin-top:36px !important;}
+  .service-panel{display:flex !important;flex-direction:column;gap:0 !important;padding:10px !important;min-height:var(--svc-h,0px) !important;box-sizing:border-box;border-radius:24px !important;top:calc(var(--svc-top,76px) + var(--svc-i,0) * 10px) !important;box-shadow:0 0 28px 1px rgba(201,247,197,.14),0 -14px 40px rgba(0,0,0,.6);}
+  .service-panel + .service-panel{margin-top:16px;}
+  .service-panel:nth-child(2){--svc-i:1;}
+  .service-panel:nth-child(3){--svc-i:2;}
+  .service-panel:nth-child(4){--svc-i:3;}
+  .service-panel::after{border-radius:25.5px;}
+  /* Cards further back in the deck go darker (--cardscale comes from the scroll JS). */
+  .service-panel::before{content:'';position:absolute;inset:0;border-radius:inherit;background:#0E100E;opacity:calc((1 - var(--cardscale,1)) * 6);pointer-events:none;z-index:3;}
   .service-panel-imgwrap,.service-panel-text{order:0 !important;}
-  .service-panel-imgwrap{max-width:220px;}
-  .service-panel h3{font-size:24px !important;}
-  .service-panel p{font-size:15px !important;}
-  .service-panel-num{display:none;}
+  .service-panel-imgwrap{max-width:none;aspect-ratio:16/10 !important;max-height:30svh;border-radius:16px !important;box-shadow:none !important;transform:none;}
+  /* The picture settles from a slight zoom as its card rises into place. */
+  .service-panel-img{transform:scale(calc(1 + (1 - var(--imgscale,1)) * .35));transform-origin:50% 60%;will-change:transform;}
+  .service-panel-text{padding:20px 12px 12px;}
+  .service-panel-eyebrow{gap:8px;font-size:11px;}
   .service-panel-eyebrow::before{width:16px;}
+  .service-panel-eyebrow::after{content:'/ 04';opacity:.45;margin-inline-start:-3px;}
+  .service-panel h3{font-size:26px !important;margin-top:12px !important;line-height:1.18 !important;text-wrap:balance;}
+  .service-panel p{font-size:15.5px !important;line-height:1.7 !important;margin-top:10px !important;opacity:.74 !important;}
+  .service-panel-num{display:none;}
+  #servicesStack.svc-flat .service-panel{position:relative !important;top:0 !important;min-height:0 !important;}
+  #servicesStack.svc-flat .service-panel::before{display:none;}
+  #services .services-cta{display:flex !important;width:100%;box-sizing:border-box;justify-content:space-between;align-items:center;gap:16px !important;padding:18px 2px !important;border-top:1px solid rgba(201,247,197,.25);border-bottom-color:rgba(201,247,197,.25) !important;font-size:20px !important;line-height:1.35;text-align:start;}
+  #services .services-cta span{text-wrap:balance;}
+  #services .services-cta::after{content:'←';flex:none;display:flex;align-items:center;justify-content:center;width:44px;height:44px;box-sizing:border-box;border:1px solid rgba(201,247,197,.45);font-family:'IBM Plex Mono',monospace;font-size:18px;}
+  [dir="ltr"] #services .services-cta::after{content:'→';}
+  @media (prefers-reduced-motion: reduce){.service-panel-img{transform:none;}}
   /* Swipe rows: each card fills the row minus a sliver of its neighbours. */
   #stepsContainer,#pricingGrid{display:flex !important;gap:12px !important;margin-inline:-20px;padding:0 32px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
   #stepsContainer::-webkit-scrollbar,#pricingGrid::-webkit-scrollbar{display:none;}
@@ -1334,26 +1358,40 @@ if ('IntersectionObserver' in window) {
     const minScale = 0.55, maxScale = 1;
     let ticking = false;
     let angle = 0;
+    const stack = document.getElementById('servicesStack');
+    // Phones show the cards as a deck (see the .service-panel phone CSS). fitDeck()
+    // keeps these up to date: where the first card comes to rest, and the card height.
+    let deckTop = 0, deckH = 0;
     const updateScales = () => {
       ticking = false;
       const vh = window.innerHeight;
-      servicePanels.forEach((p, i) => {
+      const deck = mobileMq.matches && stack && !stack.classList.contains('svc-flat');
+      // Read every position first, then write, so the browser lays out once per frame.
+      const rects = Array.from(servicePanels, (p) => p.getBoundingClientRect());
+      rects.forEach((rect, i) => {
+        const p = servicePanels[i];
         const wrap = imgwraps[i];
         if (wrap) {
-          const rect = p.getBoundingClientRect();
-          const progress = Math.min(1, Math.max(0, (vh - rect.top) / (vh + rect.height)));
+          // Phones: 0 when the card enters at the bottom, 1 once it is at rest in the deck.
+          const progress = deck
+            ? Math.min(1, Math.max(0, (vh - rect.top) / Math.max(1, vh - (deckTop + i * 10))))
+            : Math.min(1, Math.max(0, (vh - rect.top) / (vh + rect.height)));
           const scale = minScale + (maxScale - minScale) * progress;
           wrap.style.setProperty('--imgscale', scale.toFixed(3));
         }
         // Stacked-card shrink: as the next panel scrolls up and begins covering this
         // one, scale this panel down slightly toward a per-index target (like a
         // physical stack of cards compressing), matching the reference glass-cards effect.
-        const next = servicePanels[i + 1];
+        const nextRect = rects[i + 1];
         const targetScale = 1 - (total - i) * 0.03;
         let cardScale = 1;
-        if (next) {
-          const nextRect = next.getBoundingClientRect();
-          const coverProgress = Math.min(1, Math.max(0, (vh - nextRect.top) / vh));
+        if (nextRect) {
+          // Phones: how far the next card has slid over this one (0 = touching its
+          // bottom edge, 1 = at rest on top of it), so the text stays bright while
+          // you read it. A phone list that is not a deck does not shrink at all.
+          const coverProgress = deck
+            ? Math.min(1, Math.max(0, (rect.top + deckH - nextRect.top) / Math.max(1, deckH - 10)))
+            : mobileMq.matches ? 0 : Math.min(1, Math.max(0, (vh - nextRect.top) / vh));
           cardScale = 1 - (1 - targetScale) * coverProgress;
         }
         p.style.setProperty('--cardscale', cardScale.toFixed(4));
@@ -1365,8 +1403,43 @@ if ('IntersectionObserver' in window) {
         requestAnimationFrame(updateScales);
       }
     };
+    // Phones: every card in the deck gets the tallest card's height, so a shorter
+    // card never lets the one behind it show underneath. If the deck would not fit
+    // under the nav (tiny screen, large accessibility text), it becomes a plain list.
+    // The fit check uses clientHeight, which stays put while the browser bars
+    // slide in and out, so the layout never flips in the middle of a scroll.
+    const fitDeck = () => {
+      if (!stack) return;
+      if (!mobileMq.matches) {
+        stack.classList.remove('svc-flat');
+        stack.style.removeProperty('--svc-h');
+        stack.style.removeProperty('--svc-top');
+        onScroll();
+        return;
+      }
+      const navEl = document.getElementById('nav');
+      deckTop = (navEl ? navEl.offsetHeight : 68) + 8;
+      stack.style.setProperty('--svc-top', deckTop + 'px');
+      stack.style.setProperty('--svc-h', '0px');
+      let tallest = 0;
+      servicePanels.forEach((p) => { tallest = Math.max(tallest, p.offsetHeight); });
+      deckH = tallest;
+      stack.style.setProperty('--svc-h', tallest + 'px');
+      const lastRest = deckTop + (servicePanels.length - 1) * 10;
+      stack.classList.toggle('svc-flat', lastRest + tallest > document.documentElement.clientHeight);
+      onScroll();
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
+    // Card text changes size with the language, the accessibility font size and
+    // rotation; any of those re-fits the deck.
+    if ('ResizeObserver' in window) {
+      const ro = new ResizeObserver(() => fitDeck());
+      servicePanels.forEach((p) => { const t = p.querySelector('.service-panel-text'); if (t) ro.observe(t); });
+    }
+    mobileMq.addEventListener('change', fitDeck);
+    window.addEventListener('orientationchange', () => { fitDeck(); setTimeout(fitDeck, 100); setTimeout(fitDeck, 400); });
+    fitDeck();
     updateScales();
 
     // Slowly rotate the electric-border conic-gradient angle for a subtle animated glow,
