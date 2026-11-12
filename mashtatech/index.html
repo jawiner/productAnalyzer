@@ -290,8 +290,14 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
   #top p{font-size:16px !important;}
   #top [data-reveal]:last-child > div{flex-direction:column !important;align-items:stretch !important;}
   #top [data-reveal]:last-child a{justify-content:center !important;}
-  /* Phone scroll film: the hero pins for the length of the scrub, like on desktop. */
-  html.m-scrub #top{min-height:100vh !important;min-height:100svh !important;display:flex !important;align-items:center !important;padding:88px 20px calc(32px + env(safe-area-inset-bottom)) !important;}
+  /* Phone scroll film: the hero pins (sticky) for the length of the scrub, like on desktop. */
+  html.m-scrub #top{min-height:100vh !important;min-height:100lvh !important;display:flex !important;align-items:center !important;padding:88px 20px calc(32px + env(safe-area-inset-bottom)) !important;}
+  /* iPhone: Safari 26 never draws sticky or fixed elements in the strip behind its floating
+     bottom bar, so a pinned film always loses its bottom there. Instead the hero is a plain
+     full-screen block (drawn behind the bar too) and swipes drive the film while the page
+     stays put (m-jack, see initIntroScrub). +60px: 100lvh can fall a little short. */
+  html.m-jack #heroScroll{height:auto !important;}
+  html.m-jack #top{position:relative !important;min-height:calc(100vh + 60px) !important;min-height:calc(100lvh + 60px) !important;padding-bottom:calc(92px + env(safe-area-inset-bottom)) !important;}
   html.m-scrub #heroScrim{opacity:1;}
   #introKicker{top:calc(84px + 3svh) !important;padding-inline:20px;font-size:clamp(31px,8.8vw,40px) !important;line-height:1.18;}
   #introKickerEyebrow{font-size:11px !important;letter-spacing:.2em !important;margin-bottom:12px !important;}
@@ -3145,8 +3151,20 @@ window.addEventListener('keydown', (e) => {
 const heroScrollEl = document.getElementById('heroScroll');
 const navCtaEl = document.getElementById('navCta');
 const fabEl = document.getElementById('fab');
+// Screen height with the browser bars collapsed (100lvh). Unlike innerHeight it does not
+// change while phone browsers show and hide their bars, so the hero film's scroll length
+// stays put. On desktop it equals innerHeight.
+const lvhProbe = document.createElement('div');
+lvhProbe.setAttribute('aria-hidden', 'true');
+lvhProbe.style.cssText = 'position:absolute;top:0;left:0;width:0;height:100vh;height:100lvh;visibility:hidden;pointer-events:none;';
+document.body.appendChild(lvhProbe);
+function heroViewportH() { return lvhProbe.offsetHeight || window.innerHeight; }
+// On iPhone the film is driven by swipes, not by scrolling (initIntroScrub sets these).
+const heroState = { jack: false, done: false };
 function onScroll() {
-  const introDone = !heroScrollEl || window.scrollY >= heroScrollEl.offsetHeight - window.innerHeight - 1;
+  const introDone = heroState.jack
+    ? (heroState.done || window.scrollY > 1)
+    : (!heroScrollEl || window.scrollY >= heroScrollEl.offsetHeight - heroViewportH() - 1);
   const on = introDone && window.scrollY > 12;
   navEl.style.background = on ? 'rgba(14,16,14,.82)' : 'rgba(14,16,14,0)';
   navEl.style.backdropFilter = on ? 'blur(16px)' : 'none';
@@ -3408,14 +3426,87 @@ initSectionMove();
   // iOS Safari only scrubs smoothly when every frame is already local.
   let source = '';
   let blobUrl = null;
+
+  // iPhone/iPad (all iOS browsers are WebKit): Safari 26 never draws sticky content behind
+  // its floating bottom bar, so a pinned film loses its bottom strip there. In "jack" mode the
+  // hero is a plain full-screen block instead, and swipes at the top of the page drive the
+  // film while the page stays put (with a glide after the finger lifts, like scrolling).
+  // When the film has played, the next swipe scrolls the page as usual.
+  const isIOS = /iP(hone|od|ad)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  let jack = false;
+  const setTarget = (p) => {
+    targetProgress = Math.min(1, Math.max(0, p));
+    schedule();
+  };
+  const filmDistance = () => 1.4 * heroViewportH(); // finger travel for the whole film, as the scroll pin had
+  let touch = null;
+  let glide = null;
+  const stopGlide = () => { if (glide) { cancelAnimationFrame(glide); glide = null; } };
+  const startGlide = (v) => { // v: film progress per ms
+    let last = performance.now();
+    const step = (now) => {
+      const dt = Math.min(now - last, 50);
+      last = now;
+      setTarget(targetProgress + v * dt);
+      v *= Math.pow(0.996, dt);
+      if (Math.abs(v) < 0.00002 || targetProgress <= 0 || targetProgress >= 1) { glide = null; return; }
+      glide = requestAnimationFrame(step);
+    };
+    glide = requestAnimationFrame(step);
+  };
+  document.addEventListener('touchstart', (e) => {
+    touch = null;
+    if (!jack || e.touches.length !== 1 || window.scrollY > 1) return;
+    if (document.body.classList.contains('menu-open')) return;
+    if (e.target.closest && e.target.closest('#mobileMenu,#filmModal,#drumLightbox,#a11yPanel')) return;
+    stopGlide();
+    const y = e.touches[0].clientY;
+    touch = { y, on: null, pts: [[e.timeStamp, y]] };
+  }, { passive: true });
+  document.addEventListener('touchmove', (e) => {
+    if (!touch || !jack || e.touches.length !== 1) return;
+    const y = e.touches[0].clientY;
+    const dy = touch.y - y; // > 0: finger moving up = forward through the film
+    touch.y = y;
+    touch.pts.push([e.timeStamp, y]);
+    if (touch.pts.length > 8) touch.pts.shift();
+    if (touch.on === false || dy === 0) return;
+    if (touch.on === null) {
+      // The first move decides: forward with film left, or back with film to rewind,
+      // drives the film for this whole swipe; otherwise the page scrolls as usual.
+      const can = dy > 0 ? targetProgress < 1 : targetProgress > 0;
+      if (!can || window.scrollY > 1) { touch.on = false; return; }
+      touch.on = true;
+    }
+    e.preventDefault();
+    setTarget(targetProgress + dy / filmDistance());
+  }, { passive: false });
+  const endTouch = (e) => {
+    const t = touch;
+    touch = null;
+    if (!t || !t.on || e.type === 'touchcancel') return;
+    const pts = t.pts.filter((p) => e.timeStamp - p[0] < 100);
+    if (pts.length < 2) return;
+    const a = pts[0], b = pts[pts.length - 1];
+    if (b[0] <= a[0]) return;
+    const v = (a[1] - b[1]) / (b[0] - a[0]) / filmDistance();
+    if (Math.abs(v) > 0.00005) startGlide(v);
+  };
+  document.addEventListener('touchend', endTouch, { passive: true });
+  document.addEventListener('touchcancel', endTouch, { passive: true });
+
   const primeVideo = () => {
     const p = video.play();
     if (p && p.then) p.then(() => { video.pause(); schedule(); }).catch(() => {});
   };
   const pickSource = () => {
     const phone = mobileMq.matches;
+    jack = phone && isIOS;
+    heroState.jack = jack;
     document.documentElement.classList.toggle('m-scrub', phone);
-    wrap.style.height = phone ? '240vh' : '300vh';
+    document.documentElement.classList.toggle('m-jack', jack);
+    if (!jack) stopGlide();
+    wrap.style.height = phone ? (CSS.supports('height', '100lvh') ? '240lvh' : '240vh') : '300vh';
     const next = phone ? video.dataset.srcTall : video.dataset.srcWide;
     if (!next || next === source) return;
     source = next;
@@ -3455,14 +3546,23 @@ initSectionMove();
   video.addEventListener('seeked', schedule);
 
   const readScroll = () => {
+    if (jack) {
+      // Swipes drive the film. If the page is away from the top (a menu link, a restored
+      // scroll position), the film counts as played.
+      if (window.scrollY > 2 && targetProgress < 1) { stopGlide(); setTarget(1); }
+      return;
+    }
     const rect = wrap.getBoundingClientRect();
-    const total = wrap.offsetHeight - window.innerHeight;
+    // Measured against the bars-collapsed screen height, not innerHeight: on phones
+    // innerHeight grows and shrinks with the browser bars while you scroll.
+    const total = wrap.offsetHeight - heroViewportH();
     const scrolled = Math.min(Math.max(-rect.top, 0), total);
     targetProgress = total > 0 ? scrolled / total : 0;
   };
 
   const loop = () => {
-    currentProgress += (targetProgress - currentProgress) * 0.12;
+    // A finger is already smooth: follow it more closely than the scroll position.
+    currentProgress += (targetProgress - currentProgress) * (jack ? 0.25 : 0.12);
     if (Math.abs(targetProgress - currentProgress) < 0.0004) {
       currentProgress = targetProgress;
       rafId = null;
@@ -3491,6 +3591,11 @@ initSectionMove();
     } else if (heroRevealed && targetProgress < 0.98) {
       heroRevealed = false;
       hideHero();
+    }
+    const done = targetProgress >= 0.98;
+    if (heroState.done !== done) {
+      heroState.done = done;
+      window.dispatchEvent(new Event('scroll')); // the nav switches to solid when the film is done
     }
     if (rafId !== null) {
       rafId = requestAnimationFrame(loop);
