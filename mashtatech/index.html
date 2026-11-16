@@ -54,6 +54,7 @@ body{margin:0;background:#0E100E;overflow-x:hidden;}
 a{color:inherit;text-decoration:none;}
 a:hover{color:inherit;}
 *:focus-visible{outline:2px solid #C9F7C5;outline-offset:3px;}
+#techStrip:focus-visible,#stepsContainer:focus-visible{outline-offset:-2px;}
 /* Hebrew is never letter-spaced like Latin caps: the mono labels keep their tracking in English only */
 :lang(he) :is([style*="IBM Plex Mono"],.film-btn,#filmModalTag,.skip-link,.mobile-menu-num,.service-panel-eyebrow){letter-spacing:.02em !important;word-spacing:-.3em;}
 /* the 'something else in mind?' line is a sentence, so in Hebrew it is set like one, in the display serif */
@@ -190,6 +191,22 @@ a:hover{color:inherit;}
 .testimonial-nav:hover{background:#C9F7C5;border-color:#C9F7C5;color:#0E100E;}
 .social-icon:hover{background:#C9F7C5;border-color:#C9F7C5;color:#0E100E;}
 .footer-link:hover{color:#C9F7C5;opacity:1;}
+/* Legal links under the copyright line; the page ends with room to spare so the fixed
+   WhatsApp and accessibility buttons never sit on top of them. */
+.legal-link{display:inline-block;padding:4px 0;font-size:13px;line-height:1.5;opacity:.72;transition:color .25s,opacity .25s;}
+.legal-link:hover{color:#C9F7C5;opacity:1;}
+#copyrightWrap{padding-bottom:104px !important;}
+/* Monthly plan terms under the price cards: the small print, set as plainly as the prices. */
+.plan-terms{margin-top:96px;padding-top:36px;border-top:1px solid rgba(233,235,232,.14);display:grid;grid-template-columns:minmax(180px,260px) minmax(0,1fr);gap:24px 64px;}
+.plan-terms-title{margin:0;font-family:var(--fd);font-size:clamp(24px,2vw,30px);font-weight:400;letter-spacing:-.01em;line-height:1.2;}
+.plan-terms-list{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:28px 48px;}
+.plan-terms-list dt{font-family:'IBM Plex Mono',var(--ft);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#C9F7C5;}
+:lang(he) .plan-terms-list dt{letter-spacing:.02em;word-spacing:-.3em;text-transform:none;}
+.plan-terms-list dd{margin:8px 0 0;font-size:15px;line-height:1.65;opacity:.74;}
+@media (max-width:760px){
+  .plan-terms{margin-top:56px;padding-top:28px;grid-template-columns:minmax(0,1fr);gap:20px;}
+  .plan-terms-list{grid-template-columns:minmax(0,1fr);gap:20px;}
+}
 .contact-dark:hover{transform:translateY(-2px);}
 .contact-outline:hover{background:#C9F7C5;border-color:#C9F7C5;color:#0E100E;}
 .fab:hover{transform:scale(1.07);}
@@ -352,7 +369,7 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
   #aboutInner{padding:56px 20px !important;}
   #contactInner{padding:56px 20px !important;}
   #siteFooter{padding:48px 20px 20px !important;}
-  #copyrightWrap{padding:0 20px 32px !important;}
+  #copyrightWrap{padding:0 20px 84px !important;}
   #services h2, #work h2, #process h2, #pricing h2, #faq h2, #about h2{font-size:28px !important;}
   /* Services on phones: a deck of cards. Each card sticks just under the nav,
      10px lower than the one before, so the cards it covers show as a stack of
@@ -609,10 +626,10 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
   .pc-link{align-self:center;}
 }
 </style>
-<script type="application/ld+json">[{"@context":"https://schema.org","@type":"ProfessionalService","@id":"https://www.mashtech.co.il/#business","name":"Mashtech","alternateName":"משטא-טק","url":"https://www.mashtech.co.il/","logo":"https://www.mashtech.co.il/assets/mashtech%20logo.png","image":"https://www.mashtech.co.il/assets/mashtech-share.png","description":"Mashtech – סטודיו לפיתוח אתרים, מערכות ווב, אוטומציות ופתרונות AI בהתאמה אישית לעסקים בישראל. אתר מהיר ומותאם לנייד, תמחור שקוף מ-₪1,299, ליווי מאפיון ועד השקה.","email":"mashtatech@gmail.com","telephone":"+972-54-996-1663","address":{"@type":"PostalAddress","addressLocality":"Tel Aviv","addressCountry":"IL"},"areaServed":{"@type":"Country","name":"Israel"},"founder":{"@id":"https://www.mashtech.co.il/#founder"},"sameAs":["https://wa.me/972549961663"],"priceRange":"₪1,299 - ₪4,890","knowsLanguage":["he","en"],"hasOfferCatalog":{"@type":"OfferCatalog","name":"תמחור","itemListElement":[{"@type":"Offer","name":"Starter","description":"לעסקים קטנים שרוצים נוכחות מקצועית באינטרנט.","price":"1299","priceCurrency":"ILS","url":"https://www.mashtech.co.il/#pricing"},{"@type":"Offer","name":"Professional","description":"לעסקים שרוצים אתר מתקדם שמייצר יותר פניות.","price":"1949","priceCurrency":"ILS","url":"https://www.mashtech.co.il/#pricing"},{"@type":"Offer","name":"Premium","description":"לעסקים שרוצים אתר מתקדם עם מערכות דיגיטליות שמייעלות את העסק.","price":"4890","priceCurrency":"ILS","url":"https://www.mashtech.co.il/#pricing"}]},"makesOffer":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"עיצוב ופיתוח אתרים","description":"אתרים מודרניים, מהירים ומותאמים לנייד שיוצרים נוכחות מקצועית ברשת והופכים מבקרים ללקוחות."}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"מערכות ווב מותאמות אישית","description":"דשבורדים, פורטלים ומערכות ניהול שנבנים סביב הדרך שבה העסק שלכם באמת עובד."}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"פתרונות AI","description":"שילוב יכולות AI במוצר שלכם — עוזרים חכמים, סוכנים ותהליכים חכמים יותר שפותרים בעיות אמיתיות."}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"אוטומציה עסקית","description":"אוטומציה של תהליכים חוזרים וחיבור בין מערכות, כדי לחסוך זמן ולתפעל את העסק ביעילות."}},{"@type":"Offer","availability":"https://schema.org/PreOrder","url":"https://ai-receptionist-il.fly.dev/","itemOffered":{"@type":"SoftwareApplication","name":"מזכירה קולית","applicationCategory":"BusinessApplication","description":"לא הספקתם לענות? היא עונה במקומכם בעברית, ורושמת מי התקשר ומה הוא צריך. הטלפון שלכם ממשיך לצלצל קודם. רק שיחה שלא עניתם לה עוברת אליה. היא עונה רק ממה שכתבתם, ועל כל השאר מציעה שיחזרו אליכם. בחבילת \"מענה + יומן\" היא גם קובעת, מזיזה ומבטלת תורים. נפתח עכשיו לעסקים הראשונים. המספר של העסק נשאר שלכם."}},{"@type":"Offer","availability":"https://schema.org/PreOrder","url":"https://mapflow-crm.vercel.app/welcome","itemOffered":{"@type":"SoftwareApplication","name":"LeadFlow","applicationCategory":"BusinessApplication","description":"ה־CRM שמוצא לכם לקוחות חדשים בגוגל מפות, ומזכיר לכם בטלגרם מתי לחזור אליהם. פניות, שיחות, מעקב והצעות מחיר בלוח אחד. סריקה יומית שמוצאת לכם עסקים חדשים בגוגל מפות. תזכורת בטלגרם כשמגיע הזמן לחזור, עם משפט פתיחה. החשבונות נפתחים בקרוב. כתבו לי, ואעדכן אתכם כשהם נפתחים."}}]},{"@context":"https://schema.org","@type":"WebSite","@id":"https://www.mashtech.co.il/#website","url":"https://www.mashtech.co.il/","name":"Mashtech","inLanguage":"he","publisher":{"@id":"https://www.mashtech.co.il/#business"}},{"@context":"https://schema.org","@type":"Person","@id":"https://www.mashtech.co.il/#founder","name":"יניר משטא","jobTitle":"מייסד, Mashtech","worksFor":{"@id":"https://www.mashtech.co.il/#business"},"image":"https://www.mashtech.co.il/assets/yanir-mashta.webp","url":"https://www.mashtech.co.il/#about"},{"@context":"https://schema.org","@type":"FAQPage","@id":"https://www.mashtech.co.il/#faq","inLanguage":"he","mainEntity":[{"@type":"Question","name":"כמה עולה לבנות אתר?","acceptedAnswer":{"@type":"Answer","text":"בניית אתר ב-Mashtech מתחילה ב-₪1,299 לחבילת Starter, ₪1,949 לחבילת Professional ו-₪4,890 לחבילת Premium, בתוספת מנוי חודשי של ₪99, ₪169 או ₪319 בהתאמה. אלה מחירים התחלתיים, וכל פרויקט מתומחר סופית אחרי שיחת אפיון קצרה. בחרו את החבילה שמתאימה לעסק שלכם וקבלו בדיוק מה שאתם צריכים — החל מאתר תדמית פשוט ומקצועי ועד אתר מתקדם עם מערכות הזמנות, תשלומים ואוטומציות."}},{"@type":"Question","name":"כמה זמן לוקח לבנות את האתר?","acceptedAnswer":{"@type":"Answer","text":"ברוב המקרים, אתר תדמית יכול להיות מוכן בתוך כשבועיים עד מספר שבועות, בהתאם להיקף הפרויקט, כמות התוכן והפיצ'רים הנדרשים. אנחנו עובדים בתהליך מסודר עם שלבים ברורים, כך שאתם יודעים מה קורה בכל שלב — ולא צריכים לרדוף אחרי מי שבונה לכם את האתר."}},{"@type":"Question","name":"איך נראה תהליך בניית האתר?","acceptedAnswer":{"@type":"Answer","text":"התהליך מתחיל בהבנה של העסק, המטרות והסגנון שאתם מחפשים. משם אנחנו עוברים לעיצוב ולבניית האתר, מציגים לכם את התוצאה, מקבלים את המשוב שלכם ומבצעים את ההתאמות הנדרשות. לאחר שהכול מוכן ומאושר, אנחנו דואגים לעלות את האתר לאוויר. אתם מביאים את העסק — אנחנו דואגים לצד הדיגיטלי."}},{"@type":"Question","name":"מה אני צריך להכין לפני שמתחילים?","acceptedAnswer":{"@type":"Answer","text":"לא צריך להגיע עם אתר מוכן או עם ידע טכני. אחרי שיחת האפיון תקבלו קישור אחד עם רשימה של מה שהאתר צריך: לוגו, תמונות, פרטי העסק וטקסטים. שולחים בו הכול ישר מהטלפון, כקבצים, קישורים, טקסט או הודעה קולית. מה שאין לכם, מסמנים \"אין לי את זה\", ונמצא לזה פתרון ביחד. המטרה היא להפוך את התהליך לכמה שיותר פשוט עבורכם."}},{"@type":"Question","name":"האם האתר מותאם למובייל ולקידום בגוגל?","acceptedAnswer":{"@type":"Answer","text":"בהחלט. כל אתר נבנה עם התאמה למובייל ותשתית טכנית נכונה, הכוללת מבנה אתר מסודר, קוד נקי ומהירות טעינה טובה. בנוסף, בהתאם לחבילה שתבחרו, ניתן לקבל הגדרות SEO מתקדמות או חבילת SEO מלאה, כדי לתת לאתר בסיס טוב יותר להופיע ולהתקדם במנועי החיפוש."}},{"@type":"Question","name":"האם אני צריך לדאוג לדומיין, אחסון וכל הצד הטכני?","acceptedAnswer":{"@type":"Answer","text":"לא. אנחנו יכולים לעזור לכם עם הדומיין, החיבור וההגדרות הטכניות, כך שלא תצטרכו להתחיל להתעסק עם מערכות שאתם לא מכירים. אם כבר יש לכם דומיין או תשתית קיימת — נוכל לעבוד איתם בהתאם לצורך."}},{"@type":"Question","name":"מה קורה אם יש תקלה אחרי שהאתר עולה לאוויר?","acceptedAnswer":{"@type":"Answer","text":"אנחנו לא נעלמים אחרי ההשקה. בהתאם לחבילה ולמנוי החודשי שלכם, תקבלו תמיכה וטיפול בתקלות, כך שתמיד יהיה לכם למי לפנות במקרה שמשהו לא עובד כמו שצריך. המטרה שלנו היא לא רק לבנות לכם אתר יפה — אלא לוודא שהוא ממשיך לעבוד גם אחרי שהוא עולה לאוויר."}},{"@type":"Question","name":"מה כלול במנוי החודשי?","acceptedAnswer":{"@type":"Answer","text":"המנוי החודשי נועד לשמור על האתר שלכם פעיל ומתוחזק לאורך זמן, וכולל את השירותים המפורטים בחבילה שבחרתם. בהתאם לחבילה, המנוי יכול לכלול תמיכה, טיפול בתקלות, תחזוקה ושירותים נוספים כמו מערכות הזמנות, תשלומים ואוטומציות. כך אתם לא צריכים לדאוג לתפעול השוטף של האתר — יש לכם כתובת אחת לכל מה שקשור לאתר שלכם."}}]}]</script>
+<script type="application/ld+json">[{"@context":"https://schema.org","@type":"ProfessionalService","@id":"https://www.mashtech.co.il/#business","name":"Mashtech","alternateName":"משטא-טק","url":"https://www.mashtech.co.il/","logo":"https://www.mashtech.co.il/assets/mashtech%20logo.png","image":"https://www.mashtech.co.il/assets/mashtech-share.png","description":"Mashtech – סטודיו לפיתוח אתרים, מערכות ווב, אוטומציות ופתרונות AI בהתאמה אישית לעסקים בישראל. אתר מהיר ומותאם לנייד, תמחור שקוף מ-₪1,299, ליווי מאפיון ועד השקה.","email":"mashtatech@gmail.com","telephone":"+972-54-996-1663","address":{"@type":"PostalAddress","addressLocality":"Tel Aviv","addressCountry":"IL"},"areaServed":{"@type":"Country","name":"Israel"},"founder":{"@id":"https://www.mashtech.co.il/#founder"},"sameAs":["https://wa.me/972549961663"],"priceRange":"₪1,299 - ₪6,890","knowsLanguage":["he","en"],"hasOfferCatalog":{"@type":"OfferCatalog","name":"תמחור","itemListElement":[{"@type":"Offer","name":"Starter","description":"לעסקים קטנים שרוצים נוכחות מקצועית באינטרנט.","price":"1299","priceCurrency":"ILS","url":"https://www.mashtech.co.il/#pricing"},{"@type":"Offer","name":"Professional","description":"לעסקים שרוצים אתר מתקדם שמייצר יותר פניות.","price":"2490","priceCurrency":"ILS","url":"https://www.mashtech.co.il/#pricing"},{"@type":"Offer","name":"Premium","description":"לעסקים שרוצים אתר מתקדם עם מערכות דיגיטליות שמייעלות את העסק.","price":"6890","priceCurrency":"ILS","url":"https://www.mashtech.co.il/#pricing"}]},"makesOffer":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"עיצוב ופיתוח אתרים","description":"אתרים מודרניים, מהירים ומותאמים לנייד שיוצרים נוכחות מקצועית ברשת והופכים מבקרים ללקוחות."}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"מערכות ווב מותאמות אישית","description":"דשבורדים, פורטלים ומערכות ניהול שנבנים סביב הדרך שבה העסק שלכם באמת עובד."}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"פתרונות AI","description":"שילוב יכולות AI במוצר שלכם — עוזרים חכמים, סוכנים ותהליכים חכמים יותר שפותרים בעיות אמיתיות."}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"אוטומציה עסקית","description":"אוטומציה של תהליכים חוזרים וחיבור בין מערכות, כדי לחסוך זמן ולתפעל את העסק ביעילות."}},{"@type":"Offer","availability":"https://schema.org/PreOrder","url":"https://ai-receptionist-il.fly.dev/","itemOffered":{"@type":"SoftwareApplication","name":"מזכירה קולית","applicationCategory":"BusinessApplication","description":"לא הספקתם לענות? היא עונה במקומכם בעברית, ורושמת מי התקשר ומה הוא צריך. הטלפון שלכם ממשיך לצלצל קודם. רק שיחה שלא עניתם לה עוברת אליה. היא עונה רק ממה שכתבתם, ועל כל השאר מציעה שיחזרו אליכם. בחבילת \"מענה + יומן\" היא גם קובעת, מזיזה ומבטלת תורים. נפתח עכשיו לעסקים הראשונים. המספר של העסק נשאר שלכם."}},{"@type":"Offer","availability":"https://schema.org/PreOrder","url":"https://mapflow-crm.vercel.app/welcome","itemOffered":{"@type":"SoftwareApplication","name":"LeadFlow","applicationCategory":"BusinessApplication","description":"ה־CRM שמוצא לכם לקוחות חדשים בגוגל מפות, ומזכיר לכם בטלגרם מתי לחזור אליהם. פניות, שיחות, מעקב והצעות מחיר בלוח אחד. סריקה יומית שמוצאת לכם עסקים חדשים בגוגל מפות. תזכורת בטלגרם כשמגיע הזמן לחזור, עם משפט פתיחה. החשבונות נפתחים בקרוב. כתבו לי, ואעדכן אתכם כשהם נפתחים."}}]},{"@context":"https://schema.org","@type":"WebSite","@id":"https://www.mashtech.co.il/#website","url":"https://www.mashtech.co.il/","name":"Mashtech","inLanguage":"he","publisher":{"@id":"https://www.mashtech.co.il/#business"}},{"@context":"https://schema.org","@type":"Person","@id":"https://www.mashtech.co.il/#founder","name":"יניר משטא","jobTitle":"מייסד, Mashtech","worksFor":{"@id":"https://www.mashtech.co.il/#business"},"image":"https://www.mashtech.co.il/assets/yanir-mashta.webp","url":"https://www.mashtech.co.il/#about"},{"@context":"https://schema.org","@type":"FAQPage","@id":"https://www.mashtech.co.il/#faq","inLanguage":"he","mainEntity":[{"@type":"Question","name":"כמה עולה לבנות אתר?","acceptedAnswer":{"@type":"Answer","text":"בניית אתר ב-Mashtech מתחילה ב-₪1,299 לחבילת Starter, ₪2,490 לחבילת Professional ו-₪6,890 לחבילת Premium, בתוספת מנוי חודשי של ₪99, ₪169 או ₪319 בהתאמה. אלה מחירים התחלתיים, וכל פרויקט מתומחר סופית אחרי שיחת אפיון קצרה. בחרו את החבילה שמתאימה לעסק שלכם וקבלו בדיוק מה שאתם צריכים — החל מאתר תדמית פשוט ומקצועי ועד אתר מתקדם עם מערכות הזמנות, תשלומים ואוטומציות."}},{"@type":"Question","name":"כמה זמן לוקח לבנות את האתר?","acceptedAnswer":{"@type":"Answer","text":"ברוב המקרים, אתר תדמית יכול להיות מוכן בתוך כשבועיים עד מספר שבועות, בהתאם להיקף הפרויקט, כמות התוכן והפיצ'רים הנדרשים. אנחנו עובדים בתהליך מסודר עם שלבים ברורים, כך שאתם יודעים מה קורה בכל שלב — ולא צריכים לרדוף אחרי מי שבונה לכם את האתר."}},{"@type":"Question","name":"איך נראה תהליך בניית האתר?","acceptedAnswer":{"@type":"Answer","text":"התהליך מתחיל בהבנה של העסק, המטרות והסגנון שאתם מחפשים. משם אנחנו עוברים לעיצוב ולבניית האתר, מציגים לכם את התוצאה, מקבלים את המשוב שלכם ומבצעים את ההתאמות הנדרשות. לאחר שהכול מוכן ומאושר, אנחנו דואגים לעלות את האתר לאוויר. אתם מביאים את העסק — אנחנו דואגים לצד הדיגיטלי."}},{"@type":"Question","name":"מה אני צריך להכין לפני שמתחילים?","acceptedAnswer":{"@type":"Answer","text":"לא צריך להגיע עם אתר מוכן או עם ידע טכני. אחרי שיחת האפיון תקבלו קישור אחד עם רשימה של מה שהאתר צריך: לוגו, תמונות, פרטי העסק וטקסטים. שולחים בו הכול ישר מהטלפון, כקבצים, קישורים, טקסט או הודעה קולית. מה שאין לכם, מסמנים \"אין לי את זה\", ונמצא לזה פתרון ביחד. המטרה היא להפוך את התהליך לכמה שיותר פשוט עבורכם."}},{"@type":"Question","name":"האם האתר מותאם למובייל ולקידום בגוגל?","acceptedAnswer":{"@type":"Answer","text":"בהחלט. כל אתר נבנה עם התאמה למובייל ותשתית טכנית נכונה, הכוללת מבנה אתר מסודר, קוד נקי ומהירות טעינה טובה. בנוסף, בהתאם לחבילה שתבחרו, ניתן לקבל הגדרות SEO מתקדמות או חבילת SEO מלאה, כדי לתת לאתר בסיס טוב יותר להופיע ולהתקדם במנועי החיפוש."}},{"@type":"Question","name":"האם אני צריך לדאוג לדומיין, אחסון וכל הצד הטכני?","acceptedAnswer":{"@type":"Answer","text":"לא. אנחנו יכולים לעזור לכם עם הדומיין, החיבור וההגדרות הטכניות, כך שלא תצטרכו להתחיל להתעסק עם מערכות שאתם לא מכירים. אם כבר יש לכם דומיין או תשתית קיימת — נוכל לעבוד איתם בהתאם לצורך."}},{"@type":"Question","name":"מה קורה אם יש תקלה אחרי שהאתר עולה לאוויר?","acceptedAnswer":{"@type":"Answer","text":"אנחנו לא נעלמים אחרי ההשקה. בהתאם לחבילה ולמנוי החודשי שלכם, תקבלו תמיכה וטיפול בתקלות, כך שתמיד יהיה לכם למי לפנות במקרה שמשהו לא עובד כמו שצריך. המטרה שלנו היא לא רק לבנות לכם אתר יפה — אלא לוודא שהוא ממשיך לעבוד גם אחרי שהוא עולה לאוויר."}},{"@type":"Question","name":"מה כלול במנוי החודשי?","acceptedAnswer":{"@type":"Answer","text":"המנוי החודשי נועד לשמור על האתר שלכם פעיל ומתוחזק לאורך זמן, וכולל את השירותים המפורטים בחבילה שבחרתם. בהתאם לחבילה, המנוי יכול לכלול תמיכה, טיפול בתקלות, תחזוקה ושירותים נוספים כמו מערכות הזמנות, תשלומים ואוטומציות. כך אתם לא צריכים לדאוג לתפעול השוטף של האתר — יש לכם כתובת אחת לכל מה שקשור לאתר שלכם."}}]}]</script>
 </head>
 <body>
-<a href="#main" class="skip-link">Skip to content</a>
+<a href="#main" class="skip-link" data-t="skip_link">דילוג לתוכן</a>
 
 <div id="root" dir="rtl" lang="he" style="background:#0E100E;color:#E9EBE8;font-family:var(--ft);font-weight:300;min-height:100vh;position:relative;">
 
@@ -991,8 +1008,8 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
     <div id="planTabs" class="plan-tabs" data-reveal>
       <span class="plan-tabs-slider" aria-hidden="true"></span>
       <button type="button" class="plan-tab"><span class="plan-tab-name" data-t="tier1_name">Starter</span><span class="plan-tab-price" data-t="tier1_price">₪1,299</span></button>
-      <button type="button" class="plan-tab"><span class="plan-tab-name" data-t="tier2_name">Professional</span><span class="plan-tab-price" data-t="tier2_price">₪1,949</span></button>
-      <button type="button" class="plan-tab"><span class="plan-tab-name" data-t="tier3_name">Premium</span><span class="plan-tab-price" data-t="tier3_price">₪4,890</span></button>
+      <button type="button" class="plan-tab"><span class="plan-tab-name" data-t="tier2_name">Professional</span><span class="plan-tab-price" data-t="tier2_price">₪2,490</span></button>
+      <button type="button" class="plan-tab"><span class="plan-tab-name" data-t="tier3_name">Premium</span><span class="plan-tab-price" data-t="tier3_price">₪6,890</span></button>
     </div>
 
     <div id="pricingGrid" style="margin-top:88px;display:grid;grid-template-columns:repeat(3,1fr);gap:28px;align-items:stretch;">
@@ -1015,7 +1032,7 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
         </span>
         <span data-t="tier2_name" style="font-family:'IBM Plex Mono',var(--ft);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#C9F7C5;">Professional</span>
         <div style="margin-top:24px;display:flex;align-items:baseline;justify-content:center;gap:8px;">
-          <span data-t="tier2_price" style="font-family:var(--fd);font-size:52px;font-weight:400;letter-spacing:-.01em;">₪1,949</span>
+          <span data-t="tier2_price" style="font-family:var(--fd);font-size:52px;font-weight:400;letter-spacing:-.01em;">₪2,490</span>
         </div>
         <span data-t="tier2_monthly" data-prefix="+ " style="font-family:'IBM Plex Mono',var(--ft);font-size:12px;opacity:.6;margin-top:8px;">+ ₪169 לחודש</span>
         <p data-t="tier2_sub" style="font-style:italic;font-size:14px;line-height:1.6;opacity:.65;margin:18px 0 0;">לעסקים שרוצים אתר מתקדם שמייצר יותר פניות.</p>
@@ -1027,7 +1044,7 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
       <div data-reveal-stagger class="pricing-card" style="transition-delay:.16s;padding:40px 32px;border:1px solid rgba(233,235,232,.16);background:#131613;border-radius:20px;display:flex;flex-direction:column;text-align:center;transition:border-color .3s,transform .3s cubic-bezier(.16,1,.3,1),opacity .7s cubic-bezier(.16,1,.3,1);">
         <span data-t="tier3_name" style="font-family:'IBM Plex Mono',var(--ft);font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.6;">Premium</span>
         <div style="margin-top:24px;display:flex;align-items:baseline;justify-content:center;gap:8px;">
-          <span data-t="tier3_price" style="font-family:var(--fd);font-size:46px;font-weight:400;letter-spacing:-.01em;">₪4,890</span>
+          <span data-t="tier3_price" style="font-family:var(--fd);font-size:46px;font-weight:400;letter-spacing:-.01em;">₪6,890</span>
         </div>
         <span data-t="tier3_monthly" data-prefix="+ " style="font-family:'IBM Plex Mono',var(--ft);font-size:12px;opacity:.5;margin-top:8px;">+ ₪319 לחודש</span>
         <p data-t="tier3_sub" style="font-style:italic;font-size:14px;line-height:1.6;opacity:.65;margin:18px 0 0;">לעסקים שרוצים אתר מתקדם עם מערכות דיגיטליות שמייעלות את העסק.</p>
@@ -1035,6 +1052,17 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
         <ul data-t-list="tier3_features" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;font-size:14px;line-height:1.5;text-align:start;flex-grow:1;"><!--baked--><li>עמודים ללא הגבלה</li><li>עיצוב פרימיום בהתאמה אישית מלאה</li><li>עיצוב מותאם למובייל</li><li>חבילת SEO מלאה</li><li>אלמנטים תלת־ממדיים אינטראקטיביים</li><li>מערכת תורים והזמנות אונליין</li><li>תשלום אונליין</li><li>מערכת לאיסוף ביקורות Google</li><li>הגדרת דומיין מותאם אישית</li><li>שליחת SMS אוטומטית ללקוחות בעקבות שיחות שלא נענו</li><li>תמיכה מועדפת — מענה תוך 48 שעות</li><!--/baked--></ul>
         <a href="#contact" class="pricing-btn" data-t="pricing_cta" style="margin-top:32px;display:inline-flex;align-items:center;justify-content:center;gap:10px;border:1px solid rgba(233,235,232,.28);border-radius:8px;padding:14px 22px;font-size:15px;font-weight:600;transition:border-color .25s,background .25s,color .25s;">בואו נדבר</a>
       </div>
+    </div>
+
+    <div id="planTerms" class="plan-terms" data-reveal>
+      <h3 class="plan-terms-title" data-t="terms_title">תנאי המנוי החודשי</h3>
+      <dl class="plan-terms-list">
+        <div><dt data-t="terms_min_k">התחייבות</dt><dd data-t="terms_min_v">3 חודשים ב־Starter וב־Professional, ו־6 חודשים ב־Premium.</dd></div>
+        <div><dt data-t="terms_stop_k">הפסקה</dt><dd data-t="terms_stop_v">אחרי תקופת ההתחייבות מפסיקים מתי שרוצים: הודעה בוואטסאפ או במייל, והמנוי מסתיים בסוף החודש ששולם, בלי חיוב נוסף.</dd></div>
+        <div><dt data-t="terms_keep_k">מה נשאר שלכם</dt><dd data-t="terms_keep_v">הדומיין רשום על שמכם ונשאר שלכם. כשעוזבים, מקבלים את כל קבצי האתר והתוכן, ואפשר להעביר את האתר לכל אחסון אחר.</dd></div>
+        <div><dt data-t="terms_premium_k">ב־Premium</dt><dd data-t="terms_premium_v">עם סיום המנוי נסגרים גם השירותים שפועלים דרכו: מערכת התורים, התשלום האונליין, הודעות ה־SMS ואיסוף הביקורות.</dd></div>
+        <div><dt data-t="terms_price_k">שינוי מחיר</dt><dd data-t="terms_price_v">הודעה 30 יום מראש, ואפשר להפסיק לפני שהמחיר החדש נכנס לתוקף.</dd></div>
+      </dl>
     </div>
     </div>
   </section>
@@ -1045,7 +1073,7 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
       <span data-t="nav_faq" data-prefix="06 / " style="font-family:'IBM Plex Mono',var(--ft);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#C9F7C5;">06 / שאלות נפוצות</span>
       <h2 data-t="faq_title" style="font-family:var(--fd);font-size:58px;font-weight:300;letter-spacing:-.02em;margin:0;">שאלות נפוצות</h2>
     </div>
-    <div id="faqList" style="margin-top:72px;border-top:1px solid rgba(233,235,232,.14);display:grid;grid-template-columns:1fr 1fr;column-gap:64px;"><!--baked--><div class="faq-row"><h3>כמה עולה לבנות אתר?</h3><p>בניית אתר ב-Mashtech מתחילה ב-<strong>₪1,299</strong> לחבילת Starter, <strong>₪1,949</strong> לחבילת Professional ו-<strong>₪4,890</strong> לחבילת Premium, בתוספת מנוי חודשי של ₪99, ₪169 או ₪319 בהתאמה. אלה מחירים התחלתיים, וכל פרויקט מתומחר סופית אחרי שיחת אפיון קצרה.</p><p>בחרו את החבילה שמתאימה לעסק שלכם וקבלו בדיוק מה שאתם צריכים — החל מאתר תדמית פשוט ומקצועי ועד אתר מתקדם עם מערכות הזמנות, תשלומים ואוטומציות.</p></div><div class="faq-row"><h3>כמה זמן לוקח לבנות את האתר?</h3><p>ברוב המקרים, אתר תדמית יכול להיות מוכן <strong>בתוך כשבועיים עד מספר שבועות</strong>, בהתאם להיקף הפרויקט, כמות התוכן והפיצ'רים הנדרשים.</p><p>אנחנו עובדים בתהליך מסודר עם שלבים ברורים, כך שאתם יודעים מה קורה בכל שלב — ולא צריכים לרדוף אחרי מי שבונה לכם את האתר.</p></div><div class="faq-row"><h3>איך נראה תהליך בניית האתר?</h3><p>התהליך מתחיל בהבנה של העסק, המטרות והסגנון שאתם מחפשים. משם אנחנו עוברים לעיצוב ולבניית האתר, מציגים לכם את התוצאה, מקבלים את המשוב שלכם ומבצעים את ההתאמות הנדרשות.</p><p>לאחר שהכול מוכן ומאושר, אנחנו דואגים לעלות את האתר לאוויר.</p><p><strong>אתם מביאים את העסק — אנחנו דואגים לצד הדיגיטלי.</strong></p></div><div class="faq-row"><h3>מה אני צריך להכין לפני שמתחילים?</h3><p>לא צריך להגיע עם אתר מוכן או עם ידע טכני.</p><p>אחרי שיחת האפיון תקבלו קישור אחד עם רשימה של מה שהאתר צריך: לוגו, תמונות, פרטי העסק וטקסטים. שולחים בו הכול ישר מהטלפון, כקבצים, קישורים, טקסט או הודעה קולית. מה שאין לכם, מסמנים "אין לי את זה", ונמצא לזה פתרון ביחד.</p><p>המטרה היא להפוך את התהליך לכמה שיותר פשוט עבורכם.</p></div><div class="faq-row"><h3>האם האתר מותאם למובייל ולקידום בגוגל?</h3><p><strong>בהחלט.</strong> כל אתר נבנה עם התאמה למובייל ותשתית טכנית נכונה, הכוללת מבנה אתר מסודר, קוד נקי ומהירות טעינה טובה.</p><p>בנוסף, בהתאם לחבילה שתבחרו, ניתן לקבל הגדרות SEO מתקדמות או חבילת SEO מלאה, כדי לתת לאתר בסיס טוב יותר להופיע ולהתקדם במנועי החיפוש.</p></div><div class="faq-row"><h3>האם אני צריך לדאוג לדומיין, אחסון וכל הצד הטכני?</h3><p>לא. אנחנו יכולים לעזור לכם עם <strong>הדומיין, החיבור וההגדרות הטכניות</strong>, כך שלא תצטרכו להתחיל להתעסק עם מערכות שאתם לא מכירים.</p><p>אם כבר יש לכם דומיין או תשתית קיימת — נוכל לעבוד איתם בהתאם לצורך.</p></div><div class="faq-row"><h3>מה קורה אם יש תקלה אחרי שהאתר עולה לאוויר?</h3><p>אנחנו לא נעלמים אחרי ההשקה.</p><p>בהתאם לחבילה ולמנוי החודשי שלכם, תקבלו <strong>תמיכה וטיפול בתקלות</strong>, כך שתמיד יהיה לכם למי לפנות במקרה שמשהו לא עובד כמו שצריך.</p><p>המטרה שלנו היא לא רק לבנות לכם אתר יפה — אלא לוודא שהוא ממשיך לעבוד גם אחרי שהוא עולה לאוויר.</p></div><div class="faq-row"><h3>מה כלול במנוי החודשי?</h3><p>המנוי החודשי נועד לשמור על האתר שלכם פעיל ומתוחזק לאורך זמן, וכולל את השירותים המפורטים בחבילה שבחרתם.</p><p>בהתאם לחבילה, המנוי יכול לכלול תמיכה, טיפול בתקלות, תחזוקה ושירותים נוספים כמו מערכות הזמנות, תשלומים ואוטומציות.</p><p>כך אתם לא צריכים לדאוג לתפעול השוטף של האתר — <strong>יש לכם כתובת אחת לכל מה שקשור לאתר שלכם.</strong></p></div><!--/baked--></div>
+    <div id="faqList" style="margin-top:72px;border-top:1px solid rgba(233,235,232,.14);display:grid;grid-template-columns:1fr 1fr;column-gap:64px;"><!--baked--><div class="faq-row"><h3>כמה עולה לבנות אתר?</h3><p>בניית אתר ב-Mashtech מתחילה ב-<strong>₪1,299</strong> לחבילת Starter, <strong>₪2,490</strong> לחבילת Professional ו-<strong>₪6,890</strong> לחבילת Premium, בתוספת מנוי חודשי של ₪99, ₪169 או ₪319 בהתאמה. אלה מחירים התחלתיים, וכל פרויקט מתומחר סופית אחרי שיחת אפיון קצרה.</p><p>בחרו את החבילה שמתאימה לעסק שלכם וקבלו בדיוק מה שאתם צריכים — החל מאתר תדמית פשוט ומקצועי ועד אתר מתקדם עם מערכות הזמנות, תשלומים ואוטומציות.</p></div><div class="faq-row"><h3>כמה זמן לוקח לבנות את האתר?</h3><p>ברוב המקרים, אתר תדמית יכול להיות מוכן <strong>בתוך כשבועיים עד מספר שבועות</strong>, בהתאם להיקף הפרויקט, כמות התוכן והפיצ'רים הנדרשים.</p><p>אנחנו עובדים בתהליך מסודר עם שלבים ברורים, כך שאתם יודעים מה קורה בכל שלב — ולא צריכים לרדוף אחרי מי שבונה לכם את האתר.</p></div><div class="faq-row"><h3>איך נראה תהליך בניית האתר?</h3><p>התהליך מתחיל בהבנה של העסק, המטרות והסגנון שאתם מחפשים. משם אנחנו עוברים לעיצוב ולבניית האתר, מציגים לכם את התוצאה, מקבלים את המשוב שלכם ומבצעים את ההתאמות הנדרשות.</p><p>לאחר שהכול מוכן ומאושר, אנחנו דואגים לעלות את האתר לאוויר.</p><p><strong>אתם מביאים את העסק — אנחנו דואגים לצד הדיגיטלי.</strong></p></div><div class="faq-row"><h3>מה אני צריך להכין לפני שמתחילים?</h3><p>לא צריך להגיע עם אתר מוכן או עם ידע טכני.</p><p>אחרי שיחת האפיון תקבלו קישור אחד עם רשימה של מה שהאתר צריך: לוגו, תמונות, פרטי העסק וטקסטים. שולחים בו הכול ישר מהטלפון, כקבצים, קישורים, טקסט או הודעה קולית. מה שאין לכם, מסמנים "אין לי את זה", ונמצא לזה פתרון ביחד.</p><p>המטרה היא להפוך את התהליך לכמה שיותר פשוט עבורכם.</p></div><div class="faq-row"><h3>האם האתר מותאם למובייל ולקידום בגוגל?</h3><p><strong>בהחלט.</strong> כל אתר נבנה עם התאמה למובייל ותשתית טכנית נכונה, הכוללת מבנה אתר מסודר, קוד נקי ומהירות טעינה טובה.</p><p>בנוסף, בהתאם לחבילה שתבחרו, ניתן לקבל הגדרות SEO מתקדמות או חבילת SEO מלאה, כדי לתת לאתר בסיס טוב יותר להופיע ולהתקדם במנועי החיפוש.</p></div><div class="faq-row"><h3>האם אני צריך לדאוג לדומיין, אחסון וכל הצד הטכני?</h3><p>לא. אנחנו יכולים לעזור לכם עם <strong>הדומיין, החיבור וההגדרות הטכניות</strong>, כך שלא תצטרכו להתחיל להתעסק עם מערכות שאתם לא מכירים.</p><p>אם כבר יש לכם דומיין או תשתית קיימת — נוכל לעבוד איתם בהתאם לצורך.</p></div><div class="faq-row"><h3>מה קורה אם יש תקלה אחרי שהאתר עולה לאוויר?</h3><p>אנחנו לא נעלמים אחרי ההשקה.</p><p>בהתאם לחבילה ולמנוי החודשי שלכם, תקבלו <strong>תמיכה וטיפול בתקלות</strong>, כך שתמיד יהיה לכם למי לפנות במקרה שמשהו לא עובד כמו שצריך.</p><p>המטרה שלנו היא לא רק לבנות לכם אתר יפה — אלא לוודא שהוא ממשיך לעבוד גם אחרי שהוא עולה לאוויר.</p></div><div class="faq-row"><h3>מה כלול במנוי החודשי?</h3><p>המנוי החודשי נועד לשמור על האתר שלכם פעיל ומתוחזק לאורך זמן, וכולל את השירותים המפורטים בחבילה שבחרתם.</p><p>בהתאם לחבילה, המנוי יכול לכלול תמיכה, טיפול בתקלות, תחזוקה ושירותים נוספים כמו מערכות הזמנות, תשלומים ואוטומציות.</p><p>כך אתם לא צריכים לדאוג לתפעול השוטף של האתר — <strong>יש לכם כתובת אחת לכל מה שקשור לאתר שלכם.</strong></p></div><!--/baked--></div>
     </div>
   </section>
 
@@ -1122,7 +1150,13 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
     </div>
   </footer>
   <div id="copyrightWrap" style="position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:0 56px 40px;">
-    <div id="copyright" style="border-top:1px solid rgba(233,235,232,.12);padding-top:20px;font-family:'IBM Plex Mono',var(--ft);font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.5;"></div>
+    <div id="copyrightRow" style="border-top:1px solid rgba(233,235,232,.12);padding-top:20px;display:flex;flex-wrap:wrap;align-items:baseline;gap:12px 32px;">
+      <div id="copyright" style="font-family:'IBM Plex Mono',var(--ft);font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.5;"></div>
+      <nav id="legalLinks" aria-label="מידע משפטי" data-t-aria="legal_nav" style="display:flex;flex-wrap:wrap;gap:8px 28px;margin-inline-start:auto;">
+        <a href="accessibility.html" data-url="legal_a11y_url" data-t="footer_a11y" class="legal-link">הצהרת נגישות</a>
+        <a href="privacy.html" data-url="legal_privacy_url" data-t="footer_privacy" class="legal-link">מדיניות פרטיות</a>
+      </nav>
+    </div>
   </div>
 
   <a id="fab" href="https://wa.me/972549961663?text=%D7%94%D7%99%D7%99%2C%20%D7%94%D7%92%D7%A2%D7%AA%D7%99%20%D7%93%D7%A8%D7%9A%20%D7%94%D7%90%D7%AA%D7%A8%20%D7%A9%D7%9C%20Mashtatech%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%93%D7%91%D7%A8%20%D7%A2%D7%9C%20%D7%9E%D7%A9%D7%94%D7%95%20%D7%A9%D7%90%D7%A0%D7%99%20%D7%A8%D7%95%D7%A6%D7%94%20%D7%9C%D7%91%D7%A0%D7%95%D7%AA%20%D7%90%D7%99%D7%AA%D7%9B%D7%9D%20%F0%9F%99%82" target="_blank" rel="noopener noreferrer" class="fab" style="position:fixed;bottom:28px;inset-inline-end:28px;z-index:80;width:56px;height:56px;border-radius:50%;background:#C9F7C5;color:#0E100E;border:1px solid transparent;display:flex;align-items:center;justify-content:center;animation:mFab 3s ease-in-out 3;transition:transform .3s cubic-bezier(.2,.8,.2,1),background .3s ease,color .3s ease,border-color .3s ease;">
@@ -1134,7 +1168,7 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
     <span class="sr-only">נגישות</span>
   </button>
 
-  <div id="a11yPanel" role="dialog" aria-modal="false" aria-labelledby="a11yPanelTitle" aria-hidden="true" style="box-sizing:border-box;position:fixed;bottom:96px;inset-inline-start:28px;z-index:81;width:min(320px,calc(100vw - 40px));max-height:min(560px,calc(100vh - 140px));overflow-y:auto;background:#151815;border:1px solid rgba(233,235,232,.14);border-radius:14px;box-shadow:0 30px 70px -24px rgba(0,0,0,.75);padding:20px;opacity:0;transform:translateY(10px) scale(.98);pointer-events:none;transition:opacity .25s ease,transform .25s cubic-bezier(.2,.8,.2,1);">
+  <div id="a11yPanel" role="dialog" aria-modal="false" aria-labelledby="a11yPanelTitle" aria-hidden="true" inert style="box-sizing:border-box;position:fixed;bottom:96px;inset-inline-start:28px;z-index:81;width:min(320px,calc(100vw - 40px));max-height:min(560px,calc(100vh - 140px));overflow-y:auto;background:#151815;border:1px solid rgba(233,235,232,.14);border-radius:14px;box-shadow:0 30px 70px -24px rgba(0,0,0,.75);padding:20px;opacity:0;transform:translateY(10px) scale(.98);pointer-events:none;transition:opacity .25s ease,transform .25s cubic-bezier(.2,.8,.2,1);">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
       <h2 id="a11yPanelTitle" style="margin:0;font-family:var(--fd);font-size:19px;font-weight:400;color:#E9EBE8;">הגדרות נגישות</h2>
       <button id="a11yClose" type="button" aria-label="סגירה" style="width:30px;height:30px;flex:none;background:none;border:1px solid rgba(233,235,232,.2);border-radius:6px;color:#E9EBE8;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
@@ -1178,6 +1212,7 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
       </button>
     </div>
     <p style="margin:16px 0 0;font-size:12px;line-height:1.6;opacity:.55;">ההגדרות נשמרות בדפדפן שלכם בלבד.</p>
+    <a href="accessibility.html" data-url="legal_a11y_url" class="a11y-statement-link" style="display:inline-block;margin-top:10px;font-size:13px;line-height:1.6;color:#C9F7C5;text-decoration:underline;text-underline-offset:3px;">להצהרת הנגישות</a>
   </div>
 
   <div id="curtain" aria-hidden="true" style="position:fixed;inset:0;z-index:95;display:grid;place-items:center;pointer-events:none;overflow:hidden;">
@@ -1276,15 +1311,15 @@ const translations = {
     tier1_name: 'Starter', tier1_price: '₪1,299', tier1_monthly: '₪99 לחודש',
     tier1_sub: 'לעסקים קטנים שרוצים נוכחות מקצועית באינטרנט.',
     tier1_features: ['עד 3 עמודים', 'עיצוב מותאם למובייל', 'עיצוב בהתאמה אישית למותג וללוגו שלכם', 'כפתור WhatsApp + טופס יצירת קשר', 'עזרה בהעלאה לדומיין'],
-    tier2_name: 'Professional', tier2_price: '₪1,949', tier2_monthly: '₪169 לחודש',
+    tier2_name: 'Professional', tier2_price: '₪2,490', tier2_monthly: '₪169 לחודש',
     tier2_sub: 'לעסקים שרוצים אתר מתקדם שמייצר יותר פניות.',
     tier2_features: ['עד 8 עמודים', 'עיצוב בהתאמה אישית ברמה גבוהה', 'עיצוב מותאם למובייל', 'אנימציות גלילה חלקות', 'כפתורים ואינטראקציות מונפשים', 'הגדרות SEO מתקדמות', 'טופס יצירת קשר', 'אופטימיזציה לחוויית משתמש ולמהירות האתר'],
-    tier3_badge: 'הכי פופולרי', tier3_name: 'Premium', tier3_price: '₪4,890', tier3_monthly: '₪319 לחודש',
+    tier3_badge: 'הכי פופולרי', tier3_name: 'Premium', tier3_price: '₪6,890', tier3_monthly: '₪319 לחודש',
     tier3_sub: 'לעסקים שרוצים אתר מתקדם עם מערכות דיגיטליות שמייעלות את העסק.',
     tier3_features: ['עמודים ללא הגבלה', 'עיצוב פרימיום בהתאמה אישית מלאה', 'עיצוב מותאם למובייל', 'חבילת SEO מלאה', 'אלמנטים תלת־ממדיים אינטראקטיביים', 'מערכת תורים והזמנות אונליין', 'תשלום אונליין', 'מערכת לאיסוף ביקורות Google', 'הגדרת דומיין מותאם אישית', 'שליחת SMS אוטומטית ללקוחות בעקבות שיחות שלא נענו', 'תמיכה מועדפת — מענה תוך 48 שעות'],
     faq_title: 'שאלות נפוצות',
     faq_items: [
-      { q: 'כמה עולה לבנות אתר?', a: '<p>בניית אתר ב-Mashtech מתחילה ב-<strong>₪1,299</strong> לחבילת Starter, <strong>₪1,949</strong> לחבילת Professional ו-<strong>₪4,890</strong> לחבילת Premium, בתוספת מנוי חודשי של ₪99, ₪169 או ₪319 בהתאמה. אלה מחירים התחלתיים, וכל פרויקט מתומחר סופית אחרי שיחת אפיון קצרה.</p><p>בחרו את החבילה שמתאימה לעסק שלכם וקבלו בדיוק מה שאתם צריכים — החל מאתר תדמית פשוט ומקצועי ועד אתר מתקדם עם מערכות הזמנות, תשלומים ואוטומציות.</p>' },
+      { q: 'כמה עולה לבנות אתר?', a: '<p>בניית אתר ב-Mashtech מתחילה ב-<strong>₪1,299</strong> לחבילת Starter, <strong>₪2,490</strong> לחבילת Professional ו-<strong>₪6,890</strong> לחבילת Premium, בתוספת מנוי חודשי של ₪99, ₪169 או ₪319 בהתאמה. אלה מחירים התחלתיים, וכל פרויקט מתומחר סופית אחרי שיחת אפיון קצרה.</p><p>בחרו את החבילה שמתאימה לעסק שלכם וקבלו בדיוק מה שאתם צריכים — החל מאתר תדמית פשוט ומקצועי ועד אתר מתקדם עם מערכות הזמנות, תשלומים ואוטומציות.</p>' },
       { q: 'כמה זמן לוקח לבנות את האתר?', a: '<p>ברוב המקרים, אתר תדמית יכול להיות מוכן <strong>בתוך כשבועיים עד מספר שבועות</strong>, בהתאם להיקף הפרויקט, כמות התוכן והפיצ\'רים הנדרשים.</p><p>אנחנו עובדים בתהליך מסודר עם שלבים ברורים, כך שאתם יודעים מה קורה בכל שלב — ולא צריכים לרדוף אחרי מי שבונה לכם את האתר.</p>' },
       { q: 'איך נראה תהליך בניית האתר?', a: '<p>התהליך מתחיל בהבנה של העסק, המטרות והסגנון שאתם מחפשים. משם אנחנו עוברים לעיצוב ולבניית האתר, מציגים לכם את התוצאה, מקבלים את המשוב שלכם ומבצעים את ההתאמות הנדרשות.</p><p>לאחר שהכול מוכן ומאושר, אנחנו דואגים לעלות את האתר לאוויר.</p><p><strong>אתם מביאים את העסק — אנחנו דואגים לצד הדיגיטלי.</strong></p>' },
       { q: 'מה אני צריך להכין לפני שמתחילים?', a: '<p>לא צריך להגיע עם אתר מוכן או עם ידע טכני.</p><p>אחרי שיחת האפיון תקבלו קישור אחד עם רשימה של מה שהאתר צריך: לוגו, תמונות, פרטי העסק וטקסטים. שולחים בו הכול ישר מהטלפון, כקבצים, קישורים, טקסט או הודעה קולית. מה שאין לכם, מסמנים "אין לי את זה", ונמצא לזה פתרון ביחד.</p><p>המטרה היא להפוך את התהליך לכמה שיותר פשוט עבורכם.</p>' },
@@ -1311,6 +1346,16 @@ const translations = {
     footer_tagline: 'סטודיו של אדם אחד לתוכנה, AI ואתרים.',
     footer_studio_label: 'סטודיו', footer_contact_label: 'צור קשר',
     copyright: '© 2026 Mashtech — כל הזכויות שמורות',
+    terms_title: 'תנאי המנוי החודשי',
+    terms_min_k: 'התחייבות', terms_min_v: '3 חודשים ב־Starter וב־Professional, ו־6 חודשים ב־Premium.',
+    terms_stop_k: 'הפסקה', terms_stop_v: 'אחרי תקופת ההתחייבות מפסיקים מתי שרוצים: הודעה בוואטסאפ או במייל, והמנוי מסתיים בסוף החודש ששולם, בלי חיוב נוסף.',
+    terms_keep_k: 'מה נשאר שלכם', terms_keep_v: 'הדומיין רשום על שמכם ונשאר שלכם. כשעוזבים, מקבלים את כל קבצי האתר והתוכן, ואפשר להעביר את האתר לכל אחסון אחר.',
+    terms_premium_k: 'ב־Premium', terms_premium_v: 'עם סיום המנוי נסגרים גם השירותים שפועלים דרכו: מערכת התורים, התשלום האונליין, הודעות ה־SMS ואיסוף הביקורות.',
+    terms_price_k: 'שינוי מחיר', terms_price_v: 'הודעה 30 יום מראש, ואפשר להפסיק לפני שהמחיר החדש נכנס לתוקף.',
+    skip_link: 'דילוג לתוכן', legal_nav: 'מידע משפטי',
+    footer_a11y: 'הצהרת נגישות', footer_privacy: 'מדיניות פרטיות',
+    legal_a11y_url: 'accessibility.html', legal_privacy_url: 'privacy.html',
+    region_tech: 'הטכנולוגיות שאני עובד איתן', region_steps: 'שלבי העבודה',
     status_paused: 'מושהה', status_auto: 'אוטומטי',
     photo_placeholder: 'תמונת הלקוח', quote_placeholder: 'ממתין לציטוט אמיתי',
     aria_visit_project: 'לביקור בפרויקט'
@@ -1395,15 +1440,15 @@ const translations = {
     tier1_name: 'Starter', tier1_price: '₪1,299', tier1_monthly: '₪99/mo',
     tier1_sub: 'For small businesses that want a professional online presence.',
     tier1_features: ['Up to 3 pages', 'Mobile-responsive design', 'Custom design matched to your brand and logo', 'WhatsApp button + contact form', 'Help publishing to your domain'],
-    tier2_name: 'Professional', tier2_price: '₪1,949', tier2_monthly: '₪169/mo',
+    tier2_name: 'Professional', tier2_price: '₪2,490', tier2_monthly: '₪169/mo',
     tier2_sub: 'For businesses that want an advanced site that generates more leads.',
     tier2_features: ['Up to 8 pages', 'High-end custom design', 'Mobile-responsive design', 'Smooth scroll animations', 'Animated buttons and interactions', 'Advanced SEO setup', 'Contact form', 'Optimized for user experience and site speed'],
-    tier3_badge: 'Most popular', tier3_name: 'Premium', tier3_price: '₪4,890', tier3_monthly: '₪319/mo',
+    tier3_badge: 'Most popular', tier3_name: 'Premium', tier3_price: '₪6,890', tier3_monthly: '₪319/mo',
     tier3_sub: 'For businesses that want an advanced site with digital systems that streamline the business.',
     tier3_features: ['Unlimited pages', 'Full premium custom design', 'Mobile-responsive design', 'Full SEO package', 'Interactive 3D elements', 'Online appointment/booking system', 'Online payment', 'Google Review collection system', 'Custom domain setup', 'Automatic SMS to customers after missed calls', 'Priority support — 48h response'],
     faq_title: 'FAQ',
     faq_items: [
-      { q: 'How much does it cost to build a website?', a: '<p>A website from Mashtech starts at <strong>₪1,299</strong> for Starter, <strong>₪1,949</strong> for Professional and <strong>₪4,890</strong> for Premium, plus a monthly plan of ₪99, ₪169 or ₪319 respectively. These are starting prices, and every project gets a final quote after a short scoping call.</p><p>Choose the package that fits your business and get exactly what you need — from a simple, professional brand site to an advanced site with booking systems, payments and automations.</p>' },
+      { q: 'How much does it cost to build a website?', a: '<p>A website from Mashtech starts at <strong>₪1,299</strong> for Starter, <strong>₪2,490</strong> for Professional and <strong>₪6,890</strong> for Premium, plus a monthly plan of ₪99, ₪169 or ₪319 respectively. These are starting prices, and every project gets a final quote after a short scoping call.</p><p>Choose the package that fits your business and get exactly what you need — from a simple, professional brand site to an advanced site with booking systems, payments and automations.</p>' },
       { q: 'How long does it take to build the site?', a: "<p>In most cases, a brand site can be ready <strong>within two to a few weeks</strong>, depending on the project's scope, the amount of content, and the features required.</p><p>We work through an organized process with clear stages, so you always know what's happening at each step — no need to chase down whoever's building your site.</p>" },
       { q: "What's the site-building process like?", a: "<p>The process starts with understanding your business, goals, and the style you're after. From there we move into designing and building the site, show you the result, take your feedback, and make the needed adjustments.</p><p>Once everything is ready and approved, we handle getting the site live.</p><p><strong>You bring the business — we handle the digital side.</strong></p>" },
       { q: 'What do I need to prepare before we start?', a: "<p>You don't need to arrive with a finished site or technical knowledge.</p><p>After the scoping call you get one link with a list of what the site needs: logo, photos, business details and copy. You send it all from your phone, as files, links, text or a voice note. Anything you don't have, you mark \"I don't have this\" and we sort it out together.</p><p>The goal is to make the process as simple as possible for you.</p>" },
@@ -1430,6 +1475,16 @@ const translations = {
     footer_tagline: 'A one-person studio for software, AI and the web.',
     footer_studio_label: 'Studio', footer_contact_label: 'Contact',
     copyright: '© 2026 Mashtech — All rights reserved',
+    terms_title: 'Monthly plan terms',
+    terms_min_k: 'Minimum term', terms_min_v: '3 months on Starter and Professional, 6 months on Premium.',
+    terms_stop_k: 'Stopping', terms_stop_v: 'After the minimum term, stop whenever you like: send a WhatsApp or an email, and the plan ends at the end of the month already paid for, with no further charge.',
+    terms_keep_k: 'What stays yours', terms_keep_v: 'The domain is registered in your name and stays yours. When you leave, you get all the site files and content, so the site can move to any other host.',
+    terms_premium_k: 'On Premium', terms_premium_v: 'When the plan ends, the services that run through it end too: online booking, online payment, SMS messages and review collection.',
+    terms_price_k: 'Price changes', terms_price_v: "30 days' notice, and you can stop before the new price applies.",
+    skip_link: 'Skip to content', legal_nav: 'Legal',
+    footer_a11y: 'Accessibility statement', footer_privacy: 'Privacy policy',
+    legal_a11y_url: 'accessibility.html#en', legal_privacy_url: 'privacy.html#en',
+    region_tech: 'Technologies I work with', region_steps: 'Process steps',
     status_paused: 'Paused', status_auto: 'Auto',
     photo_placeholder: 'Client photo', quote_placeholder: 'Awaiting a real quote',
     aria_visit_project: 'Visit'
@@ -3418,7 +3473,35 @@ function renderProductLinks() {
     const label = tr[el.getAttribute('data-t-aria')];
     if (label) el.setAttribute('aria-label', label);
   });
+  syncScrollRegions();
 }
+
+// Phones scroll the tech strip and the process steps sideways. While one of them really
+// scrolls it is a labelled, focusable region, so a keyboard can reach it and scroll it with
+// the arrow keys; otherwise it stays out of the Tab order. mobileMq is the CSS breakpoint.
+function syncScrollRegions() {
+  const tr = t();
+  [['techStrip', 'region_tech'], ['stepsContainer', 'region_steps']].forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (mobileMq.matches && el.scrollWidth > el.clientWidth + 1) {
+      el.tabIndex = 0;
+      el.setAttribute('role', 'region');
+      el.setAttribute('aria-label', tr[key]);
+    } else {
+      el.removeAttribute('tabindex');
+      el.removeAttribute('role');
+      el.removeAttribute('aria-label');
+    }
+  });
+}
+mobileMq.addEventListener('change', syncScrollRegions);
+window.addEventListener('resize', syncScrollRegions);
+window.addEventListener('orientationchange', () => {
+  syncScrollRegions();
+  setTimeout(syncScrollRegions, 100);
+  setTimeout(syncScrollRegions, 400);
+});
 
 /* 02 Products: each stage plays a short, made-up sample of its product's work the
    first time it scrolls into view: a call that ends in a booked slot, and a scan that
@@ -3789,6 +3872,9 @@ function initSectionMove() {
     toggleBtn.classList.toggle('is-active', anyOn);
   }
   function setOpen(open) {
+    // Closed, the panel is only faded out, so `inert` keeps Tab off its buttons.
+    if (!open && panel.contains(document.activeElement)) toggleBtn.focus();
+    panel.inert = !open;
     panel.classList.toggle('is-open', open);
     panel.style.opacity = open ? '1' : '0';
     panel.style.transform = open ? 'translateY(0) scale(1)' : 'translateY(10px) scale(.98)';
@@ -4343,6 +4429,15 @@ initProducts();
     onLayoutChange();
     setTimeout(onLayoutChange, 100);
     setTimeout(onLayoutChange, 400);
+  });
+
+  // Keyboard: the hero buttons stay hidden until the film has played. When Tab reaches
+  // them first, skip the film to its end so focus never sits on an invisible button.
+  wrap.addEventListener('focusin', (e) => {
+    if (heroRevealed || !e.target.closest('#heroKicker,#heroTitle,#heroCtaWrap')) return;
+    if (jack) { stopGlide(); setTarget(1); return; }
+    const total = wrap.offsetHeight - heroViewportH();
+    window.scrollTo({ top: wrap.getBoundingClientRect().top + window.scrollY + total, behavior: 'instant' });
   });
 
   pickSource();
