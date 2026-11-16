@@ -9,6 +9,8 @@ __pycache__/
 *.pyc
 .DS_Store
 .claude/settings.local.json
+# Holds API keys in its env block, so it never goes to git.
+.claude/settings.json
 maslul/
 .playwright-cli/
 
