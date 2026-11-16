@@ -40,6 +40,9 @@ const mark = (html) => `<!--baked-->${html}<!--/baked-->`;
 
 const STEPS = [1, 2, 3, 4];
 const TIERS = [1, 2, 3];
+const PRODUCTS = [1, 2];
+const productText = (n) =>
+  [tr[`prod${n}_lede`], tr[`prod${n}_f1`], tr[`prod${n}_f2`], tr[`prod${n}_f3`], tr[`prod${n}_micro`]].join(' ');
 
 const faq = tr.faq_items.map((i) => `<div class="faq-row"><h3>${esc(i.q)}</h3>${i.a}</div>`).join('');
 const steps = STEPS.map((n) => `<div><h3>${esc(tr[`step${n}_title`])}</h3><p>${esc(tr[`step${n}_body`])}</p></div>`).join('');
@@ -72,11 +75,27 @@ faqLd.mainEntity = tr.faq_items.map((i) => ({
   name: i.q,
   acceptedAnswer: { '@type': 'Answer', text: plain(i.a) },
 }));
+// The studio's own products (section 02), as early-access software offers.
+const biz = ld.find((x) => x['@type'] === 'ProfessionalService');
+biz.makesOffer = biz.makesOffer
+  .filter((o) => o.itemOffered['@type'] !== 'SoftwareApplication')
+  .concat(PRODUCTS.map((n) => ({
+    '@type': 'Offer',
+    availability: 'https://schema.org/PreOrder',
+    url: tr[`prod${n}_url`],
+    itemOffered: {
+      '@type': 'SoftwareApplication',
+      name: tr[`prod${n}_name`],
+      applicationCategory: 'BusinessApplication',
+      description: productText(n),
+    },
+  })));
 html = html.replace(ldRe, (_, a, __, c) => `${a}${JSON.stringify(ld).replace(/</g, '\\u003c')}${c}`);
 
 writeFileSync(indexPath, html);
 
 const services = [1, 2, 3, 4].map((n) => `- ${tr[`service${n}_title`]}: ${tr[`service${n}_body`]}`).join('\n');
+const products = PRODUCTS.map((n) => `- ${tr[`prod${n}_name`]} (${tr.prod_status}): ${productText(n)} עמוד המוצר: ${tr[`prod${n}_url`]}`).join('\n');
 const process = STEPS.map((n) => `${n}. ${tr[`step${n}_title`]}: ${tr[`step${n}_body`]}`).join('\n');
 const plans = TIERS.map(
   (n) => `- ${tr[`tier${n}_name`]}: ${tr[`tier${n}_price`]} + ${tr[`tier${n}_monthly`]}. ${tr[`tier${n}_sub`]}`
@@ -97,6 +116,12 @@ Mashtech is a one-person software studio in Israel, led by Yanir Mashta, buildin
 ## שירותים
 
 ${services}
+
+## מוצרים
+
+${tr.products_sub}
+
+${products}
 
 ## תמחור
 
@@ -151,4 +176,4 @@ ${planSections}
 `
 );
 
-console.log(`baked ${tr.faq_items.length} FAQ answers, ${STEPS.length} steps, ${TIERS.length} price lists, ${work.length} projects; wrote llms.txt and pricing.md`);
+console.log(`baked ${tr.faq_items.length} FAQ answers, ${STEPS.length} steps, ${TIERS.length} price lists, ${work.length} projects, ${PRODUCTS.length} products; wrote llms.txt and pricing.md`);
