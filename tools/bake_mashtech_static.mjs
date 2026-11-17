@@ -98,8 +98,11 @@ const services = [1, 2, 3, 4].map((n) => `- ${tr[`service${n}_title`]}: ${tr[`se
 const products = PRODUCTS.map((n) => `- ${tr[`prod${n}_name`]} (${tr.prod_status}): ${productText(n)} עמוד המוצר: ${tr[`prod${n}_url`]}`).join('\n');
 const process = STEPS.map((n) => `${n}. ${tr[`step${n}_title`]}: ${tr[`step${n}_body`]}`).join('\n');
 const plans = TIERS.map(
-  (n) => `- ${tr[`tier${n}_name`]}: ${tr[`tier${n}_price`]} + ${tr[`tier${n}_monthly`]}. ${tr[`tier${n}_sub`]}`
+  (n) => `- ${tr[`tier${n}_name`]}: ${tr[`tier${n}_price`]} + ${tr[`tier${n}_monthly`]}. ${tr[`tier${n}_sub`]} כולל: ${tr[`tier${n}_features`].join('; ')}.`
 ).join('\n');
+// The FAQ answers about the monthly plan (what it includes, minimum term, leaving) are
+// marked `plan: true` in the dictionary; pricing.md repeats them.
+const planFaq = tr.faq_items.filter((i) => i.plan).map((i) => `### ${i.q}\n\n${plain(i.a)}`).join('\n\n');
 const projects = work.map((k) => `- [${tr[`${k}_name`]}](${tr[`${k}_url`]}): ${tr[`${k}_tag`]}`).join('\n');
 const faqText = tr.faq_items.map((i) => `### ${i.q}\n\n${plain(i.a)}`).join('\n\n');
 
@@ -128,6 +131,8 @@ ${products}
 ${tr.pricing_sub}
 
 ${plans}
+
+תנאי המנוי (התחייבות, הפסקה, מה נשאר שלכם) מופיעים בשאלות הנפוצות למטה.
 
 פירוט מלא: [pricing.md](${SITE}/pricing.md)
 
@@ -171,6 +176,10 @@ ${tr.pricing_sub}
 עודכן לאחרונה: ${today}
 
 ${planSections}
+
+## המנוי החודשי
+
+${planFaq}
 
 פרטים והזמנה: ${SITE}/#pricing
 `
