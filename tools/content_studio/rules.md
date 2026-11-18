@@ -70,6 +70,30 @@ approval. When you finish, the video goes to the owner on Telegram, who approves
   strangers. Lead with a story or something useful; the app is the tool inside it, not the pitch.
 - 0 profile visits from 415 viewers: end with one clear reason to tap the profile or follow.
 - TikTok gave both posts 1 view (new account, not the videos' fault yet).
+- Retention (phone insights, 13 h): skip rate is what Instagram ranks first. Animated reel 45.7% skip, 58%
+  still watching at 3 s, views kept climbing all day; the talking-head ad 88.4% skip, 22% at 3 s, views
+  stopped after 2 h. So: frame 1 shows the WHOLE hook (reel 1's first frame had it half-built), and no
+  talking-head ad opener.
+- The 21-days reel lost more than half of its remaining viewers within 2 s of the app pitch starting
+  ("LifeMaxer celebrates…" at 0:36). Keep the app inside the story as the thing he does, and say the brand
+  name only at the very end.
+- Each extra second cost about 1.3% of viewers: aim for 25-35 s.
+
+## Owner's notes on reel 2 (2026-11-18)
+- Hook: open on the PAYOFF, then rewind or explain. ("Ending first, then rewind" was the owner's pick:
+  frame 1 shows the result with a big line, then the story goes back to the start.)
+- Flow: v1 felt "out of flow, cuts too sharp". Gemini leaves ~1 s of silence after time phrases and between
+  sentences: shorten every internal pause to about 0.22 s (see
+  `C:/Users/97254/lifemaxing-independent/marketing/video/reel-2-six-months/tools/tighten_pauses.py`, floor -38 dB),
+  then re-check each line with a blind transcript. Dissolve between beats (about 12 frames) instead of hard
+  cuts; cards glide in (no overshoot pops).
+- App cards: bring each one in at the START of the sentence it belongs to (e.g. on the person's name), not
+  on its last word, and keep it on screen at least 1.5 s before anything replaces it. On the last word a
+  card can get under a second, too short to read.
+- Generated clips (Kling etc.): pull a frame every second of every clip and look before using it. Hands
+  reaching for things can smear into a ghostly blob (reel 2's bed clip); use the clean still instead.
+- Ending: close on the benefit, not the price. Not "LifeMaxer is free" but e.g. "Five minutes a day. Six
+  months. A different life." with an end card (app icon, LifeMaxer, one line, link in bio).
 
 ## Hard rules (from the owner's feedback on earlier videos)
 - The brand is **LifeMaxer**. Never write or say "Lifemaxing": not in narration, captions, on screen or caption.txt.
