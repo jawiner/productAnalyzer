@@ -64,6 +64,18 @@ approval. When you finish, the video goes to the owner on Telegram, who approves
 - In your final answer, put the numbers of the lessons you applied in `playbook_used` (e.g. [1, 4, 7]);
   an empty list when the playbook is empty or none fit.
 
+## Proven formats (ViralSpy, USER 2026-11-18)
+- Each idea is built on a format taken from real viral videos on ViralSpy (viralspy.app): the idea's
+  `concept` in BRIEF.md starts with "Format: <name>.", and the brand section of BRIEF.md lists every format
+  with its beats and hook pattern. Keep that format's beats in that order. That order is why it works.
+- Tell it in our world: "your face" is Steppy or the story's character, "screen recording" is real app
+  screens labelled "Example" (FloatingCard and the app cards), "voiceover" is the Gemini narrator.
+- The formats come from accounts that film themselves. Where a beat needs a person, act it out with the
+  character, not stock footage or an AI presenter.
+- These rules and the hard rules below win over the format: 25 to 35 s, the whole hook on frame 1, the
+  app inside the story, and its name only at the end.
+- In `summary`, name the format you followed (or "no format" when the concept names none).
+
 ## What the numbers say so far (first two posts, 2026-11-18)
 - Instagram showed both reels to strangers (95-98% non-followers). The animated teaching reel got 321 views,
   4 saves and all the stranger engagement; the AI-creator ad got 174 views and zero engagement from

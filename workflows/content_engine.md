@@ -92,6 +92,23 @@ USER 2026-11-18: share an ad, get a similar one for LifeMaxer ("decide per ad" b
    video reacts to): cut to `reference/remake/keep-N.mp4` with their sound; credit the creator.
    First test 2026-11-18: realtor reel (water-balloon clip + pitch in a car) → "Parked-car pitch".
 
+## Proven formats from ViralSpy
+ViralSpy (https://viralspy.app/dashboard, signed in as the LifeMaxer Google account in Claude in Chrome
+"Browser 1"; viralspy.ai is a different product) ranks real videos by how far they beat their creator's
+usual views and breaks each into beats. It has no API or export, so nothing pulls from it automatically.
+- **Formats → ideas:** 11 faceless formats (beats + hook pattern each) are appended to LifeMaxer's brand
+  voice in `content_brands.voice` under "## Proven formats". Every morning idea names one at the start of
+  `concept` ("Format: <name>."), and `rules.md` tells the video PC to keep that format's beats.
+  The pre-change voice is in `.tmp/viralspy/voice-before.md`. To change the list, edit that section in
+  CRM → Content → Accounts & settings → brand voice, not in code.
+- **Videos to copy:** a viral link from ViralSpy (Viral now, or the examples under a format) goes to
+  @MashtechVideoBot as `/remake <link>` (see Remakes above), or as a plain link to become a playbook source.
+- **Account setup done 2026-11-18:** topic, About you, business details, brand facts (products, audience,
+  rules, style, banned words; 300 characters max per fact) and 4 competitors (@jamesclear, @aliabdaal,
+  @mattdavella on Instagram, @finchcare on TikTok). Its AI writer's scripts run long and pitch early (a
+  54 s test named the app at about 12 s), so take its formats and hooks, not its scripts.
+- Limits a month: 200 AI writes, 30 video checks, 100 breakdowns, 20 competitors. No Hebrew.
+
 ## Setup (once)
 1. Video PC: `python tools/content_studio/connect_worker.py` from the wat-framework folder.
    It writes `tools/content_studio/.env` (git-ignored) without printing the key, checks the
