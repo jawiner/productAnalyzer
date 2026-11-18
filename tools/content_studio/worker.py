@@ -323,6 +323,19 @@ def remake_brief(project: Path, idea: dict, ref: dict) -> list[str]:
             ok = clip_path.exists() or (video is not None and playbook.cut_clip(video, float(k["start_s"]), float(k["end_s"]), clip_path))
             lines.append(f"- `reference/remake/keep-{n}.mp4`: {k['start_s']}-{k['end_s']} s, {k.get('what')}"
                          + ("" if ok else " (MISSING: the reference video is no longer on this PC; fail the job and say so)"))
+    ai_clips = sorted((playbook.AI_FOOTAGE / str(idea.get("id") or "")).glob("*.mp4")) if idea.get("id") else []
+    if ai_clips:
+        ai_dir = target / "ai"
+        ai_dir.mkdir(parents=True, exist_ok=True)
+        for f in ai_clips:
+            if not (ai_dir / f.name).exists():
+                shutil.copy2(f, ai_dir / f.name)
+        lines += ["", "AI FOOTAGE (made with the owner's credits; use it, never regenerate it): the presenter shots are in",
+                  "`reference/remake/ai/`. Use their picture AND their own voice for the presenter's lines: don't record",
+                  "those lines with Gemini, and time captions to a faster-whisper transcript of the clip's audio. Cut away",
+                  "from the presenter to the app, Steppy and the cards where the beats say, with the presenter's voice",
+                  "carrying on underneath. Lines the clip doesn't contain get the usual Gemini voice.", ""]
+        lines += [f"- `reference/remake/ai/{f.name}`" for f in ai_clips]
     lines += ["", f"Frames of the reference: `reference/remake/` ({len(frames)} stills, named by time: t000150.png = 1.5 s). "
               "Look at them before you plan." if frames else "(The reference's frames are no longer on this PC; work from the beats.)", ""]
     return [l for l in lines if l is not None]

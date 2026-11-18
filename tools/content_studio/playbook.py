@@ -29,6 +29,8 @@ STUDY_RULES = HERE / "study_rules.md"
 REMAKE_RULES = HERE / "remake_rules.md"
 SKILL_DIR = Path.home() / ".claude" / "skills" / "video-playbook"
 YTDLP_STAMP = ROOT / ".tmp" / "content_studio" / "yt-dlp-updated.txt"
+# AI clips for a remake (made in a session with the owner's credits): ai_footage/<idea id>/*.mp4
+AI_FOOTAGE = ROOT / ".tmp" / "content_studio" / "ai_footage"
 STUDY_MODEL = "claude-opus-5-5"
 STUDY_EFFORT = "medium"
 STUDY_TIMEOUT_S = 25 * 60

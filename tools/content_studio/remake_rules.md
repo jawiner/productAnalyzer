@@ -41,6 +41,8 @@ video playbook) that follows the blueprint:
 - `beats`: each with `say` (narration), `show` (what is on screen, in the brand's world) and `mirrors`
   (the beat of theirs it takes the job of, with its time, e.g. "their 0:00-0:02 payoff card").
 - The brand's rules win where the format disagrees: its name, off-limits list, tone, safe zones.
+- The owner's rule for endings: close on the benefit (what it changes, how little time it takes), never on
+  the price ("it's free" is a weak last line even when the reference ends on a price).
 - The other fields work like the daily ideas: `title`, `pillar`, `formula` (the hook formula's name, or
   "Remake: " and the format in 4 words), `hook_line` (12 words or fewer, makes sense with zero context),
   `on_screen_hook` (6 words or fewer), `concept` (the one visual thread), `facts` [{claim, source}] (may be

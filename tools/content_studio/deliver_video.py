@@ -6,7 +6,11 @@ pipeline: the idea is approved, the files are uploaded, and the video goes to Te
 approval and then posting, exactly like one the PC made.
 
   python tools/content_studio/deliver_video.py --list
+  python tools/content_studio/deliver_video.py --footage <idea id> <clip.mp4> [<clip.mp4> ...]
+      the usual way: the AI clips go to the video PC, which assembles the whole remake
+      (kept clip, AI presenter, app screens, end card) like any video and sends it for approval
   python tools/content_studio/deliver_video.py --idea <idea id> --project <folder with out/>
+      a video finished entirely in the session
 
 The project folder needs out/final.mp4 (1080x1920, with sound), out/review.mp4 and out/caption.txt;
 out/cover.jpg is optional. They are checked before anything changes. Uses the worker's key from
@@ -16,9 +20,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import sys
 from pathlib import Path
 
+import playbook
 from worker import Engine, check_deliverables, load_env, log, put_file
 
 
@@ -28,6 +34,7 @@ def main() -> int:
     ap.add_argument("--project")
     ap.add_argument("--list", action="store_true", help="remakes waiting for AI footage")
     ap.add_argument("--show", metavar="IDEA_ID", help="everything about one of them, as JSON (beats, format, brand)")
+    ap.add_argument("--footage", nargs="+", metavar="ARG", help="IDEA_ID then the AI clips: the PC assembles the remake")
     args = ap.parse_args()
     env = load_env()
     engine = Engine(env["CONTENT_ENGINE_URL"], env["CONTENT_WORKER_SECRET"])
@@ -36,6 +43,22 @@ def main() -> int:
         idea = next((i for i in engine.call("ai_waiting").get("ideas") or [] if i["id"] == args.show), None)
         print(json.dumps(idea, ensure_ascii=False, indent=1) if idea else "That idea isn't waiting for AI footage.")
         return 0 if idea else 1
+
+    if args.footage:
+        if len(args.footage) < 2:
+            ap.error("--footage needs the idea id and at least one clip")
+        idea_id, clips = args.footage[0], [Path(c) for c in args.footage[1:]]
+        missing = [str(c) for c in clips if not c.exists() or c.suffix.lower() != ".mp4"]
+        if missing:
+            print("Not found or not .mp4: " + ", ".join(missing))
+            return 1
+        target = playbook.AI_FOOTAGE / idea_id
+        target.mkdir(parents=True, exist_ok=True)
+        for n, c in enumerate(clips, 1):
+            shutil.copy2(c, target / f"ai-{n}{c.suffix.lower()}")
+        engine.call("queue_ai_remake", idea_id=idea_id)
+        print(f"Queued: {len(clips)} AI clip(s) in {target}. The video PC assembles the remake and sends it to Telegram.")
+        return 0
 
     if args.list:
         waiting = engine.call("ai_waiting").get("ideas") or []
