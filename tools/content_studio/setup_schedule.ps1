@@ -24,4 +24,4 @@ $principal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType Interac
 
 Register-ScheduledTask -TaskName $name -Action $action -Trigger $trigger -Settings $settings -Principal $principal `
     -Description "Makes the videos approved on Telegram (content engine). Logs: .tmp\content_studio\worker.log" -Force | Out-Null
-Write-Output "Registered $name: every 10 minutes, wakes the PC from sleep."
+Write-Output "Registered ${name}: every 10 minutes, wakes the PC from sleep."
