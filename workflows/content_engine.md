@@ -85,6 +85,14 @@ USER 2026-11-18: share an ad, get a similar one for LifeMaxer ("decide per ad" b
    `python tools/content_studio/deliver_video.py --footage <idea id> <clip.mp4> ...`: the clips go to
    `.tmp/content_studio/ai_footage/<idea id>/`, the remake is queued (`queue_ai_remake`), and the PC
    assembles it (kept clips, AI presenter with its own voice, app screens, end card) like any video.
+   `--footage` refuses before copying anything when a clip isn't a vertical (about 9:16) mp4, 2 to 30 s,
+   with a sound track (`--silent-ok` for b-roll without speech), or when the idea isn't in `ai_waiting`.
+   It clears the clips from an earlier try first, because the PC uses every mp4 in that folder.
+   `--check-clips <clip.mp4> ...` runs only the clip check, offline. Pass full paths, and run it
+   from the wat-framework folder. A relative `wat-framework/.tmp/...` path from inside that folder
+   doesn't exist. Look at frames and run a blind transcript of the speech too: the script can't see
+   a garbled face or wrong words. A made-up presenter never speaks as a user (that would be a fake
+   testimonial) and doesn't say the brand name, which the end card shows.
    A video finished entirely in the session instead: `deliver_video.py --idea <id> --project <folder>`
    (checks `out/`, `adopt_idea`, uploads). Once adopted, a row stuck in `making` returns to the PC's
    queue after 3 h, so check the files first.
