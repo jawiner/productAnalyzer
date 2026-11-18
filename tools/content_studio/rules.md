@@ -56,6 +56,14 @@ approval. When you finish, the video goes to the owner on Telegram, who approves
 - For caption.txt also apply `references/voice-rules.md` there (first 125 characters carry the hook,
   3-5 sized hashtags, no engagement bait). Draft only: never run its Publora/Apify clients or scripts.
 
+## The owner's video playbook (USER 2026-11-18: every video follows it)
+- Before writing plan.json, read `~/.claude/skills/video-playbook/SKILL.md`: numbered lessons the owner
+  took from marketing videos and approved. Apply every lesson that fits this video (hook, pacing, visuals,
+  on-screen text, ending, caption).
+- These rules, the hard rules below and BRIEF.md win where a lesson disagrees with them.
+- In your final answer, put the numbers of the lessons you applied in `playbook_used` (e.g. [1, 4, 7]);
+  an empty list when the playbook is empty or none fit.
+
 ## What the numbers say so far (first two posts, 2026-11-18)
 - Instagram showed both reels to strangers (95-98% non-followers). The animated teaching reel got 321 views,
   4 saves and all the stranger engagement; the AI-creator ad got 174 views and zero engagement from

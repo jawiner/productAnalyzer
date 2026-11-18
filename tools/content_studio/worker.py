@@ -16,6 +16,11 @@ Only the standard library. Config in tools/content_studio/.env (never committed)
 Usage:
   python worker.py --once        one pass (what the scheduled task runs)
   python worker.py --check       check the config and the connection, take no job
+  python worker.py --playbook    only write the video playbook skill from the CRM
+
+Each pass also keeps the video playbook in step (playbook.py): it writes the lessons the owner
+added into ~/.claude/skills/video-playbook, and when no video is waiting it studies the next
+marketing video, post or text the owner sent to learn from.
 """
 from __future__ import annotations
 
@@ -34,6 +39,8 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+import playbook
+
 HERE = Path(__file__).resolve().parent
 STATE = HERE.parent.parent / ".tmp" / "content_studio"
 LOCK = STATE / "worker.lock"
@@ -49,11 +56,13 @@ NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 RESULT_SCHEMA = {
     "type": "object",
     "additionalProperties": False,
-    "required": ["status", "summary", "error"],
+    "required": ["status", "summary", "error", "playbook_used"],
     "properties": {
         "status": {"type": "string", "enum": ["done", "failed"]},
         "summary": {"type": "string"},
         "error": {"type": "string"},
+        # The video-playbook lesson numbers this video applied (the CRM counts them per lesson).
+        "playbook_used": {"type": "array", "items": {"type": "integer"}},
     },
 }
 
@@ -101,6 +110,19 @@ class Engine:
         try:
             with urllib.request.urlopen(req, timeout=60) as r:
                 return json.loads(r.read() or b"{}")
+        except urllib.error.HTTPError as e:
+            detail = e.read().decode("utf-8", "replace")[:300]
+            raise RuntimeError(f"content-engine {action}: HTTP {e.code} {detail}") from None
+
+    def download(self, action: str, path: Path, **body) -> None:
+        """An action that answers with a file (a video the owner sent on Telegram)."""
+        data = json.dumps({"action": action, **body}).encode()
+        req = urllib.request.Request(self.url, data=data, method="POST", headers={
+            "Content-Type": "application/json", "x-content-worker": self.secret,
+        })
+        try:
+            with urllib.request.urlopen(req, timeout=300) as r, path.open("wb") as f:
+                shutil.copyfileobj(r, f)
         except urllib.error.HTTPError as e:
             detail = e.read().decode("utf-8", "replace")[:300]
             raise RuntimeError(f"content-engine {action}: HTTP {e.code} {detail}") from None
@@ -346,10 +368,29 @@ def check_deliverables(project: Path) -> tuple[dict, list[str]]:
 
 # ---- One pass -----------------------------------------------------------------------------
 
+def playbook_ctx(env: dict, engine: Engine) -> playbook.Ctx:
+    return playbook.Ctx(engine, log, find_claude(env), child_env())
+
+
 def run_once(env: dict) -> int:
     engine = Engine(env["CONTENT_ENGINE_URL"], env["CONTENT_WORKER_SECRET"])
+    try:
+        playbook.sync_playbook(playbook_ctx(env, engine))
+    except Exception as e:  # the skill catches up on the next pass
+        log(f"playbook sync failed: {e}")
     job = engine.call("claim").get("job")
     if not job:
+        # Nothing to make: study the next thing the owner sent to learn from, if any.
+        try:
+            studied = playbook.study_next(playbook_ctx(env, engine))
+        except Exception as e:  # e.g. the function is older than this worker; videos still work
+            log(f"playbook study skipped: {e}")
+            studied = False
+        if studied:
+            try:
+                playbook.sync_playbook(playbook_ctx(env, engine))
+            except Exception as e:
+                log(f"playbook sync failed: {e}")
         return 0
     video = job["video"]
     log(f"job {video['id']} v{video.get('version', 1)}: {job['idea']['title']}")
@@ -374,8 +415,10 @@ def run_once(env: dict) -> int:
         has_cover = (project / "out" / "cover.jpg").exists()
         if has_cover:
             put_file(urls["cover.jpg"]["url"], project / "out" / "cover.jpg", "image/jpeg")
+        used = sorted({int(n) for n in (res.get("playbook_used") or []) if str(n).lstrip("-").isdigit() and int(n) > 0})
         engine.call("done", video_id=video["id"], caption=meta["caption"], duration_s=meta["duration_s"],
-                    project_dir=str(project), has_cover=has_cover, report={"summary": res.get("summary", "")[:2000]})
+                    project_dir=str(project), has_cover=has_cover,
+                    report={"summary": res.get("summary", "")[:2000], "playbook_used": used})
         log(f"job {video['id']} done ({meta['duration_s']} s)")
     except Exception as e:
         message = str(e)[:900]
@@ -392,6 +435,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--once", action="store_true")
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--playbook", action="store_true")
     args = ap.parse_args()
     env = load_env()
     missing = [k for k in ("CONTENT_ENGINE_URL", "CONTENT_WORKER_SECRET") if not env.get(k)]
@@ -410,6 +454,11 @@ def main() -> int:
                 return 1
         log(f"claude: {find_claude(env)}")
         log(f"template: {'OK' if (TEMPLATE / 'reelkit.json').exists() else 'MISSING'}")
+        log(f"speech venv (study): {'OK' if playbook.SPEECH_PY.exists() else 'MISSING'}")
+        return 0
+    if args.playbook:
+        playbook.sync_playbook(playbook_ctx(env, Engine(env["CONTENT_ENGINE_URL"], env["CONTENT_WORKER_SECRET"])))
+        log(f"playbook: {playbook.SKILL_DIR / 'SKILL.md'}")
         return 0
     if not take_lock():
         return 0
