@@ -106,5 +106,6 @@ The owner sends marketing advice; approved lessons steer every video after that.
   The first prep run took 5 min (the hub checks); the worker runs prep with `HF_HUB_OFFLINE=1`
   (about 1.5 min for a 1-minute TikTok). yt-dlp `-S res:720` keeps vertical videos 720 wide so
   on-screen text stays readable in the frames.
-- Release (2026-11-18): the safety check blocked `functions deploy` from the session; the owner
-  approves or runs it (see the session's handoff file).
+- Release (2026-11-18): the safety check blocks `functions deploy` to production until the owner
+  says yes in the chat; ask once with the exact functions, then deploy. First live study: a 61 s
+  TikTok took 9 min end to end (prep ~1.5 min, Claude the rest) and gave 4 concrete lessons.
