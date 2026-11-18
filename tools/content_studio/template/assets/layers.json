@@ -1,0 +1,86 @@
+{
+  "assets/user/a-d14e3813-milestone-66-light.png": {
+    "textZone": {
+      "region": "top",
+      "luminance": 0.554,
+      "busy": 0.146
+    }
+  },
+  "assets/user/a-4372d79c-milestone-66-dark.png": {
+    "textZone": {
+      "region": "top",
+      "luminance": 0.092,
+      "busy": 0.191
+    }
+  },
+  "assets/user/a-d9bf09ef-milestone-66-card.png": {
+    "textZone": {
+      "region": "top",
+      "luminance": 0.556,
+      "busy": 0.228
+    }
+  },
+  "assets/user/a-1909f07b-steppy-think.webp": {
+    "textZone": {
+      "region": "top",
+      "luminance": 0.332,
+      "busy": 0.717
+    }
+  },
+  "assets/user/a-714645f9-steppy-point.webp": {
+    "textZone": {
+      "region": "middle",
+      "luminance": 0.449,
+      "busy": 0.91
+    }
+  },
+  "assets/user/a-f2a83519-steppy-summit.webp": {
+    "textZone": {
+      "region": "bottom",
+      "luminance": 0.312,
+      "busy": 0.892
+    }
+  },
+  "assets/user/a-c7c9eec3-steppy-wave.webp": {
+    "textZone": {
+      "region": "top",
+      "luminance": 0.359,
+      "busy": 0.895
+    }
+  },
+  "assets/user/a-22d6a7cd-steppy-medal.webp": {
+    "textZone": {
+      "region": "middle",
+      "luminance": 0.433,
+      "busy": 0.896
+    }
+  },
+  "assets/user/a-d616071c-steppy-run.webp": {
+    "textZone": {
+      "region": "top",
+      "luminance": 0.273,
+      "busy": 0.673
+    }
+  },
+  "assets/user/a-3da24598-steppy-celebrate.webp": {
+    "textZone": {
+      "region": "middle",
+      "luminance": 0.437,
+      "busy": 0.793
+    }
+  },
+  "assets/user/a-e8f10eaf-steppy-trophy.webp": {
+    "textZone": {
+      "region": "top",
+      "luminance": 0.522,
+      "busy": 0.872
+    }
+  },
+  "assets/user/a-1284c346-steppy-ready.webp": {
+    "textZone": {
+      "region": "top",
+      "luminance": 0.337,
+      "busy": 0.671
+    }
+  }
+}

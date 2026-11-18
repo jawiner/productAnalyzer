@@ -1,0 +1,6 @@
+{
+  "voice": "Sulafat",
+  "model": "gemini-3.8-flash-tts",
+  "style": "Calm, warm American English narrator for a 35 to 45 second Instagram reel. Sounds like a friend letting you in on something: conversational, a little dry, quick but relaxed, never hype, never salesy. Clear diction, short natural pauses between sentences. The first line is said like repeating something everyone has heard, then the twist lands short and firm. The last line is warm and settled. The app's name LifeMaxer is said life-maxer, one word, stress on life. (Add per-video direction here: how to read numbers, years and names in this script.)",
+  "spoken": {}
+}

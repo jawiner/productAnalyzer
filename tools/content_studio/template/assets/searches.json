@@ -1,0 +1,154 @@
+[
+  {
+    "q": "light warm curious lofi pluck 100 bpm, gentle and optimistic, for an educational reel",
+    "kind": "music",
+    "at": "2026-11-17T13:38:03.724Z",
+    "top": [
+      {
+        "id": "music-tutorial-pulse",
+        "match": 0.73
+      },
+      {
+        "id": "music-lofi-study-loop",
+        "match": 0.56
+      },
+      {
+        "id": "music-minimal-tech-pulse",
+        "match": 0.4
+      }
+    ]
+  },
+  {
+    "q": "bubble pop",
+    "kind": "sfx",
+    "at": "2026-11-17T13:38:28.604Z",
+    "top": [
+      {
+        "id": "sfx-ui-bubble-pop",
+        "match": 0.91
+      },
+      {
+        "id": "sfx-vfojfbefnhqz",
+        "match": 0.9
+      },
+      {
+        "id": "sfx-h0avxtjl0kfr",
+        "match": 0.48
+      }
+    ]
+  },
+  {
+    "q": "marker pen scribble stroke",
+    "kind": "sfx",
+    "at": "2026-11-17T13:38:33.179Z",
+    "top": [
+      {
+        "id": "cinematic-glitches-glitch-scribble-high",
+        "match": 0.6
+      },
+      {
+        "id": "cinematic-glitches-glitch-scribble",
+        "match": 0.59
+      },
+      {
+        "id": "cinematic-glitches-glitch-smudge",
+        "match": 0.38
+      }
+    ]
+  },
+  {
+    "q": "soft impact",
+    "kind": "sfx",
+    "at": "2026-11-17T13:38:37.435Z",
+    "top": [
+      {
+        "id": "sfx-ui-soft-impact",
+        "match": 0.9
+      },
+      {
+        "id": "sfx-foz2up4t5o1z",
+        "match": 0.89
+      },
+      {
+        "id": "hollywood-essentials-short-foley-short-foley-hit-soft",
+        "match": 0.81
+      }
+    ]
+  },
+  {
+    "q": "counter ticks",
+    "kind": "sfx",
+    "at": "2026-11-17T13:38:42.262Z",
+    "top": [
+      {
+        "id": "sfx-ui-count-ticks",
+        "match": 0.9
+      },
+      {
+        "id": "sfx-719ermyi7bbf",
+        "match": 0.72
+      },
+      {
+        "id": "hollywood-essentials-short-foley-short-foley-tick",
+        "match": 0.46
+      }
+    ]
+  },
+  {
+    "q": "soft ui whoosh",
+    "kind": "sfx",
+    "at": "2026-11-17T13:38:46.725Z",
+    "top": [
+      {
+        "id": "sfx-ui-soft-whoosh",
+        "match": 0.92
+      },
+      {
+        "id": "sfx-rp6gluf8g6f6",
+        "match": 0.86
+      },
+      {
+        "id": "quantum-motion-whooshes-flow-whoosh-soft-swipe",
+        "match": 0.76
+      }
+    ]
+  },
+  {
+    "q": "success chime",
+    "kind": "sfx",
+    "at": "2026-11-17T13:38:50.029Z",
+    "top": [
+      {
+        "id": "sfx-ui-success-chime",
+        "match": 0.93
+      },
+      {
+        "id": "sfx-q97vm3tmvw7z",
+        "match": 0.88
+      },
+      {
+        "id": "ultimate-social-content-foley-ding",
+        "match": 0.33
+      }
+    ]
+  },
+  {
+    "q": "pencil writing on paper, short scratch",
+    "kind": "sfx",
+    "at": "2026-11-17T13:39:23.501Z",
+    "top": [
+      {
+        "id": "ultimate-social-content-foley-scratch",
+        "match": 0.52
+      },
+      {
+        "id": "cinematic-glitches-glitch-scribble",
+        "match": 0.37
+      },
+      {
+        "id": "cinematic-glitches-glitch-scribble-high",
+        "match": 0.36
+      }
+    ]
+  }
+]

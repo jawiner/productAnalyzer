@@ -1,0 +1,8 @@
+# The root repo is public, so media stays on this PC:
+# Steppy poses and app cards (Steppy is also in the LifeMaxer repo, src/assets/mascot/),
+# and Reelkit library music and sound effects (restore with `reelkit assets pull`).
+template/assets/lib/
+template/assets/user/
+template/out/
+.env
+__pycache__/

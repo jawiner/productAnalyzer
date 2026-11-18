@@ -1,0 +1,133 @@
+{
+  "title": "Where 21 days came from",
+  "aspect": "9:16",
+  "mode": "motion",
+  "voiceId": "SAz9YHcvj6GT2YYXdXww",
+  "pace": "normal",
+  "gap": "tight",
+  "captions": "phrase",
+  "scenes": [
+    {
+      "id": "hook",
+      "narration": "They told you a habit takes 21 days. They were wrong.",
+      "treatment": "motion-graphic",
+      "onScreenText": [
+        "A HABIT TAKES 21 DAYS?",
+        "WRONG"
+      ],
+      "imagePrompt": null,
+      "clipPrompt": null,
+      "shareable": false,
+      "imageTags": [],
+      "userAssetIds": [
+        "a-d616071c",
+        "a-3da24598"
+      ],
+      "notes": "LOOK: LifeMaxer Daylight brand, flat warm paper ground, ink type, tangerine hero, cobalt staircase. Archivo Black display + kit body. 9:16, about 38 s, English Gemini Sulafat voice, phrase captions. CONCEPT (v2, USER chose): ONE continuous staircase, no slide changes. A cobalt staircase of steps (step = day) rises up-right; Steppy (orange mascot) climbs it the whole film; a camera rig follows him in world space. Step 21 has a signpost '21 DAYS' (the myth's fake summit), step 66 is the summit (median), a cracked step is the missed day, a pin marks day 22. Hook: frame 1 Steppy is already running up the first steps under the card A HABIT TAKES 21 DAYS?; he celebrates at the 21 sign; on 'wrong' a WRONG stamp slams on and the camera tilts up to show the stairs keep going."
+    },
+    {
+      "id": "origin",
+      "narration": "21 days was never about habits. It was about plastic surgery. A surgeon found his patients needed at least 21 days to get used to their new face. Then self-help dropped the \"at least\".",
+      "treatment": "motion-graphic",
+      "onScreenText": [
+        "NEVER ABOUT HABITS",
+        "1960 · A PLASTIC SURGEON",
+        "AT LEAST 21 DAYS"
+      ],
+      "imagePrompt": null,
+      "clipPrompt": null,
+      "shareable": false,
+      "imageTags": [],
+      "userAssetIds": [
+        "a-d616071c"
+      ],
+      "notes": "v3 (USER: the old origin line made viewers think 'what do I care'): the twist is that 21 was never about habits. Steppy keeps climbing step by step past the 21 sign, in time with the music, and the camera follows him (never a held frame). Over him: NEVER ABOUT HABITS on 'never'; on 'plastic surgery' a hand mirror pops in with a bandaged face and a 1960 chip; AT LEAST and 21 DAYS build under it on their words; on 'new face' the bandage comes off and the face smiles; on 'dropped' the words AT LEAST fall off and tumble out of the frame, leaving 21 DAYS."
+    },
+    {
+      "id": "study",
+      "narration": "In 2010, researchers at UCL followed 96 people building one new habit. The median was 66 days. Some took 18. Some took 254.",
+      "treatment": "motion-graphic",
+      "onScreenText": [
+        "UCL · 2010 · 96 PEOPLE",
+        "66 DAYS · MEDIAN",
+        "18",
+        "254"
+      ],
+      "imagePrompt": null,
+      "clipPrompt": null,
+      "shareable": false,
+      "imageTags": [],
+      "userAssetIds": [
+        "a-d616071c"
+      ],
+      "notes": "The climb: Steppy runs on up past 21 while the camera follows and the step numbers tick by, landing on the summit at 66 as '66' is said (66 DAYS MEDIAN sign). On '18' a pin pops at step 18 (below 21). On '254' the camera pulls all the way back: the staircase keeps going far past 66 to a tiny pin at 254. The scale gag is the wow moment."
+    },
+    {
+      "id": "miss",
+      "narration": "And missing one day didn't change the result.",
+      "treatment": "motion-graphic",
+      "onScreenText": [
+        "ONE MISSED DAY",
+        "NO DIFFERENCE"
+      ],
+      "imagePrompt": null,
+      "clipPrompt": null,
+      "shareable": false,
+      "imageTags": [],
+      "userAssetIds": [
+        "a-d616071c"
+      ],
+      "notes": "Close on a stretch of stairs with one hollow, dashed step (a missed day). Steppy hops over it and keeps climbing. NO DIFFERENCE lands on 'result'."
+    },
+    {
+      "id": "turn",
+      "narration": "So if you quit on day 22, you weren't failing. You were a third of the way there.",
+      "treatment": "motion-graphic",
+      "onScreenText": [
+        "DAY 22",
+        "A THIRD OF THE WAY"
+      ],
+      "imagePrompt": null,
+      "clipPrompt": null,
+      "shareable": false,
+      "imageTags": [],
+      "userAssetIds": [],
+      "notes": "Camera on step 22 with a DAY 22 pin. On 'third' it pulls back to steps 1-66: steps 1-22 stay cobalt, 23-66 fade pale: one third of the way. A THIRD OF THE WAY lands on 'third'."
+    },
+    {
+      "id": "app",
+      "narration": "LifeMaxer celebrates day 66, with two freezes for missed days.",
+      "treatment": "motion-graphic",
+      "onScreenText": [
+        "66, NOT 21",
+        "2 FREEZES"
+      ],
+      "imagePrompt": null,
+      "clipPrompt": null,
+      "shareable": false,
+      "imageTags": [],
+      "userAssetIds": [
+        "a-d9bf09ef",
+        "a-e8f10eaf"
+      ],
+      "notes": "Camera up to the summit; the app's real Day 66 milestone card (Example tag) rises over it; two cobalt Freeze chips pop on 'two freezes'. The card is the real screen, never redrawn."
+    },
+    {
+      "id": "cta",
+      "narration": "Save this, and stop counting to 21.",
+      "treatment": "motion-graphic",
+      "onScreenText": [
+        "SAVE THIS",
+        "21"
+      ],
+      "imagePrompt": null,
+      "clipPrompt": null,
+      "shareable": false,
+      "imageTags": [],
+      "userAssetIds": [
+        "a-714645f9"
+      ],
+      "notes": "Pull back to the whole staircase 1-66; the 21 sign is struck through on '21'; Steppy points from the summit. SAVE THIS card. Loops back to the opening run."
+    }
+  ]
+}
