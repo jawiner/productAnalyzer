@@ -1,0 +1,33 @@
+{
+  "_about": "Where collect.py looks and what it calls things. Client project names go in projects.local.json (git-ignored), same shape; it adds to this file.",
+  "roots": ["~"],
+  "max_depth": 4,
+  "skip_dirs": [
+    "node_modules", ".tmp", "tmp", "AppData", "Application Data", "Local Settings", "My Documents",
+    "OneDrive", "Downloads", "Music", "Pictures", "Videos", "Saved Games", "Searches", "Favorites",
+    "Contacts", "Links", "Cookies", "NetHood", "PrintHood", "Recent", "SendTo", "Start Menu", "Templates",
+    "dist", "build", "out", ".next", ".vercel", "venv", ".venv", "__pycache__", "eclipse", "eclipse-workspace"
+  ],
+  "dot_dirs_to_scan": [],
+  "skip_repos": [],
+  "product_names": {
+    "wat-framework": "WAT framework",
+    "mapflow-crm": "Mapflow",
+    "talentflow": "Castly",
+    "lifemaxing": "LifeMaxer",
+    "lifemaxing-independent": "LifeMaxer",
+    "lifemaxing-life-os": "LifeMaxer",
+    "ai-receptionist": "AI Receptionist",
+    "booking-platform": "Booking platform",
+    "intake-studio": "Intake Studio",
+    "mashtatech": "Mashtech site",
+    "mashtatech-repo": "Mashtech site",
+    "pizzamashta": "Pizzamashta",
+    "reelkit-gemini-kit": "Reelkit Gemini kit"
+  },
+  "own_skills": [
+    "polish-app", "friendly-app", "app-guided-tour", "saas-showcase-page", "saas-to-mobile-app",
+    "pre-signup-onboarding", "israel-digital-compliance", "video-playbook", "client-intake-checklist"
+  ],
+  "skip_tools": []
+}

@@ -19,3 +19,6 @@ maslul/
 websites/
 saas/
 internal/intake-studio/
+
+# Build log: client project names for tools/build_log (stays on this PC).
+tools/build_log/projects.local.json
