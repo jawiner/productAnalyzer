@@ -312,6 +312,17 @@ def remake_brief(project: Path, idea: dict, ref: dict) -> list[str]:
     for b in bp.get("their_beats") or []:
         text = f" Text: {b.get('text_on_screen')}." if b.get("text_on_screen") else ""
         lines.append(f"- {b.get('start_s')}-{b.get('end_s')} s, {b.get('job')}: {b.get('visual')}.{text} Audio: {b.get('audio')}")
+    keeps = bp.get("keep") or []
+    if keeps:
+        video = playbook.reference_video(idea["source_id"])
+        lines += ["", "KEEP AS IS (the owner asked): these stretches of the reference go into our video exactly as they are,",
+                  "with their own sound, where the reference has them (usually first); our beats follow them. Credit the",
+                  "original creator in caption.txt (\"🎥 Clip: @handle\" or \"Clip via <site>\").", ""]
+        for n, k in enumerate(keeps, 1):
+            clip_path = target / f"keep-{n}.mp4"
+            ok = clip_path.exists() or (video is not None and playbook.cut_clip(video, float(k["start_s"]), float(k["end_s"]), clip_path))
+            lines.append(f"- `reference/remake/keep-{n}.mp4`: {k['start_s']}-{k['end_s']} s, {k.get('what')}"
+                         + ("" if ok else " (MISSING: the reference video is no longer on this PC; fail the job and say so)"))
     lines += ["", f"Frames of the reference: `reference/remake/` ({len(frames)} stills, named by time: t000150.png = 1.5 s). "
               "Look at them before you plan." if frames else "(The reference's frames are no longer on this PC; work from the beats.)", ""]
     return [l for l in lines if l is not None]

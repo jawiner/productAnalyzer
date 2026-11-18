@@ -81,10 +81,12 @@ _IDEA_KEYS = ["title", "pillar", "formula", "hook_line", "on_screen_hook", "conc
 # Mirrors REMAKE_SCHEMA in the CRM's supabase/functions/_shared/contentCopy.js.
 REMAKE_SCHEMA = {
     "type": "object", "additionalProperties": False,
-    "required": ["format", "hook", "their_beats", "route", "route_reason", "idea"],
+    "required": ["format", "hook", "their_beats", "route", "route_reason", "keep", "idea"],
     "properties": {
         "format": _STR, "hook": _STR, "their_beats": {"type": "array", "items": _THEIR_BEAT},
         "route": {"type": "string", "enum": ["motion", "ai_footage"]}, "route_reason": _STR,
+        "keep": {"type": "array", "items": {"type": "object", "additionalProperties": False, "required": ["start_s", "end_s", "what"],
+                                            "properties": {"start_s": {"type": "number"}, "end_s": {"type": "number"}, "what": _STR}}},
         "idea": {"type": "object", "additionalProperties": False, "required": _IDEA_KEYS, "properties": {
             **{k: _STR for k in _IDEA_KEYS if k not in ("beats", "facts")},
             "beats": {"type": "array", "items": _OUR_BEAT}, "facts": {"type": "array", "items": _FACT},
@@ -350,6 +352,25 @@ def study_folder(source_id: str) -> Path | None:
         if not packet.get("error"):
             return d
     return None
+
+
+def reference_video(source_id: str) -> Path | None:
+    folder = study_folder(source_id)
+    if not folder:
+        return None
+    found = sorted((folder / "media").glob("*.mp4")) + sorted((folder / "media").glob("*.mov")) if (folder / "media").exists() else []
+    return found[0] if found else None
+
+
+def cut_clip(video: Path, start_s: float, end_s: float, target: Path) -> bool:
+    """A stretch of the reference as a 1080x1920 clip with its sound (for a remake that keeps it)."""
+    target.parent.mkdir(parents=True, exist_ok=True)
+    vf = "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=30"
+    proc = subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-ss", f"{start_s:.2f}", "-to", f"{end_s:.2f}",
+                           "-i", str(video), "-vf", vf, "-c:v", "libx264", "-crf", "18", "-pix_fmt", "yuv420p",
+                           "-c:a", "aac", "-b:a", "192k", "-ar", "48000", str(target)],
+                          capture_output=True, text=True, timeout=300, creationflags=NO_WINDOW)
+    return proc.returncode == 0 and target.exists()
 
 
 def reference_frames(source_id: str) -> list[Path]:

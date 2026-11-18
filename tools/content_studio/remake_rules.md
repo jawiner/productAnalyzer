@@ -46,6 +46,13 @@ video playbook) that follows the blueprint:
   `on_screen_hook` (6 words or fewer), `concept` (the one visual thread), `facts` [{claim, source}] (may be
   empty), `caption_seed`, `why`.
 
+## Keeping part of the reference (only when the owner asks)
+Some formats react to someone else's clip (a viral moment, then a hard cut to the pitch). If, and only
+if, the owner's note in REMAKE.md asks to keep part of the reference as it is, list that stretch in
+`keep` ({start_s, end_s, what}, at most 15 seconds, cut at the reference's own cut times) and leave it out
+of the beats you write: our beats start where the kept clip ends. Everything else stays original. With
+no such request, `keep` is an empty list.
+
 ## 3. The route
 - `route` "motion": the format works as motion graphics made on the PC (kinetic text, app screens, a
   mascot or characters, icons, simple illustration).
