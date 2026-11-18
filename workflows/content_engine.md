@@ -76,12 +76,19 @@ USER 2026-11-18: share an ad, get a similar one for LifeMaxer ("decide per ad" b
 5. **AI footage** (status `ai_waiting`; credits are never spent unattended): in a session, the owner
    says "make the AI remake". Then:
    `python tools/content_studio/deliver_video.py --list` → `--show <idea id>` (beats, format, brand);
-   ask the Open Higgsfield question (global CLAUDE.md), estimate the Higgsfield cost and get the
-   owner's OK, generate the clips, assemble a Reelkit project (template + voice like the daily videos)
-   with `out/final.mp4`, `out/review.mp4`, `out/caption.txt`, then
-   `python tools/content_studio/deliver_video.py --idea <id> --project <folder>`: it checks the files,
-   approves the idea (`adopt_idea`), uploads, and the video goes to Telegram for approval and posting.
-   Check the files first: once adopted, a video row stuck in `making` returns to the PC's queue after 3 h.
+   ask the Open Higgsfield question (global CLAUDE.md), quote the cost (`estimate_video_cost`; a 15 s
+   Seedance 2.5 presenter with speech, 9:16: 480p 45 credits, 720p 105, 1080p 240) and get the owner's
+   OK. Only the AI shots get generated (by the owner in Open Higgsfield, http://127.0.0.1:3000, or with
+   the Higgsfield connector after the OK). Then, the usual way:
+   `python tools/content_studio/deliver_video.py --footage <idea id> <clip.mp4> ...`: the clips go to
+   `.tmp/content_studio/ai_footage/<idea id>/`, the remake is queued (`queue_ai_remake`), and the PC
+   assembles it (kept clips, AI presenter with its own voice, app screens, end card) like any video.
+   A video finished entirely in the session instead: `deliver_video.py --idea <id> --project <folder>`
+   (checks `out/`, `adopt_idea`, uploads). Once adopted, a row stuck in `making` returns to the PC's
+   queue after 3 h, so check the files first.
+   Keep stretches (`blueprint.keep`, only when the owner's /remake note asks, e.g. the clip a reaction
+   video reacts to): cut to `reference/remake/keep-N.mp4` with their sound; credit the creator.
+   First test 2026-11-18: realtor reel (water-balloon clip + pitch in a car) → "Parked-car pitch".
 
 ## Setup (once)
 1. Video PC: `python tools/content_studio/connect_worker.py` from the wat-framework folder.
