@@ -1,7 +1,7 @@
 # Video playbook: study one source
 
 You are on the owner's video PC and nobody is watching. The owner sent a marketing video, post or
-article to learn from. STUDY.md in this folder has everything the PC found out about it. Decide what
+article to learn from (or screenshots, see the end). STUDY.md in this folder has everything the PC found out about it. Decide what
 it teaches about making better videos, and turn that into a few lessons for the owner's **video
 playbook**. The owner approves each lesson on Telegram before it goes in; the approved ones are
 followed by every video made after that.
@@ -58,3 +58,34 @@ followed by every video made after that.
   pace), from the frames and the numbers. "" for an article or a text.
 - `lessons`: as above. `relation` "supports" or "conflicts" with `related_number` = the playbook
   lesson's number; otherwise "new" with `related_number` 0.
+
+## Screenshots
+When STUDY.md lists screenshots, the owner sent pictures instead of a video. Read every one (Read the
+image files in screens/). They are usually the owner's own numbers (Instagram or TikTok Insights for
+one of their videos: views, watch time, skip rate, the retention graph, where viewers came from) and
+sometimes a tip someone posted (a tweet, a carousel slide), which you study like a text.
+
+**The numbers (`stats`)**, one entry per video the screenshots show:
+- `video`: which video it is. Match what's visible (the thumbnail's words, the caption, the length, the
+  date) with the owner's posts in STUDY.md and use the first line from there ("21-days reel: 'They told
+  you a habit takes 21 days'"). If you can't tell, describe it ("a 44 s reel posted 17 Nov").
+- `platform`, and `when`: how old the post was when the screenshot was taken, or the date range shown
+  ("13 h after posting", "last 7 days"), "" if it isn't shown.
+- Every number exactly as the screenshot shows it, with its unit ("466", "45.7%", "0:15", "1.2K"). Never
+  estimate, round or work out a number that isn't on the screen: leave it "". `reach` is accounts reached
+  (viewers), `kept_at_3s` is the share still watching at 3 seconds when the graph or a label shows it.
+- `notes`: the rest that matters, in a sentence or two: the retention graph's shape and where it drops
+  (read the times off the axis: "about 20% still watching at 0:36, then 8% at 0:38"), where the views came
+  from, anything Instagram flags. Say "about" for values read off a graph.
+- Several screenshots of one video make one entry. A tip with no numbers of the owner's gives `stats` [].
+
+**The lessons** come from what the numbers show, the same as from any source: a concrete technique, at
+most 3. Put the evidence in `why` with the numbers ("On the 21-days reel 20% were still watching at 0:36
+and 8% at 0:38, the second the app pitch started"). One video is one data point: say "on this reel" and
+don't claim it always works. Look for the drop in the retention graph, then find what was on screen at
+that moment (STUDY.md's posts list names the video file). No lesson when the numbers don't point at
+anything the owner can change; the numbers still count.
+
+For screenshots, `title` names what they show ("Instagram insights: 21-days reel and UGC ad"),
+`creator` is the account shown (or ""), `summary` says in 2 or 3 sentences what the numbers say, and
+`craft_notes` is "".

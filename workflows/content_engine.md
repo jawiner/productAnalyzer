@@ -56,6 +56,18 @@ The owner sends marketing advice; approved lessons steer every video after that.
    (`SKILL.md` + `references/sources.md`), the skill every video job reads; `rules.md` makes the
    daily videos apply it and report `playbook_used` (the tab counts "used in N videos"). The
    morning ideas get the lessons in their prompt.
+5. **Screenshots** (USER 2026-11-18, after the Insights photos they sent were dropped: before this
+   the bots had no photo handling, and a bot can't fetch old messages, so they were lost): a photo
+   or an image file sent to either bot is a `photos` source (on the lead bot with the pointer). An
+   album arrives as one message per photo: `content_add_photo()` puts them in one source (one
+   reply, each photo once, at most 10, a failed one sent again is read again), and `claim_source`
+   waits until none came for 60 s. The PC downloads each one (`source_file` with `n`), Claude reads
+   them (the Screenshots section of `study_rules.md`, with the owner's post log in STUDY.md to tell
+   which video it is) and answers with `stats` (one entry per video, every value as shown) plus
+   lessons from them. The numbers go on the Telegram card, in `content_sources.stats` (Playbook tab:
+   on the card, and **Show the numbers** under "Sent and studied") and at the end of
+   `~/.claude/instagram/log.md`. The owner's reels aren't in `content_posts` (made by hand), so they
+   aren't linked to `content_metrics` yet.
 
 ## Remakes (our own ad in the format of one the owner likes)
 USER 2026-11-18: share an ad, get a similar one for LifeMaxer ("decide per ad" between routes).

@@ -1,9 +1,11 @@
 """The video playbook on the video PC (used by worker.py; only the standard library).
 
-  study_next()     takes the next thing the owner sent (a link, a video file or text), gets it ready
-                   with study_prep.py (speech venv: download, transcript, cuts, frames), has Claude
-                   study it headless with study_rules.md, and reports the proposed lessons back; the
-                   content-engine function sends them to the owner on Telegram to add or skip.
+  study_next()     takes the next thing the owner sent (a link, a video file, text or screenshots),
+                   gets it ready with study_prep.py (speech venv: download, transcript, cuts, frames),
+                   has Claude study it headless with study_rules.md, and reports the proposed lessons
+                   back; the content-engine function sends them to the owner on Telegram to add or skip.
+                   Screenshots of the owner's own numbers also come back as numbers, which go into the
+                   CRM and the owner's post log (~/.claude/instagram/log.md).
   sync_playbook()  writes the lessons the owner added into ~/.claude/skills/video-playbook, the skill
                    every video job reads (the daily videos via rules.md, and any other video work).
   remake_next()    an ad the owner wants "one like this" of: Claude breaks it down second by second
@@ -29,6 +31,8 @@ STUDY_RULES = HERE / "study_rules.md"
 REMAKE_RULES = HERE / "remake_rules.md"
 SKILL_DIR = Path.home() / ".claude" / "skills" / "video-playbook"
 YTDLP_STAMP = ROOT / ".tmp" / "content_studio" / "yt-dlp-updated.txt"
+# The owner's post log: one line per post, and the numbers read off screenshots (the ig-* skills read it).
+POST_LOG = Path.home() / ".claude" / "instagram" / "log.md"
 # AI clips for a remake (made in a session with the owner's credits): ai_footage/<idea id>/*.mp4
 AI_FOOTAGE = ROOT / ".tmp" / "content_studio" / "ai_footage"
 STUDY_MODEL = "claude-opus-5-5"
@@ -66,6 +70,24 @@ STUDY_SCHEMA = {
         "title": {"type": "string"}, "creator": {"type": "string"}, "summary": {"type": "string"},
         "craft_notes": {"type": "string"}, "lessons": {"type": "array", "items": _LESSON},
     },
+}
+# The numbers on screenshots, one entry per video, each value as shown ("" when it isn't shown).
+# Mirrors normalizeStats / STAT_FIELDS in the CRM's supabase/functions/_shared/contentCopy.js.
+STAT_FIELDS = {
+    "views": "views", "reach": "reached", "avg_watch": "avg watch", "skip_rate": "skip rate",
+    "kept_at_3s": "watching at 3 s", "likes": "likes", "comments": "comments", "saves": "saves",
+    "shares": "shares", "follows": "follows", "profile_visits": "profile visits",
+}
+_STAT_KEYS = ["video", "platform", "when", *STAT_FIELDS, "notes"]
+_STAT = {
+    "type": "object", "additionalProperties": False, "required": _STAT_KEYS,
+    "properties": {**{k: {"type": "string"} for k in _STAT_KEYS},
+                   "platform": {"type": "string", "enum": ["instagram", "tiktok", "youtube", "facebook", "other"]}},
+}
+PHOTOS_SCHEMA = {
+    **STUDY_SCHEMA,
+    "required": [*STUDY_SCHEMA["required"], "stats"],
+    "properties": {**STUDY_SCHEMA["properties"], "stats": {"type": "array", "items": _STAT}},
 }
 
 
@@ -145,6 +167,8 @@ def gather(ctx: Ctx, source: dict, folder: Path) -> dict:
     if source["kind"] == "text":
         (folder / "page.txt").write_text(source.get("body") or "", encoding="utf-8")
         return {"kind": "text"}
+    if source["kind"] == "photos":
+        return gather_photos(ctx, source, folder)
     args = [str(SPEECH_PY), "-X", "utf8", "-I", str(PREP), "--out", str(folder)]
     if source["kind"] == "file":
         target = folder / "media" / f"upload{_suffix(source)}"
@@ -161,6 +185,73 @@ def gather(ctx: Ctx, source: dict, folder: Path) -> dict:
     return packet
 
 
+IMAGE_SUFFIX = {"image/png": ".png", "image/webp": ".webp", "image/heic": ".heic", "image/heif": ".heif"}
+
+
+def gather_photos(ctx: Ctx, source: dict, folder: Path) -> dict:
+    """The screenshots, in the order they were sent: screens/screen-1.jpg, screen-2.png, ..."""
+    photos = source.get("photos") or []
+    if not photos:
+        return {"error": "The screenshots are missing.", "code": "download"}
+    screens = folder / "screens"
+    screens.mkdir(parents=True, exist_ok=True)
+    files = []
+    for i, photo in enumerate(photos):
+        target = screens / f"screen-{i + 1}{IMAGE_SUFFIX.get(photo.get('mime') or '', '.jpg')}"
+        try:
+            ctx.engine.download("source_file", target, source_id=source["id"], n=i)
+        except Exception as e:  # noqa: BLE001 - one lost picture shouldn't lose the rest
+            ctx.log(f"study {source['id']}: screenshot {i + 1} didn't download: {e}")
+            target.unlink(missing_ok=True)
+            continue
+        if not target.exists() or target.stat().st_size < 100:
+            target.unlink(missing_ok=True)
+            continue
+        files.append(f"screens/{target.name}")
+    if not files:
+        return {"error": "Telegram didn't hand over the screenshots.", "code": "download"}
+    return {"kind": "photos", "files": files, "missing": len(photos) - len(files)}
+
+
+def _post_log_rows() -> list[str]:
+    """The owner's posts so far (the table at the top of the post log), to tell which video a screenshot shows."""
+    try:
+        text = POST_LOG.read_text(encoding="utf-8")
+    except OSError:
+        return []
+    return [line for line in text.splitlines() if line.startswith("| 20")][:40]
+
+
+def _cell(text, limit: int = 160) -> str:
+    return " ".join(str(text or "").replace("|", "/").split())[:limit]
+
+
+def append_post_log(source: dict, stats: list, title: str) -> bool:
+    """The numbers read off screenshots, as a dated table at the end of the post log."""
+    rows = [s for s in stats if isinstance(s, dict)]
+    if not rows:
+        return False
+    fields = [k for k in STAT_FIELDS if any(s.get(k) for s in rows)]
+    sent = str(source.get("created_at") or "")[:10] or f"{dt.date.today():%Y-%m-%d}"
+    lines = ["", f"## Screenshots from Telegram, sent {sent} (read by the video PC)", ""]
+    if title:
+        lines += [_cell(title, 200), ""]
+    if source.get("note"):
+        lines += [f"The owner's note: {_cell(source['note'], 300)}", ""]
+    head = ["video", "platform", "when", *[STAT_FIELDS[k] for k in fields], "notes"]
+    lines += ["| " + " | ".join(head) + " |", "| " + " | ".join("---" for _ in head) + " |"]
+    for s in rows:
+        cells = [s.get("video"), s.get("platform"), s.get("when"), *[s.get(k) for k in fields], s.get("notes")]
+        lines.append("| " + " | ".join(_cell(c, 300 if i == len(cells) - 1 else 120) for i, c in enumerate(cells)) + " |")
+    POST_LOG.parent.mkdir(parents=True, exist_ok=True)
+    new = not POST_LOG.exists()
+    with POST_LOG.open("a", encoding="utf-8") as f:
+        if new:
+            f.write("# Post log\n")
+        f.write("\n".join(lines) + "\n")
+    return True
+
+
 def _fmt_count(n) -> str:
     try:
         v = float(n)
@@ -174,7 +265,8 @@ def _source_lines(source: dict, packet: dict) -> list[str]:
     site = packet.get("site") or {}
     origin = {"link": f"{PLATFORMS.get(source.get('platform'), 'web')} link {source.get('url')}",
               "file": f"a video file sent on Telegram ({source.get('file_name') or 'no name'})",
-              "text": "a text the owner pasted"}[source["kind"]]
+              "text": "a text the owner pasted",
+              "photos": f"{len(packet.get('files') or [])} screenshot(s) the owner sent on Telegram"}[source["kind"]]
     lines = [f"Source: {origin}", f"Sent: {str(source.get('created_at') or '')[:10]}"]
     lines += [f"The owner's note: \"{source['note']}\"" if source.get("note") else "The owner didn't add a note.", ""]
     if site:
@@ -211,6 +303,19 @@ def _source_lines(source: dict, packet: dict) -> list[str]:
         lines += ["## Files", "", "- transcript.txt: what is said, with times",
                   f"- {len(frames)} frames in frames/. The hook: " + ", ".join(f"{f['file']} ({f['t']} s)" for f in hook),
                   "- The rest: " + ", ".join(f"{f['file']} ({f['t']} s)" for f in rest), ""]
+    elif packet.get("kind") == "photos":
+        files = packet.get("files") or []
+        lines += ["## Files", "", f"- {len(files)} screenshot(s), in the order they were sent: " + ", ".join(files)
+                  + ". Read every one (they are images).", ""]
+        if packet.get("missing"):
+            lines += [f"({packet['missing']} more didn't download from Telegram.)", ""]
+        posts = _post_log_rows()
+        if posts:
+            lines += ["## The owner's posts so far (their post log, to tell which video a screenshot shows)", "",
+                      "| approved | format | formula | score | first line | file | posted | numbers |",
+                      "| --- | --- | --- | --- | --- | --- | --- | --- |", *posts, ""]
+        else:
+            lines += ["## The owner's posts so far", "", "(no post log on this PC)", ""]
     else:
         lines += ["## Files", "", "- page.txt: the text (an article or what the owner pasted). There is no video.", ""]
     return lines
@@ -243,10 +348,17 @@ def write_remake_md(folder: Path, job: dict, packet: dict) -> None:
 
 # ---- Studying it ----------------------------------------------------------------------------
 
-def run_study(ctx: Ctx, folder: Path, label: str) -> dict:
-    prompt = ("Study the source described in STUDY.md in this folder and answer with its lessons for the video "
-              "playbook, following the rules you were given. Work unattended: nobody can answer questions.")
-    return _run_claude(ctx, folder, prompt=prompt, rules=STUDY_RULES, schema=STUDY_SCHEMA, effort=STUDY_EFFORT,
+def run_study(ctx: Ctx, folder: Path, label: str, photos: bool = False) -> dict:
+    if photos:
+        prompt = ("Read the screenshots listed in STUDY.md in this folder: write down the numbers they show and "
+                  "answer with what they teach for the video playbook, following the rules you were given "
+                  "(the Screenshots section). Work unattended: nobody can answer questions.")
+        schema = PHOTOS_SCHEMA
+    else:
+        prompt = ("Study the source described in STUDY.md in this folder and answer with its lessons for the video "
+                  "playbook, following the rules you were given. Work unattended: nobody can answer questions.")
+        schema = STUDY_SCHEMA
+    return _run_claude(ctx, folder, prompt=prompt, rules=STUDY_RULES, schema=schema, effort=STUDY_EFFORT,
                        name=f"Playbook study: {label}", key="lessons", log_name="claude-run.log")
 
 
@@ -286,6 +398,8 @@ def _run_claude(ctx: Ctx, folder: Path, *, prompt: str, rules: Path, schema: dic
 
 
 def _label(source: dict) -> str:
+    if source.get("kind") == "photos":
+        return f"{len(source.get('photos') or [])} screenshot(s)"
     return source.get("url") or source.get("file_name") or (source.get("body") or "text")[:40]
 
 
@@ -320,7 +434,8 @@ def study_next(ctx: Ctx) -> bool:
             ctx.engine.call("source_failed", source_id=sid, error=packet["error"], code=code, retryable=retry)
             return True
         write_study_md(folder, source, packet, got.get("playbook") or [])
-        answer = run_study(ctx, folder, _label(source))
+        photos = source["kind"] == "photos"
+        answer = run_study(ctx, folder, _label(source), photos=photos)
         text_file = folder / ("transcript.txt" if (folder / "transcript.txt").exists() else "page.txt")
         transcript = text_file.read_text(encoding="utf-8")[:100_000] if text_file.exists() else ""
         site = packet.get("site") or {}
@@ -329,9 +444,17 @@ def study_next(ctx: Ctx) -> bool:
             title=answer.get("title") or site.get("title") or "", creator=answer.get("creator") or site.get("uploader") or "",
             summary=answer.get("summary") or "", craft_notes=answer.get("craft_notes") or "",
             duration_s=packet.get("duration_s"), language=(packet.get("speech") or {}).get("language") or "",
-            transcript=transcript if source["kind"] != "text" else "", lessons=answer.get("lessons") or [],
+            transcript=transcript if source["kind"] not in ("text", "photos") else "", lessons=answer.get("lessons") or [],
+            **({"stats": answer.get("stats") or []} if photos else {}),
         )
-        ctx.log(f"study {sid} done: {len(answer.get('lessons') or [])} lessons")
+        ctx.log(f"study {sid} done: {len(answer.get('lessons') or [])} lessons"
+                + (f", numbers for {len(answer.get('stats') or [])} video(s)" if photos else ""))
+        if photos:
+            try:
+                if append_post_log(source, answer.get("stats") or [], answer.get("title") or ""):
+                    ctx.log(f"study {sid}: numbers added to {POST_LOG}")
+            except OSError as e:
+                ctx.log(f"study {sid}: couldn't add the numbers to the post log: {e}")
     except Exception as e:  # noqa: BLE001 - reported back; the function retries up to 3 times
         ctx.log(f"study {sid} failed: {e}")
         try:
