@@ -79,7 +79,9 @@ USER 2026-11-18: share an ad, get a similar one for LifeMaxer ("decide per ad" b
    ask the Open Higgsfield question (global CLAUDE.md), quote the cost (`estimate_video_cost`; a 15 s
    Seedance 2.5 presenter with speech, 9:16: 480p 45 credits, 720p 105, 1080p 240) and get the owner's
    OK. Only the AI shots get generated (by the owner in Open Higgsfield, http://127.0.0.1:3000, or with
-   the Higgsfield connector after the OK). Then, the usual way:
+   the Higgsfield connector after the OK). Billing differs: the connector spends the higgsfield.ai plan
+   credits; Open Higgsfield is free software but spends the separate Higgsfield API dollar balance
+   (pay-as-you-go, top-ups from $5; Seedance 2.5 listed at $0.1177/s, about $1.77 for 15 s). Then, the usual way:
    `python tools/content_studio/deliver_video.py --footage <idea id> <clip.mp4> ...`: the clips go to
    `.tmp/content_studio/ai_footage/<idea id>/`, the remake is queued (`queue_ai_remake`), and the PC
    assembles it (kept clips, AI presenter with its own voice, app screens, end card) like any video.
