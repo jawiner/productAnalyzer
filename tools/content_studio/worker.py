@@ -279,7 +279,42 @@ def write_brief(project: Path, job: dict) -> None:
     ]
     if job.get("learnings"):
         parts += ["## What the numbers taught us (apply it)", ""] + [f"- {t}" for t in job["learnings"]] + [""]
+    if idea.get("source_id"):
+        parts += remake_brief(project, idea, job.get("reference") or {})
     (project / "BRIEF.md").write_text("\n".join(parts), encoding="utf-8")
+
+
+def remake_brief(project: Path, idea: dict, ref: dict) -> list[str]:
+    """A remake: the owner liked an ad and approved our version of it. Its format goes in the brief,
+    and its frames into reference/remake/ so the run can match layout, text size and rhythm."""
+    frames = playbook.reference_frames(idea["source_id"])
+    target = project / "reference" / "remake"
+    if frames and not target.exists():
+        target.mkdir(parents=True, exist_ok=True)
+        for f in frames:
+            shutil.copy2(f, target / f.name)
+    bp = idea.get("blueprint") or {}
+    lines = [
+        "## THIS IS A REMAKE",
+        "",
+        "The owner liked an ad and approved our version of it (the idea above). Build it in the reference's",
+        "FORMAT: its beat order and timing, its kind of hook, its text style and size, its rhythm of cuts. Each",
+        "beat's `mirrors` says which of their beats it takes the job of. Keep it ours: never their words, footage,",
+        "music, logo, product, characters or people. The brand's rules and the hard rules still win.",
+        "",
+        f"Reference: {ref.get('title') or ''} {ref.get('url') or ''}".rstrip(),
+        f"How it's made: {ref.get('craft_notes')}" if ref.get("craft_notes") else None,
+        f"The format: {bp.get('format') or ''}",
+        f"Its hook: {bp.get('hook') or ''}",
+        "",
+        "Their beats:",
+    ]
+    for b in bp.get("their_beats") or []:
+        text = f" Text: {b.get('text_on_screen')}." if b.get("text_on_screen") else ""
+        lines.append(f"- {b.get('start_s')}-{b.get('end_s')} s, {b.get('job')}: {b.get('visual')}.{text} Audio: {b.get('audio')}")
+    lines += ["", f"Frames of the reference: `reference/remake/` ({len(frames)} stills, named by time: t000150.png = 1.5 s). "
+              "Look at them before you plan." if frames else "(The reference's frames are no longer on this PC; work from the beats.)", ""]
+    return [l for l in lines if l is not None]
 
 
 def run_claude(project: Path, env: dict, engine: Engine, video_id: str) -> tuple[dict | None, str]:
@@ -380,13 +415,23 @@ def run_once(env: dict) -> int:
         log(f"playbook sync failed: {e}")
     job = engine.call("claim").get("job")
     if not job:
-        # Nothing to make: study the next thing the owner sent to learn from, if any.
+        # Nothing to make: a remake the owner asked for first, then the next thing to learn from.
+        try:
+            if playbook.remake_next(playbook_ctx(env, engine)):
+                return 0
+        except Exception as e:  # e.g. the function is older than this worker; videos still work
+            log(f"remake skipped: {e}")
         try:
             studied = playbook.study_next(playbook_ctx(env, engine))
-        except Exception as e:  # e.g. the function is older than this worker; videos still work
+        except Exception as e:
             log(f"playbook study skipped: {e}")
             studied = False
         if studied:
+            # A /remake link has just been studied: its remake can go now, in the same pass.
+            try:
+                playbook.remake_next(playbook_ctx(env, engine))
+            except Exception as e:
+                log(f"remake skipped: {e}")
             try:
                 playbook.sync_playbook(playbook_ctx(env, engine))
             except Exception as e:

@@ -57,6 +57,32 @@ The owner sends marketing advice; approved lessons steer every video after that.
    daily videos apply it and report `playbook_used` (the tab counts "used in N videos"). The
    morning ideas get the lessons in their prompt.
 
+## Remakes (our own ad in the format of one the owner likes)
+USER 2026-11-18: share an ad, get a similar one for LifeMaxer ("decide per ad" between routes).
+1. **Ask:** `/remake` + a video link (or a video file with `/remake` as its caption) on the video bot,
+   **🎬 Make one like this** under a studied video, or the tick box in Content → Playbook.
+   Only videos (not text or web pages). The source is studied first if it's new (lessons too).
+2. **Write it** (video PC, `playbook.remake_next()`, before studies when no video job is waiting):
+   reuses the study folder (frames, transcript, cuts) or prepares it again, writes `REMAKE.md`
+   (measurements + brand voice + playbook + recent titles), headless Claude with Read/Glob only
+   and `remake_rules.md` returns the blueprint (their beats with times, the format, the hook),
+   our idea (beats with `mirrors`), and the route (`motion` or `ai_footage` with a reason).
+   Rule: borrow the format, never their words (no run of 4+ words), footage, music, logo or people.
+3. **Decide:** a remake card on Telegram / Today → **Remakes**: **🎨 Make it (motion graphics)**,
+   **🎥 With AI footage**, Change, Skip (the recommended route first). Remakes are extra videos:
+   they don't count toward `videos_per_day` or park the morning ideas.
+4. **Motion graphics:** the normal video job; `BRIEF.md` gets a "THIS IS A REMAKE" section and the
+   reference frames in `reference/remake/`.
+5. **AI footage** (status `ai_waiting`; credits are never spent unattended): in a session, the owner
+   says "make the AI remake". Then:
+   `python tools/content_studio/deliver_video.py --list` → `--show <idea id>` (beats, format, brand);
+   ask the Open Higgsfield question (global CLAUDE.md), estimate the Higgsfield cost and get the
+   owner's OK, generate the clips, assemble a Reelkit project (template + voice like the daily videos)
+   with `out/final.mp4`, `out/review.mp4`, `out/caption.txt`, then
+   `python tools/content_studio/deliver_video.py --idea <id> --project <folder>`: it checks the files,
+   approves the idea (`adopt_idea`), uploads, and the video goes to Telegram for approval and posting.
+   Check the files first: once adopted, a video row stuck in `making` returns to the PC's queue after 3 h.
+
 ## Setup (once)
 1. Video PC: `python tools/content_studio/connect_worker.py` from the wat-framework folder.
    It writes `tools/content_studio/.env` (git-ignored) without printing the key, checks the

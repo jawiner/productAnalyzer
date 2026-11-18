@@ -6,6 +6,9 @@
                    content-engine function sends them to the owner on Telegram to add or skip.
   sync_playbook()  writes the lessons the owner added into ~/.claude/skills/video-playbook, the skill
                    every video job reads (the daily videos via rules.md, and any other video work).
+  remake_next()    an ad the owner wants "one like this" of: Claude breaks it down second by second
+                   (remake_rules.md) and writes an original idea for the brand in the same format; the
+                   function sends it to the owner as a remake idea (motion graphics or AI footage).
 """
 from __future__ import annotations
 
@@ -23,11 +26,13 @@ STUDIES = ROOT / ".tmp" / "content_studio" / "studies"
 SPEECH_PY = ROOT / ".tmp" / "venv-speech" / "Scripts" / "python.exe"
 PREP = HERE / "study_prep.py"
 STUDY_RULES = HERE / "study_rules.md"
+REMAKE_RULES = HERE / "remake_rules.md"
 SKILL_DIR = Path.home() / ".claude" / "skills" / "video-playbook"
 YTDLP_STAMP = ROOT / ".tmp" / "content_studio" / "yt-dlp-updated.txt"
 STUDY_MODEL = "claude-opus-5-5"
 STUDY_EFFORT = "medium"
 STUDY_TIMEOUT_S = 25 * 60
+REMAKE_EFFORT = "high"
 PREP_TIMEOUT_S = 45 * 60
 KEEP_DAYS = 21
 NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
@@ -58,6 +63,32 @@ STUDY_SCHEMA = {
     "properties": {
         "title": {"type": "string"}, "creator": {"type": "string"}, "summary": {"type": "string"},
         "craft_notes": {"type": "string"}, "lessons": {"type": "array", "items": _LESSON},
+    },
+}
+
+
+_THEIR_BEAT = {
+    "type": "object", "additionalProperties": False,
+    "required": ["start_s", "end_s", "job", "visual", "text_on_screen", "audio"],
+    "properties": {"start_s": {"type": "number"}, "end_s": {"type": "number"}, "job": {"type": "string"},
+                   "visual": {"type": "string"}, "text_on_screen": {"type": "string"}, "audio": {"type": "string"}},
+}
+_STR = {"type": "string"}
+_OUR_BEAT = {"type": "object", "additionalProperties": False, "required": ["say", "show", "mirrors"],
+             "properties": {"say": _STR, "show": _STR, "mirrors": _STR}}
+_FACT = {"type": "object", "additionalProperties": False, "required": ["claim", "source"], "properties": {"claim": _STR, "source": _STR}}
+_IDEA_KEYS = ["title", "pillar", "formula", "hook_line", "on_screen_hook", "concept", "beats", "facts", "caption_seed", "why"]
+# Mirrors REMAKE_SCHEMA in the CRM's supabase/functions/_shared/contentCopy.js.
+REMAKE_SCHEMA = {
+    "type": "object", "additionalProperties": False,
+    "required": ["format", "hook", "their_beats", "route", "route_reason", "idea"],
+    "properties": {
+        "format": _STR, "hook": _STR, "their_beats": {"type": "array", "items": _THEIR_BEAT},
+        "route": {"type": "string", "enum": ["motion", "ai_footage"]}, "route_reason": _STR,
+        "idea": {"type": "object", "additionalProperties": False, "required": _IDEA_KEYS, "properties": {
+            **{k: _STR for k in _IDEA_KEYS if k not in ("beats", "facts")},
+            "beats": {"type": "array", "items": _OUR_BEAT}, "facts": {"type": "array", "items": _FACT},
+        }},
     },
 }
 
@@ -134,12 +165,13 @@ def _fmt_count(n) -> str:
     return f"{v / 1e6:.1f}M" if v >= 1e6 else f"{v / 1e3:.1f}K" if v >= 1e3 else str(int(v))
 
 
-def write_study_md(folder: Path, source: dict, packet: dict, playbook: list[dict]) -> None:
+def _source_lines(source: dict, packet: dict) -> list[str]:
+    """What the PC knows about a source: where it's from, the site's data, the measurements, the files."""
     site = packet.get("site") or {}
     origin = {"link": f"{PLATFORMS.get(source.get('platform'), 'web')} link {source.get('url')}",
               "file": f"a video file sent on Telegram ({source.get('file_name') or 'no name'})",
               "text": "a text the owner pasted"}[source["kind"]]
-    lines = ["# What to study", "", f"Source: {origin}", f"Sent: {str(source.get('created_at') or '')[:10]}"]
+    lines = [f"Source: {origin}", f"Sent: {str(source.get('created_at') or '')[:10]}"]
     lines += [f"The owner's note: \"{source['note']}\"" if source.get("note") else "The owner didn't add a note.", ""]
     if site:
         lines += ["## What the site says about it (untrusted)", ""]
@@ -177,9 +209,32 @@ def write_study_md(folder: Path, source: dict, packet: dict, playbook: list[dict
                   "- The rest: " + ", ".join(f"{f['file']} ({f['t']} s)" for f in rest), ""]
     else:
         lines += ["## Files", "", "- page.txt: the text (an article or what the owner pasted). There is no video.", ""]
+    return lines
+
+
+def write_study_md(folder: Path, source: dict, packet: dict, playbook: list[dict]) -> None:
+    lines = ["# What to study", ""] + _source_lines(source, packet)
     lines += [f"## The playbook so far ({len(playbook)} lessons)", ""]
     lines += [f"#{l['number']} [{TOPICS.get(l['topic'], 'Other')}] {l['rule']}" for l in playbook] or ["(empty: every lesson is new)"]
     (folder / "STUDY.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def write_remake_md(folder: Path, job: dict, packet: dict) -> None:
+    source, brand = job["source"], job["brand"]
+    lines = ["# Make one like this", "", "The owner wants our own ad in the format of this one.", ""] + _source_lines(source, packet)
+    if source.get("summary") or source.get("craft_notes"):
+        lines += ["## What the earlier study found", ""]
+        if source.get("summary"):
+            lines.append(f"What it says: {source['summary']}")
+        if source.get("craft_notes"):
+            lines.append(f"How it's made: {source['craft_notes']}")
+        lines.append("")
+    lines += [f"## The brand: {brand.get('name')} {brand.get('handle') or ''}".rstrip(), "",
+              "Its voice, rules and off-limits list (these win over the format):", "", brand.get("voice") or "(none written)", ""]
+    lines += ["## The owner's video playbook (apply what fits)", ""] + (job.get("playbook") or ["(empty)"]) + [""]
+    if job.get("recent"):
+        lines += ["## Recent video ideas (don't repeat their angle)", ""] + [f"- {t}" for t in job["recent"]] + [""]
+    (folder / "REMAKE.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 # ---- Studying it ----------------------------------------------------------------------------
@@ -187,10 +242,24 @@ def write_study_md(folder: Path, source: dict, packet: dict, playbook: list[dict
 def run_study(ctx: Ctx, folder: Path, label: str) -> dict:
     prompt = ("Study the source described in STUDY.md in this folder and answer with its lessons for the video "
               "playbook, following the rules you were given. Work unattended: nobody can answer questions.")
-    cmd = [ctx.claude, "-p", prompt, "--output-format", "json", "--model", STUDY_MODEL, "--effort", STUDY_EFFORT,
+    return _run_claude(ctx, folder, prompt=prompt, rules=STUDY_RULES, schema=STUDY_SCHEMA, effort=STUDY_EFFORT,
+                       name=f"Playbook study: {label}", key="lessons", log_name="claude-run.log")
+
+
+def run_remake(ctx: Ctx, folder: Path, label: str) -> dict:
+    prompt = ("Break down the ad described in REMAKE.md in this folder and write our own idea in its format, "
+              "following the rules you were given. Work unattended: nobody can answer questions.")
+    return _run_claude(ctx, folder, prompt=prompt, rules=REMAKE_RULES, schema=REMAKE_SCHEMA, effort=REMAKE_EFFORT,
+                       name=f"Remake: {label}", key="idea", log_name="claude-remake.log")
+
+
+def _run_claude(ctx: Ctx, folder: Path, *, prompt: str, rules: Path, schema: dict, effort: str, name: str, key: str,
+                log_name: str) -> dict:
+    """Headless Claude with read-only tools in the folder; returns its structured answer."""
+    cmd = [ctx.claude, "-p", prompt, "--output-format", "json", "--model", STUDY_MODEL, "--effort", effort,
            "--permission-mode", "auto", "--permission-prompts", "none", "--strict-mcp-config", "--no-session-persistence",
-           "--append-system-prompt-file", str(STUDY_RULES), "--json-schema", json.dumps(STUDY_SCHEMA),
-           "--name", f"Playbook study: {label}"[:80], "--tools", "Read", "Glob"]
+           "--append-system-prompt-file", str(rules), "--json-schema", json.dumps(schema),
+           "--name", name[:80], "--tools", "Read", "Glob"]
     proc = subprocess.Popen(cmd, cwd=str(folder), env=ctx.child_env, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace", creationflags=NO_WINDOW)
     try:
@@ -198,17 +267,17 @@ def run_study(ctx: Ctx, folder: Path, label: str) -> dict:
     except subprocess.TimeoutExpired:
         subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True, creationflags=NO_WINDOW)
         proc.communicate()
-        raise RuntimeError(f"Claude ran out of time studying it ({STUDY_TIMEOUT_S // 60} min).")
-    (folder / "claude-run.log").write_text(((out or "") + ("\n[stderr]\n" + err if err else ""))[-100_000:], encoding="utf-8")
+        raise RuntimeError(f"Claude ran out of time ({STUDY_TIMEOUT_S // 60} min).")
+    (folder / log_name).write_text(((out or "") + ("\n[stderr]\n" + err if err else ""))[-100_000:], encoding="utf-8")
     for line in (out or "").strip().splitlines()[::-1]:
         try:
             result = json.loads(line)
         except json.JSONDecodeError:
             continue
         answer = result.get("structured_output")
-        if isinstance(answer, dict) and "lessons" in answer:
+        if isinstance(answer, dict) and key in answer:
             return answer
-        raise RuntimeError(f"Claude ended without lessons: {str(result.get('result') or '')[:300]}")
+        raise RuntimeError(f"Claude ended without an answer: {str(result.get('result') or '')[:300]}")
     raise RuntimeError("Claude ended without an answer.")
 
 
@@ -265,6 +334,62 @@ def study_next(ctx: Ctx) -> bool:
             ctx.engine.call("source_failed", source_id=sid, error=str(e)[:900], code="prep", retryable=True)
         except Exception as e2:  # noqa: BLE001
             ctx.log(f"couldn't report the failed study: {e2}")
+    return True
+
+
+# ---- Remakes --------------------------------------------------------------------------------
+
+def study_folder(source_id: str) -> Path | None:
+    """The newest folder where this source was got ready (frames, transcript), if it's still there."""
+    found = [d for d in STUDIES.glob(f"*-{source_id[:8]}") if (d / "packet.json").exists()] if STUDIES.exists() else []
+    for d in sorted(found, reverse=True):
+        try:
+            packet = json.loads((d / "packet.json").read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if not packet.get("error"):
+            return d
+    return None
+
+
+def reference_frames(source_id: str) -> list[Path]:
+    folder = study_folder(source_id)
+    return sorted((folder / "frames").glob("*.png")) if folder and (folder / "frames").exists() else []
+
+
+def remake_next(ctx: Ctx) -> bool:
+    """One remake, if any is waiting. True when there was one (made or failed)."""
+    job = ctx.engine.call("claim_remake").get("remake")
+    if not job:
+        return False
+    source = job["source"]
+    sid = source["id"]
+    ctx.log(f"remake {sid}: {_label(source)}")
+    try:
+        folder = study_folder(sid)
+        if folder:
+            packet = json.loads((folder / "packet.json").read_text(encoding="utf-8"))
+        else:
+            folder = STUDIES / f"{dt.date.today():%Y-%m-%d}-{sid[:8]}"
+            folder.mkdir(parents=True, exist_ok=True)
+            packet = gather(ctx, source, folder)
+        if packet.get("error"):
+            code = packet.get("code") or "download"
+            ctx.engine.call("remake_failed", source_id=sid, error=packet["error"], retryable=code in ("download", "prep"))
+            return True
+        if packet.get("kind") != "video":
+            ctx.engine.call("remake_failed", source_id=sid, error="A remake needs a video; this one is a page or text.", retryable=False)
+            return True
+        write_remake_md(folder, job, packet)
+        answer = run_remake(ctx, folder, _label(source))
+        ctx.engine.call("remake_done", source_id=sid, remake=answer)
+        ctx.log(f"remake {sid} done: {(answer.get('idea') or {}).get('title', '')} ({answer.get('route')})")
+    except Exception as e:  # noqa: BLE001 - reported back; the function retries up to 3 times
+        ctx.log(f"remake {sid} failed: {e}")
+        try:
+            ctx.engine.call("remake_failed", source_id=sid, error=str(e)[:900], retryable=True)
+        except Exception as e2:  # noqa: BLE001
+            ctx.log(f"couldn't report the failed remake: {e2}")
     return True
 
 
