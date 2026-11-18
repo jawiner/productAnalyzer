@@ -11,8 +11,8 @@ Brand today: **LifeMaxer** (never write or say "Lifemaxing" in content).
 | Part | Place |
 |---|---|
 | Brain (ideas, Telegram, posting, stats, reviews) | Mapflow `saas/mapflow-crm`: function `supabase/functions/content-engine`, shared code `_shared/contentCopy.js` + `_shared/social.ts`, migration `20261118100000_content_engine.sql` |
-| Telegram | the Mapflow reminders bot; `lead-reminders` forwards `ct:` buttons and replies to the content engine |
-| Page | Mapflow → **Content** (`/content`, home workspace only): Today, Results, Accounts & settings |
+| Telegram | its own **video bot** (USER 2026-11-18: separate from the lead bot): secret `CONTENT_BOT_TOKEN`, webhook straight to content-engine (header secret = sha256(token + ":content-webhook"), set by `ensureContentBot()` hourly or by `worker.py --check`). A person gets content there after pressing **Start** (`alert_devices.content_bot_started_at`); before that, and for older messages, the lead bot is used and `lead-reminders` forwards its `ct:` buttons, replies and playbook links |
+| Page | Mapflow → **Content** (`/content`, home workspace only): Today, Playbook, Results, Accounts & settings (shows the video bot) |
 | Video PC | `tools/content_studio/` on this PC: `worker.py`, `rules.md`, `template/` |
 | Video projects | `lifemaxing-independent/marketing/video/daily/<date>-<slug>/` |
 
@@ -37,11 +37,11 @@ Brand today: **LifeMaxer** (never write or say "Lifemaxing" in content).
 
 ## The video playbook (learn from marketing videos)
 The owner sends marketing advice; approved lessons steer every video after that.
-1. **Send:** to @MashtechCrmBot: a TikTok / Instagram / YouTube / Facebook / X / LinkedIn /
-   Threads link, a video file (20 MB at most, a Telegram bot limit), or `/learn` + any text or
-   article link. `/learn` alone explains it; `/playbook` says how big it is. Or paste on
-   Content → **Playbook**. A message with only a business website link (no `/learn`) stays a lead
-   note: lead-reminders forwards only `C.playbookIntent` messages from content-engine owners.
+1. **Send:** to the video bot: any link, a video file (20 MB at most, a Telegram bot limit), or
+   `/learn` + text (a long text works without it). `/playbook` says how big it is; `/help` and
+   `/start` explain the bot. Or paste on Content → **Playbook**. Sent to the lead bot by habit, a
+   social video link or `/learn` still works (with a pointer to the video bot); a business website
+   link alone stays a lead note there (`C.playbookIntent`, `ownBot` only on the video bot).
 2. **Study** (video PC, `tools/content_studio/playbook.py`, when no video job is waiting):
    `study_prep.py` in the speech venv downloads with yt-dlp (+ curl_cffi, which TikTok needs),
    writes the transcript (faster-whisper: `small` tells the language, `small.en` for English,
