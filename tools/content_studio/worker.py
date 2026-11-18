@@ -455,6 +455,18 @@ def main() -> int:
         log(f"claude: {find_claude(env)}")
         log(f"template: {'OK' if (TEMPLATE / 'reelkit.json').exists() else 'MISSING'}")
         log(f"speech venv (study): {'OK' if playbook.SPEECH_PY.exists() else 'MISSING'}")
+        # The video bot: the function points its webhook at itself (the token never leaves it).
+        try:
+            bot = engine.call("bot_setup")
+            if not bot.get("configured"):
+                log("video bot: not set up (no CONTENT_BOT_TOKEN secret); content goes through the lead bot")
+            elif bot.get("username"):
+                log(f"video bot: @{bot['username']}, webhook {'OK' if bot.get('ok') else 'NOT set'}"
+                    + (f", last error: {bot['last_error']}" if bot.get("last_error") else ""))
+            else:
+                log(f"video bot: {bot.get('error') or 'not reachable'}")
+        except Exception as e:  # noqa: BLE001
+            log(f"video bot check failed: {e}")
         return 0
     if args.playbook:
         playbook.sync_playbook(playbook_ctx(env, Engine(env["CONTENT_ENGINE_URL"], env["CONTENT_WORKER_SECRET"])))
