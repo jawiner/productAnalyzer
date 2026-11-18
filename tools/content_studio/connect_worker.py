@@ -24,14 +24,22 @@ def main() -> int:
         f.write("select secret from public.content_worker_secret limit 1;")
         sql = f.name
     try:
-        out = subprocess.run(f'npx supabase db query --remote={PROJECT} --read-only -f "{sql}"', shell=True, cwd=MAPFLOW,
-                             capture_output=True, text=True, encoding="utf-8").stdout
+        # A terminal gets a table by default and an agent session gets {"rows": [...]}: ask for JSON
+        # outside agent mode, so both runs see the same plain list of rows.
+        run = subprocess.run(f'npx supabase db query --agent no --output-format json --remote={PROJECT} --read-only -f "{sql}"',
+                             shell=True, cwd=MAPFLOW, capture_output=True, text=True, encoding="utf-8")
     finally:
         Path(sql).unlink(missing_ok=True)
+    out = run.stdout or ""
     try:
-        secret = json.loads(out[out.index("{"):])["rows"][0]["secret"]
+        data = json.loads(out[min(i for i in (out.find("["), out.find("{")) if i >= 0):])
+        rows = data["rows"] if isinstance(data, dict) else data
+        secret = rows[0]["secret"]
     except Exception:
-        print("Couldn't read the worker key from the database (is the Supabase CLI signed in?).")
+        # Never print stdout here: it could hold the key. The CLI's error line is safe to show.
+        reason = next((line.strip() for line in (run.stderr or "").splitlines() if line.strip()), "no error text")
+        print("Couldn't read the worker key from the database.")
+        print("Supabase CLI said:", reason[:300])
         return 1
     if not re.fullmatch(r"[0-9a-f]{64}", secret or ""):
         print("The worker key in the database doesn't look right.")
