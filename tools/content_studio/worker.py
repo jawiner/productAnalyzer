@@ -296,7 +296,8 @@ def prepare_project(job: dict, root: Path) -> Path:
         # Keep what the last version delivered, then work on the same project.
         keep = project / "backup" / f"v{previous.get('version', video['version'] - 1)}"
         keep.mkdir(parents=True, exist_ok=True)
-        for name in ("final.mp4", "review.mp4", "cover.jpg", "caption.txt"):
+        # claude-run.log too: a retry of this version must resume its own session, not the last version's.
+        for name in ("final.mp4", "review.mp4", "cover.jpg", "caption.txt", "claude-run.log"):
             src = project / "out" / name
             if src.exists():
                 shutil.copy2(src, keep / name)
@@ -331,10 +332,12 @@ def write_brief(project: Path, job: dict) -> None:
             "## THIS IS A CHANGE REQUEST",
             "",
             "The owner watched the previous version and asked for this change. Edit the existing project in this",
-            "folder. Change only what they asked for and keep everything else as it was (use `reelkit render",
-            "--allow <frames>` if the change is local). The previous files are in `backup/`.",
+            "folder. For a small change, change only what they asked for and keep everything else as it was (use",
+            "`reelkit render --allow <frames>` if the change is local). When they ask for a redesign or a new story,",
+            "rebuild what they ask for (script, voice, scenes) in this project, reusing its components, Steppy and",
+            "the app cards. The previous files are in `backup/`. The owner's words, in full:",
             "",
-            f"> {video['change_request']}",
+            *[f"> {line}" for line in str(video["change_request"]).splitlines()],
             "",
             f"Previous caption:\n\n```\n{previous.get('caption') or ''}\n```",
             "",
@@ -452,6 +455,8 @@ def run_claude(project: Path, env: dict, engine: Engine, video_id: str, *, resum
         subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True, creationflags=NO_WINDOW)
         out, err = proc.communicate()
         stop.set()
+        (project / "out").mkdir(exist_ok=True)  # replaces an older run's log, so a retry starts fresh
+        (project / "out" / "claude-run.log").write_text(((out or "") + (err or ""))[-200_000:], encoding="utf-8")
         return {"_timeout": True}, (out or "") + (err or "")
     stop.set()
     raw = (out or "") + ("\n[stderr]\n" + err if err else "")
