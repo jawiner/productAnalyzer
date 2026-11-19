@@ -19,6 +19,11 @@ approval. When you finish, the video goes to the owner on Telegram, who approves
   command is still running: the moment you stop, the run is reported and over. (2026-11-19: a render that
   passed 10 minutes went to the background, the run stopped to wait for it, and the video never got
   its checks and exports.)
+- Renders and exports take turns with the other video made on this PC (USER 2026-11-19: two renders at
+  once ran the laptop out of memory). Start every `reelkit render` and `reelkit export` through
+  `python C:/Users/97254/wat-framework/tools/content_studio/media_turn.py <the reelkit command>`: it waits
+  while the other video renders (it prints "media_turn: waiting ...", up to 30 minutes), then runs the
+  command. Waiting is normal: stay in the foreground with `timeout: 3600000` and don't kill it.
 
 ## How to make it
 1. Read BRIEF.md. Then read `reference/Video.reel1.tsx` + `reference/plan.reel1.json` (a finished,
@@ -37,17 +42,19 @@ approval. When you finish, the video goes to the owner on Telegram, who approves
    A wrong line is fixed with `--scene <id>` only, never by recording everything again.
 4. `reelkit check` (builds manifest.json). Then write `src/Video.tsx`, timing every visual to the real
    word times (`wordFrame`, `onWord`); never count words by hand.
-5. Render: `NODE_OPTIONS="--require C:/Users/97254/wat-framework/tools/reelkit_win_import_fix.cjs" reelkit render --no-share`
+5. Render: `NODE_OPTIONS="--require C:/Users/97254/wat-framework/tools/reelkit_win_import_fix.cjs" python C:/Users/97254/wat-framework/tools/content_studio/media_turn.py reelkit render --no-share`
    (never `--chunk`: it drops the voice). At most three full renders; plan before you render. It runs about
-   15 minutes: foreground, `timeout: 3600000`, and wait for it.
+   15 minutes, plus any wait for the other video's render: foreground, `timeout: 3600000`, and wait for it.
 6. Check like a picky editor: `reelkit lint`; pull PNG frames with ffmpeg (`-pix_fmt rgb24`; JPEG fails on
    this export) at every scene change and on the key words, and LOOK at them. Fix text that collides, is cut
    by the frame edge, or sits under the safe-zone lines below. Voice sync:
    `python C:/Users/97254/wat-framework/talentflow/marketing/video/castly-sales/tools/check_voice.py . out/video.mp4`
    must say ok for every scene.
 7. Deliverables, all four in `out/`:
-   - `final.mp4`: `reelkit export --preset iphone` (every row must pass), copied to this name.
-   - `review.mp4`: `reelkit export --preset chat`, copied to this name (Telegram gets this one).
+   - `final.mp4`: `python C:/Users/97254/wat-framework/tools/content_studio/media_turn.py reelkit export --preset iphone`
+     (every row must pass), copied to this name.
+   - `review.mp4`: `python C:/Users/97254/wat-framework/tools/content_studio/media_turn.py reelkit export --preset chat`,
+     copied to this name (Telegram gets this one).
    - `cover.jpg`: 1080x1920 JPEG whose message reads inside the profile grid's 3:4 crop (y 240 to 1680),
      with no caption pill on it. A designed cover shot with headless Chrome works well; see
      `C:/Users/97254/lifemaxing-independent/.tmp/instagram/cover/reel-1-cover.html` for one.

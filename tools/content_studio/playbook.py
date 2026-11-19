@@ -22,6 +22,8 @@ import subprocess
 import time
 from pathlib import Path
 
+import media_turn
+
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 STUDIES = ROOT / ".tmp" / "content_studio" / "studies"
@@ -134,8 +136,10 @@ def _run_prep(args: list[str], folder: Path, offline: bool) -> dict:
     if offline:
         env["HF_HUB_OFFLINE"] = "1"   # the speech models are on this PC; don't ask the hub every time
     (folder / "packet.json").unlink(missing_ok=True)
-    proc = subprocess.run(args, capture_output=True, text=True, encoding="utf-8", errors="replace",
-                          timeout=PREP_TIMEOUT_S, env=env, creationflags=NO_WINDOW)
+    # The prep (download + speech model) takes GBs of memory: it takes the media turn, like a render.
+    with media_turn.turn("study prep", folder, say=lambda _m: None):
+        proc = subprocess.run(args, capture_output=True, text=True, encoding="utf-8", errors="replace",
+                              timeout=PREP_TIMEOUT_S, env=env, creationflags=NO_WINDOW)
     (folder / "prep.log").write_text((proc.stdout or "") + "\n" + (proc.stderr or "")[-20000:], encoding="utf-8")
     path = folder / "packet.json"
     if not path.exists():
@@ -415,6 +419,10 @@ def _clean_old() -> None:
 
 def study_next(ctx: Ctx) -> bool:
     """One source, if any is waiting. True when there was one (studied or failed)."""
+    if media_turn.holder():
+        # A video is rendering or exporting: the study waits for a later pass (before claiming, so the
+        # source keeps all its tries).
+        return False
     got = ctx.engine.call("claim_source")
     source = got.get("source")
     if not source:

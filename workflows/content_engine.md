@@ -220,5 +220,11 @@ usual views and breaks each into beats. It has no API or export, so nothing pull
      CPU threads all day and was first mistaken for the render.
   **Before blaming the render, check memory first:** free RAM (`Win32_OperatingSystem`) and the top
   holders by private bytes (vmmem/vmmemWSL = Docker/WSL). Below ~3 GB free, don't start a second
-  render or a study. Open: renders take turns (or one video at a time); studies wait while a video
-  renders; the worker should kill a run's render on timeout.
+  render or a study.
+- **Renders take turns (USER 2026-11-19, built the same day):** `tools/content_studio/media_turn.py` is one
+  turn (`.tmp/content_studio/media.lock`: pid, label, project) for every heavy media job. `rules.md` runs
+  `reelkit render` and `reelkit export` through it (`python .../media_turn.py reelkit render --no-share`);
+  a second one prints "media_turn: waiting ..." and waits (max 30 min, then goes anyway). A study's prep
+  takes the same turn, and a study isn't even claimed while a render holds it (so the source keeps its
+  tries). On a run's timeout the worker also stops the media job of that project through the turn's pid
+  (the render runs under the wrapper, so its tree is whole). Two videos still build side by side.

@@ -39,6 +39,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+import media_turn
 import playbook
 
 HERE = Path(__file__).resolve().parent
@@ -466,6 +467,11 @@ def run_claude(project: Path, env: dict, engine: Engine, video_id: str, *, resum
         out, err = proc.communicate(timeout=timeout_s)
     except subprocess.TimeoutExpired:
         subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True, creationflags=NO_WINDOW)
+        # A render started from Claude's Git Bash isn't in claude.exe's process tree (2026-11-19): stop
+        # this project's media job through the turn it holds, or it keeps rendering and holding memory.
+        other = media_turn.holder()
+        if other and other.get("pid") and Path(str(other.get("project", ""))).resolve() == project.resolve():
+            subprocess.run(["taskkill", "/PID", str(other["pid"]), "/T", "/F"], capture_output=True, creationflags=NO_WINDOW)
         out, err = proc.communicate()
         stop.set()
         (project / "out").mkdir(exist_ok=True)  # replaces an older run's log, so a retry starts fresh
