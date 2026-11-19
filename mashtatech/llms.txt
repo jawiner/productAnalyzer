@@ -42,7 +42,7 @@ Mashtech is a one-person software studio in Israel, led by Yanir Mashta, buildin
 ## עבודות
 
 - [וילה אל נוף הפנורמה](https://www.villa-el-nof-panorama.co.il/): אתר תדמית לנופש
-- [Lifemaxing](https://lifemaxing-bice.vercel.app/): פלטפורמה אישית
+- [LifeMaxer](https://lifemaxing-bice.vercel.app/): פלטפורמה אישית
 - [Castly](https://www.castly.cloud/): פתרון עסקי מותאם
 - [פיצה משטא](https://pizzamashta.vercel.app/): אתר הזמנות
 
