@@ -262,3 +262,11 @@ usual views and breaks each into beats. It has no API or export, so nothing pull
   through. From this PC: `python -c "import worker; e=worker.load_env(); worker.Engine(e['CONTENT_ENGINE_URL'], e['CONTENT_WORKER_SECRET']).call('extra_ideas', picks=2)"`
   in `tools/content_studio` (the key stays in `.env`); a fresh batch reaches Telegram in ~1-2 min.
   The next day's 06:00 batch is the usual number. Mapflow 6317724.
+- **Ideas agreed in a chat (USER 2026-11-19 22:15, "2 videos with great hooks, at least one explains
+  the app"):** write the ideas yourself in the engine's shape (title, pillar, hook_line, on_screen_hook
+  <= 60, concept <= 400 starting "Format: ...", beats say/show ~90 words for 25-35 s, sourced facts,
+  caption_seed, why), confirm them with the owner, then call worker action `make_ideas`
+  ({ideas, owner_text}) the same way as `extra_ideas`. They're saved as the owner's (the brief quotes
+  owner_text), approved and queued; today's open Telegram ideas are parked with their buttons closed.
+  Mapflow cbaf426. An app explainer still keeps the brand name for the end and walks Steppy through
+  the real Today page (Example screens), so it explains without turning into a pitch.
