@@ -2,7 +2,7 @@
 
 The daily loop lives in Mapflow (`saas/mapflow-crm`, function `content-engine`, page `/content`):
 
-1. 09:00 Israel time: Claude writes 3 video ideas for each active brand → Telegram (the Mapflow reminders bot).
+1. At the brand's idea hour (LifeMaxer: 06:00 Israel time): Claude writes the video ideas for each active brand → Telegram (the Mapflow reminders bot).
 2. The owner taps **Make this** (or replies with a change).
 3. **This worker** (every 2 minutes on this PC, up to two videos side by side) claims the approved idea, builds a Reelkit project
    from `template/`, writes `BRIEF.md`, and runs Claude Code headless with `rules.md`:

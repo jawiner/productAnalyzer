@@ -17,7 +17,7 @@ Brand today: **LifeMaxer** (never write or say "Lifemaxing" in content).
 | Video projects | `lifemaxing-independent/marketing/video/daily/<date>-<slug>/` |
 
 ## The daily loop
-1. **Ideas (idea hour, default 09:00 Israel).** The hourly job (`content-engine-hourly`, minute 4)
+1. **Ideas (idea hour, default 09:00 Israel; LifeMaxer 06:00 since 2026-11-19, USER).** The hourly job (`content-engine-hourly`, minute 4)
    writes 3 ideas per active brand from the brand voice, themes, past videos and their results.
    Each idea goes to Telegram with hook, script beats and sources, and buttons **Make this /
    Change / Skip**. Change = reply to the message with what to change; a new version comes back.
@@ -195,3 +195,23 @@ usual views and breaks each into beats. It has no API or export, so nothing pull
   so a pass that finds both video slots busy exits in a second. Re-running `setup_schedule.ps1`
   (`Register-ScheduledTask -Force`) does NOT stop a pass that is already running (tested with a
   throwaway task), so the schedule can be changed mid-video.
+- **The slow day (2026-11-19): two videos took ~6 hours instead of ~2.** What went wrong, in order:
+  1. A ~14 min render passed Bash's 10-min cap, went to the background and the run reported
+     "failed" (fixed: `BASH_MAX_TIMEOUT_MS`, foreground rule).
+  2. The retry started from zero instead of finishing the rendered video (fixed: retries resume).
+  3. Side by side was switched on after checking CPU only, not memory. On this 16 GB laptop the
+     memory was already taken: Docker Desktop's VM with a local Supabase (~12 GB, up for days), VS
+     Code + several Claude sessions (~4 GB), a playbook study (`study_prep.py`, ~5 GB). Two renders on
+     top made Windows swap to disk (42 GB committed): renders went from 0.8 to 3-7 s a frame, one
+     render was killed out of memory (exit 137), and runs hit the 150-min limit.
+  4. Telegram cut a ~17,000-character change reply into parts; only the first ~4,000 characters
+     reached the PC (fixed: parts are appended, the claim waits 60 s).
+  5. Stopping a run with `taskkill /T` on claude.exe does NOT stop its `reelkit render` (Git Bash
+     breaks the parent chain), so a "stopped" render kept eating memory. Find it by start time
+     (`node ... reelkit.mjs render`) and stop it too. The worker's timeout kill has the same gap.
+  6. A Vite dev server left running from an earlier session (port 5197, since 2026-11-17) used ~2
+     CPU threads all day and was first mistaken for the render.
+  **Before blaming the render, check memory first:** free RAM (`Win32_OperatingSystem`) and the top
+  holders by private bytes (vmmem/vmmemWSL = Docker/WSL). Below ~3 GB free, don't start a second
+  render or a study. Open: renders take turns (or one video at a time); studies wait while a video
+  renders; the worker should kill a run's render on timeout.
