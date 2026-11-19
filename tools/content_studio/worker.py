@@ -350,6 +350,19 @@ def write_brief(project: Path, job: dict) -> None:
                    ensure_ascii=False, indent=2),
         "```",
         "",
+    ]
+    if idea.get("owner_text"):
+        # An idea the owner wrote themselves (Content page or /idea): the JSON above is Claude's write-up of it.
+        parts += [
+            "## The owner wrote this idea themselves",
+            "",
+            "Their words are below. The idea above is a write-up of them; where the two differ, follow the owner's",
+            "words (lines they wrote to be said are said as written), within the brand's rules.",
+            "",
+            *[f"> {line}" for line in str(idea["owner_text"]).splitlines()],
+            "",
+        ]
+    parts += [
         "## The brand (voice, rules, off-limits)",
         "",
         brand.get("voice") or "",
