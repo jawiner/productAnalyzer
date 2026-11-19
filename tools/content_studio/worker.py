@@ -285,6 +285,17 @@ def continue_prompt(reason: str) -> str:
             "pass their checks.")
 
 
+def resume_note(project: Path) -> str:
+    """The owner's instruction for the next retry (out/RESUME_NOTE.md), used once, e.g. "ship the render you
+    have, don't render again" (USER 2026-11-19). Renamed after it's read so later retries don't repeat it."""
+    note = project / "out" / "RESUME_NOTE.md"
+    if not note.exists():
+        return ""
+    text = note.read_text(encoding="utf-8").strip()
+    note.replace(note.with_name("RESUME_NOTE.used.md"))
+    return f"\n\nThe owner's instruction for this run (it wins over the usual steps where they differ):\n{text}" if text else ""
+
+
 def prepare_project(job: dict, root: Path) -> Path:
     video, idea = job["video"], job["idea"]
     again = retry_folder(job)
@@ -594,7 +605,7 @@ def make_video(env: dict, engine: Engine, job: dict) -> int:
             # A retry: carry on in the last run's folder (and its Claude session) instead of starting over.
             engine.progress(video["id"], "Picking up the last run")
             result, raw = run_claude(project, env, engine, video["id"], resume=last_session(project),
-                                     prompt=continue_prompt(video.get("error") or ""))
+                                     prompt=continue_prompt(video.get("error") or "") + resume_note(project))
         else:
             engine.progress(video["id"], "Starting")
             result, raw = run_claude(project, env, engine, video["id"])

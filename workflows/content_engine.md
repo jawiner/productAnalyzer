@@ -228,3 +228,7 @@ usual views and breaks each into beats. It has no API or export, so nothing pull
   takes the same turn, and a study isn't even claimed while a render holds it (so the source keeps its
   tries). On a run's timeout the worker also stops the media job of that project through the turn's pid
   (the render runs under the wrapper, so its tree is whole). Two videos still build side by side.
+- **Steering a retry:** put the owner's instruction in `out/RESUME_NOTE.md` of the project and re-queue the
+  video with `attempts` > 1 counted from 1 (SQL: status 'queued', attempts 1, project_dir set); the retry adds
+  the note to its prompt and renames it `RESUME_NOTE.used.md`. Used 2026-11-19 to ship Start Monday's
+  finished 12:12 render instead of a third slow render.
