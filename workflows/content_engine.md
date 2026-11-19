@@ -256,3 +256,9 @@ usual views and breaks each into beats. It has no API or export, so nothing pull
   brand's clock (`C.POST_HOURS`, `content_brands.timezone`); a time outside waits for 09:00. With a
   9:00 post, the next two land at 14:00 and 19:00. Mapflow 28311fd. To move a waiting post by hand,
   set `content_posts.next_check_at` while its status is 'queued'.
+- **Extra videos on request (USER 2026-11-19 22:00, "give me ideas now so you can work and in the
+  morning the videos will be ready"):** the day's goal is `videos_per_day` + `content_brands.extra_picks`
+  on `extra_picks_on` only (`C.dayGoal`); without it a batch after the day's picks lets only one more
+  through. From this PC: `python -c "import worker; e=worker.load_env(); worker.Engine(e['CONTENT_ENGINE_URL'], e['CONTENT_WORKER_SECRET']).call('extra_ideas', picks=2)"`
+  in `tools/content_studio` (the key stays in `.env`); a fresh batch reaches Telegram in ~1-2 min.
+  The next day's 06:00 batch is the usual number. Mapflow 6317724.
