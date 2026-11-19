@@ -21,6 +21,13 @@ Brand today: **LifeMaxer** (never write or say "Lifemaxing" in content).
    writes 3 ideas per active brand from the brand voice, themes, past videos and their results.
    Each idea goes to Telegram with hook, script beats and sources, and buttons **Make this /
    Change / Skip**. Change = reply to the message with what to change; a new version comes back.
+   **The owner's own ideas (2026-11-19):** "Add your idea" on the Content page, or `/idea <text>` on
+   the video bot. The row is saved at once (`origin = 'owner'`, `owner_text` = their words, status
+   `revising`), Claude writes it up in the background (`C.ownIdeaPrompt`: their lines word for word,
+   brand rules and no made-up facts still win), then it's offered on Telegram like any idea, or with
+   "Write it up and make it" goes straight to the PC. It counts toward `videos_per_day`. A write-up
+   that never comes back is offered as written after 15 min (hourly job). `BRIEF.md` quotes
+   `owner_text` under the write-up, and the owner's words win where they differ.
 2. **Make.** `WAT-ContentStudio` (Task Scheduler, every 2 min, wakes the PC, runs may overlap)
    runs `worker.py --once`: it takes one of two video slots (`worker.lock`, `worker-2.lock`; two
    videos are made side by side, USER 2026-11-19) and claims the approved idea, copies `template/` (or the previous version's
