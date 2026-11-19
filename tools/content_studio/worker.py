@@ -56,6 +56,8 @@ DEFAULT_ROOT = Path("C:/Users/97254/lifemaxing-independent/marketing/video/daily
 MODEL = "claude-opus-5-5"
 EFFORT = "high"
 CLAUDE_TIMEOUT_S = 150 * 60
+BASH_CAP_MS = 120 * 60 * 1000   # one Bash command's limit in the run: a render plus a wait for the other one
+LOW_MEMORY_GB = 3.0   # a render starting with less swaps to disk (2026-11-19: 0.8 s a frame became 3-7 s)
 NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 
 RESULT_SCHEMA = {
@@ -223,8 +225,9 @@ def child_env() -> dict:
         env[f"GIT_CONFIG_VALUE_{i}"] = prefix
     env["PYTHONUTF8"] = "1"
     # A full render takes ~15 min. With Bash's default 10-min cap it went to the background and the run
-    # stopped to wait for it (2026-11-19), so a command may run in the foreground for up to an hour.
-    env["BASH_MAX_TIMEOUT_MS"] = str(60 * 60 * 1000)
+    # stopped to wait for it (2026-11-19). A slow render (40-60 min) plus its wait for the other video's
+    # render passed the next cap of an hour and was killed, so a command may now run for two hours.
+    env["BASH_MAX_TIMEOUT_MS"] = str(BASH_CAP_MS)
     return env
 
 
@@ -473,7 +476,31 @@ def run_claude(project: Path, env: dict, engine: Engine, video_id: str, *, resum
             minutes = int((time.time() - started) / 60)
             engine.progress(video_id, f"Claude is making it ({minutes} min)")
 
+    def memory_watch():
+        # USER 2026-11-19: tell me before a render when memory is short. The turn's lock holds the memory
+        # free when this project's render took it; one note per run is enough.
+        seen = None
+        while not stop.wait(15):
+            info = media_turn.holder() or {}
+            if not str(info.get("label", "")).startswith("reelkit render") or info.get("since") == seen:
+                continue
+            try:
+                if Path(str(info.get("project", ""))).resolve() != project.resolve():
+                    continue
+            except OSError:
+                continue
+            seen = info.get("since")
+            free = float(info.get("free_gb") or 0)
+            if 0 < free < LOW_MEMORY_GB:
+                log(f"job {video_id}: render starts with {free:.1f} GB free; telling the owner")
+                try:
+                    engine.call("low_memory", video_id=video_id, free_gb=free)
+                except Exception as e:  # noqa: BLE001 - a missed note mustn't stop the video
+                    log(f"low-memory note failed: {e}")
+                return
+
     threading.Thread(target=beat, daemon=True).start()
+    threading.Thread(target=memory_watch, daemon=True).start()
     try:
         out, err = proc.communicate(timeout=timeout_s)
     except subprocess.TimeoutExpired:

@@ -31,7 +31,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 STATE = HERE.parent.parent / ".tmp" / "content_studio"
 LOCK = Path(os.environ.get("MEDIA_TURN_LOCK") or STATE / "media.lock")   # the override is for tests
-MAX_WAIT_S = 30 * 60    # a render alone is ~15 min, so the Bash 60-min cap holds the wait plus our own render
+MAX_WAIT_S = 60 * 60    # the other render can take 40-60 min when memory is short; the Bash cap is 120 min
 POLL_S = 10
 TELL_EVERY_S = 300
 NO_WINDOW = 0x08000000 if os.name == "nt" else 0
@@ -98,8 +98,9 @@ def try_take(label: str, project: Path) -> bool:
                 LOCK.unlink()
             continue
         with os.fdopen(fd, "w", encoding="utf-8") as f:
+            # free_gb is the memory the job starts with: the worker warns the owner when a render starts low.
             json.dump({"pid": os.getpid(), "label": label, "project": str(project),
-                       "since": dt.datetime.now().isoformat(timespec="seconds")}, f)
+                       "since": dt.datetime.now().isoformat(timespec="seconds"), "free_gb": round(free_gb(), 1)}, f)
         return True
     return False
 

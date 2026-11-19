@@ -13,8 +13,9 @@ approval. When you finish, the video goes to the owner on Telegram, who approves
 - Don't install or update anything (skip `reelkit update` installs). Don't log in to the Reelkit library;
   everything you need is in `assets/`.
 - Skip every "show the user and wait" checkpoint in the reelkit skill: the brief is the approved plan.
-- Run every command in the foreground and wait for it. A full render takes about 15 minutes on this PC,
-  so give `reelkit render` and `reelkit export` the Bash `timeout: 3600000` (the limit here is 60 minutes).
+- Run every command in the foreground and wait for it. A full render takes about 15 minutes on this PC
+  (40-60 when memory is short), so give `reelkit render` and `reelkit export` the Bash `timeout: 7200000`
+  (the limit here is 120 minutes).
   Never use `run_in_background`, `&`, Monitor or a background wait loop, and never end your turn while a
   command is still running: the moment you stop, the run is reported and over. (2026-11-19: a render that
   passed 10 minutes went to the background, the run stopped to wait for it, and the video never got
@@ -22,8 +23,11 @@ approval. When you finish, the video goes to the owner on Telegram, who approves
 - Renders and exports take turns with the other video made on this PC (USER 2026-11-19: two renders at
   once ran the laptop out of memory). Start every `reelkit render` and `reelkit export` through
   `python C:/Users/97254/wat-framework/tools/content_studio/media_turn.py <the reelkit command>`: it waits
-  while the other video renders (it prints "media_turn: waiting ...", up to 30 minutes), then runs the
-  command. Waiting is normal: stay in the foreground with `timeout: 3600000` and don't kill it.
+  while the other video renders (it prints "media_turn: waiting ...", up to 60 minutes), then runs the
+  command. Waiting is normal: stay in the foreground with `timeout: 7200000` and don't kill it.
+  This is not optional: never run `reelkit render` or `reelkit export` without it, not even to "save
+  time", and not in a resumed run that rendered directly before. (2026-11-19: one run rendered on its own
+  while the other video rendered, and both crawled.)
 
 ## How to make it
 1. Read BRIEF.md. Then read `reference/Video.reel1.tsx` + `reference/plan.reel1.json` (a finished,
@@ -42,14 +46,25 @@ approval. When you finish, the video goes to the owner on Telegram, who approves
    A wrong line is fixed with `--scene <id>` only, never by recording everything again.
 4. `reelkit check` (builds manifest.json). Then write `src/Video.tsx`, timing every visual to the real
    word times (`wordFrame`, `onWord`); never count words by hand.
-5. Render: `NODE_OPTIONS="--require C:/Users/97254/wat-framework/tools/reelkit_win_import_fix.cjs" python C:/Users/97254/wat-framework/tools/content_studio/media_turn.py reelkit render --no-share`
-   (never `--chunk`: it drops the voice). At most three full renders; plan before you render. It runs about
-   15 minutes, plus any wait for the other video's render: foreground, `timeout: 3600000`, and wait for it.
-6. Check like a picky editor: `reelkit lint`; pull PNG frames with ffmpeg (`-pix_fmt rgb24`; JPEG fails on
-   this export) at every scene change and on the key words, and LOOK at them. Fix text that collides, is cut
-   by the frame edge, or sits under the safe-zone lines below. Voice sync:
+5. Stills first, then ONE full render (USER 2026-11-19: every full render is 15 minutes, 40-60 when
+   memory is short, and the slow day re-rendered whole films to fix things a still would have shown).
+   - `NODE_OPTIONS="--require C:/Users/97254/wat-framework/tools/reelkit_win_import_fix.cjs" reelkit preview`
+     writes `out/preview/`: two frames per scene, the frames either side of every scene change and
+     `sheet.jpg`. It takes a minute or two and doesn't need the turn. Look at the sheet, then at every frame:
+     text that collides or is cut by the frame edge, text under the safe-zone lines below, the hook whole on
+     frame 1, each scene showing what its words say, the end card. Fix the code and preview again until
+     every still is right. Layout problems are fixed here, never by rendering again.
+   - Then render: `NODE_OPTIONS="--require C:/Users/97254/wat-framework/tools/reelkit_win_import_fix.cjs" python C:/Users/97254/wat-framework/tools/content_studio/media_turn.py reelkit render --no-share`
+     (never `--chunk`: it drops the voice). Foreground, `timeout: 7200000`, and wait for it.
+   - One full render per video. A second one only when the finished video is really broken in a way the
+     stills couldn't show (voice out of sync, missing sound, a scene that plays wrong); never a third. A
+     change request starts again from the stills: preview, fix, one render.
+6. Check the finished video like a picky editor: `reelkit lint`; pull PNG frames with ffmpeg
+   (`-pix_fmt rgb24`; JPEG fails on this export) on the key words and the last frame, and LOOK at them.
+   Voice sync:
    `python C:/Users/97254/wat-framework/talentflow/marketing/video/castly-sales/tools/check_voice.py . out/video.mp4`
-   must say ok for every scene.
+   must say ok for every scene. Small things that slipped past the stills (a few pixels, a slightly early
+   card) are not worth a second render; see step 5.
 7. Deliverables, all four in `out/`:
    - `final.mp4`: `python C:/Users/97254/wat-framework/tools/content_studio/media_turn.py reelkit export --preset iphone`
      (every row must pass), copied to this name.

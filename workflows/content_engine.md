@@ -193,8 +193,8 @@ usual views and breaks each into beats. It has no API or export, so nothing pull
   default 10-min cap moved it to the background, the headless run ended its turn to wait, and with
   `--json-schema` ending the turn means reporting: it said "failed" with a finished `out/video.mp4`
   and no exports. The worker then started over in a new `-2` folder. Fixes: `child_env()` sets
-  `BASH_MAX_TIMEOUT_MS=3600000` and `rules.md` says to run render/export in the foreground with
-  `timeout: 3600000`; a run that stops with the render made but not exported is resumed once in
+  `BASH_MAX_TIMEOUT_MS` (then 60 min, now 120: see below) and `rules.md` says to run render/export in
+  the foreground with a matching `timeout`; a run that stops with the render made but not exported is resumed once in
   the same session (`--resume`); a retry (claim attempts > 1) goes back to the failed run's
   `project_dir` and resumes its session (id from `out/claude-run.log`) instead of starting over.
 - Two videos side by side (2026-11-19): the task runs every 2 min with `MultipleInstances Parallel`;
@@ -224,7 +224,7 @@ usual views and breaks each into beats. It has no API or export, so nothing pull
 - **Renders take turns (USER 2026-11-19, built the same day):** `tools/content_studio/media_turn.py` is one
   turn (`.tmp/content_studio/media.lock`: pid, label, project) for every heavy media job. `rules.md` runs
   `reelkit render` and `reelkit export` through it (`python .../media_turn.py reelkit render --no-share`);
-  a second one prints "media_turn: waiting ..." and waits (max 30 min, then goes anyway). A study's prep
+  a second one prints "media_turn: waiting ..." and waits (max 60 min, then goes anyway). A study's prep
   takes the same turn, and a study isn't even claimed while a render holds it (so the source keeps its
   tries). On a run's timeout the worker also stops the media job of that project through the turn's pid
   (the render runs under the wrapper, so its tree is whole). Two videos still build side by side.
@@ -232,3 +232,22 @@ usual views and breaks each into beats. It has no API or export, so nothing pull
   video with `attempts` > 1 counted from 1 (SQL: status 'queued', attempts 1, project_dir set); the retry adds
   the note to its prompt and renames it `RESUME_NOTE.used.md`. Used 2026-11-19 to ship Start Monday's
   finished 12:12 render instead of a third slow render.
+- **Why a video took 40-60 min, and the three fixes (USER approved 2026-11-19, built that evening):**
+  a full render is ~15 min with free memory, and runs re-rendered whole films (up to 3) to fix layout a
+  still would have shown. (1) `rules.md` step 5: `reelkit preview` stills first (two frames per scene +
+  both sides of every cut + `out/preview/sheet.jpg`, a minute or two, no turn needed), fix until every
+  still is right, then ONE full render; a second only for something the stills can't show (voice sync,
+  sound, a scene that plays wrong), never a third. The turn is mandatory, also in a resumed run (the gym
+  redesign's resumed session rendered directly at 17:57 because its earlier turns had). (2) A render that
+  takes its turn with < 3 GB free (`LOW_MEMORY_GB`; `media.lock` records `free_gb`) makes the worker send
+  the owner one Telegram note per run (`low_memory` action: the video, the GB free, "close Docker / extra
+  Claude windows / VS Code"). (3) One Bash command may run 120 min (`BASH_CAP_MS`, rules say
+  `timeout: 7200000`): a slow render plus its wait passed the old 60-min cap at ~18:30 and the harness
+  killed it (a command over the cap goes to the background and is stopped 10 min later). The whole run
+  is still `CLAUDE_TIMEOUT_S` 150 min inside the engine's 3 h making window.
+- **Two bots, one chat (2026-11-19):** the lead bot and the content bot number their messages
+  separately in the owner's chat. Once the content bot reached the lead bot's old numbers (53-66), the
+  key `(chat_id, message_id)` refused Start Monday v2's message row (no error surfaced: the insert's
+  error wasn't read), and a reply could have matched the other bot's idea or video. Fixed in fb44efc:
+  key `(chat_id, bot, message_id)`, replies looked up in the bot they came in, a failed insert is logged.
+  A "ready" video without a `content_messages` row of kind `video` means its message wasn't recorded.
