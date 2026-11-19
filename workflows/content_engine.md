@@ -21,8 +21,9 @@ Brand today: **LifeMaxer** (never write or say "Lifemaxing" in content).
    writes 3 ideas per active brand from the brand voice, themes, past videos and their results.
    Each idea goes to Telegram with hook, script beats and sources, and buttons **Make this /
    Change / Skip**. Change = reply to the message with what to change; a new version comes back.
-2. **Make.** `WAT-ContentStudio` (Task Scheduler, every 10 min, wakes the PC) runs
-   `worker.py --once`: it claims the approved idea, copies `template/` (or the previous version's
+2. **Make.** `WAT-ContentStudio` (Task Scheduler, every 2 min, wakes the PC, runs may overlap)
+   runs `worker.py --once`: it takes one of two video slots (`worker.lock`, `worker-2.lock`; two
+   videos are made side by side, USER 2026-11-19) and claims the approved idea, copies `template/` (or the previous version's
    project for a change request), writes `BRIEF.md`, and runs Claude Code headless
    (Opus 5.5, high effort, 150 min limit) with `rules.md` as the system prompt. Deliverables:
    `out/final.mp4`, `out/review.mp4`, `out/cover.jpg`, `out/caption.txt`. The worker checks them
@@ -189,3 +190,8 @@ usual views and breaks each into beats. It has no API or export, so nothing pull
   `timeout: 3600000`; a run that stops with the render made but not exported is resumed once in
   the same session (`--resume`); a retry (claim attempts > 1) goes back to the failed run's
   `project_dir` and resumes its session (id from `out/claude-run.log`) instead of starting over.
+- Two videos side by side (2026-11-19): the task runs every 2 min with `MultipleInstances Parallel`;
+  the worker holds `worker.lock` or `worker-2.lock` per video and `playbook.lock` for studies and remakes,
+  so a pass that finds both video slots busy exits in a second. Re-running `setup_schedule.ps1`
+  (`Register-ScheduledTask -Force`) does NOT stop a pass that is already running (tested with a
+  throwaway task), so the schedule can be changed mid-video.

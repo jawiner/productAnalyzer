@@ -4,7 +4,7 @@ The daily loop lives in Mapflow (`saas/mapflow-crm`, function `content-engine`, 
 
 1. 09:00 Israel time: Claude writes 3 video ideas for each active brand → Telegram (the Mapflow reminders bot).
 2. The owner taps **Make this** (or replies with a change).
-3. **This worker** (every 10 minutes on this PC) claims the approved idea, builds a Reelkit project
+3. **This worker** (every 2 minutes on this PC, up to two videos side by side) claims the approved idea, builds a Reelkit project
    from `template/`, writes `BRIEF.md`, and runs Claude Code headless with `rules.md`:
    script → Gemini voice → animation → render → checks → `out/final.mp4`, `review.mp4`, `cover.jpg`,
    `caption.txt`. It uploads them; the function sends the video to Telegram.
@@ -21,7 +21,7 @@ The daily loop lives in Mapflow (`saas/mapflow-crm`, function `content-engine`, 
   is git-ignored because this repo is public: it lives on this PC only. Steppy poses are also in
   the LifeMaxer repo (`src/assets/mascot/`); the music and sound effects come back with
   `reelkit assets pull`.
-- `setup_schedule.ps1`: registers the `WAT-ContentStudio` task (every 10 min, wakes from sleep).
+- `setup_schedule.ps1`: registers the `WAT-ContentStudio` task (every 2 min, runs may overlap, wakes from sleep).
 - `.env` (git-ignored): `CONTENT_ENGINE_URL`, `CONTENT_WORKER_SECRET`, optional `CONTENT_VIDEO_ROOT`.
 - Logs: `wat-framework/.tmp/content_studio/worker.log`; each video's Claude transcript is in
   `<project>/out/claude-run.log`. Projects: `lifemaxing-independent/marketing/video/daily/`.

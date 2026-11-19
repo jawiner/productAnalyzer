@@ -1,6 +1,6 @@
 """Content studio worker: makes the videos the owner approved on Telegram.
 
-Runs on the video PC from Task Scheduler every 10 minutes (see setup_schedule.ps1):
+Runs on the video PC from Task Scheduler every 2 minutes, up to two videos at once (see setup_schedule.ps1):
   1. asks the content-engine function for the next approved idea (or change request)
   2. builds a Reelkit project for it (a copy of the template, or the previous version's
      project for a change), writes BRIEF.md
@@ -43,7 +43,11 @@ import playbook
 
 HERE = Path(__file__).resolve().parent
 STATE = HERE.parent.parent / ".tmp" / "content_studio"
-LOCK = STATE / "worker.lock"
+# Two videos can be made side by side (USER 2026-11-19: "make both videos side by side"): Claude's build
+# (~25 min) barely uses the CPU, so the second video doesn't wait for the first. Each pass takes a free
+# slot; a pass that finds both taken only does playbook work. Studies and remakes have their own lock.
+VIDEO_SLOTS = [STATE / "worker.lock", STATE / "worker-2.lock"]
+PLAYBOOK_LOCK = STATE / "playbook.lock"
 LOG = STATE / "worker.log"
 TEMPLATE = HERE / "template"
 RULES = HERE / "rules.md"
@@ -152,17 +156,42 @@ def pid_alive(pid: int) -> bool:
         return False
 
 
-def take_lock() -> bool:
+def take(lock: Path) -> bool:
+    """Take a lock file for this process. A lock whose process has ended is taken over."""
     STATE.mkdir(parents=True, exist_ok=True)
-    if LOCK.exists():
+    for _ in range(2):
         try:
-            pid = int(LOCK.read_text().strip() or 0)
-        except ValueError:
-            pid = 0
-        if pid and pid_alive(pid):
-            return False
-    LOCK.write_text(str(os.getpid()))
-    return True
+            fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            try:
+                pid = int(lock.read_text().strip() or 0)
+                age = time.time() - lock.stat().st_mtime
+            except (ValueError, OSError):
+                pid, age = 0, 0.0
+            # No pid yet = another pass created it a moment ago and is about to write it.
+            if (pid and pid_alive(pid)) or (not pid and age < 30):
+                return False
+            try:
+                lock.unlink()
+            except FileNotFoundError:
+                pass
+            continue
+        with os.fdopen(fd, "w") as f:
+            f.write(str(os.getpid()))
+        return True
+    return False
+
+
+def release(lock: Path) -> None:
+    try:
+        if lock.read_text().strip() == str(os.getpid()):
+            lock.unlink()
+    except (FileNotFoundError, ValueError, OSError):
+        pass
+
+
+def take_video_slot() -> Path | None:
+    return next((slot for slot in VIDEO_SLOTS if take(slot)), None)
 
 
 def find_claude(env: dict) -> str:
@@ -479,36 +508,54 @@ def playbook_ctx(env: dict, engine: Engine) -> playbook.Ctx:
     return playbook.Ctx(engine, log, find_claude(env), child_env())
 
 
+def playbook_work(env: dict, engine: Engine) -> None:
+    """No video to make: a remake the owner asked for first, then the next thing to learn from."""
+    try:
+        if playbook.remake_next(playbook_ctx(env, engine)):
+            return
+    except Exception as e:  # e.g. the function is older than this worker; videos still work
+        log(f"remake skipped: {e}")
+    try:
+        studied = playbook.study_next(playbook_ctx(env, engine))
+    except Exception as e:
+        log(f"playbook study skipped: {e}")
+        studied = False
+    if studied:
+        # A /remake link has just been studied: its remake can go now, in the same pass.
+        try:
+            playbook.remake_next(playbook_ctx(env, engine))
+        except Exception as e:
+            log(f"remake skipped: {e}")
+        try:
+            playbook.sync_playbook(playbook_ctx(env, engine))
+        except Exception as e:
+            log(f"playbook sync failed: {e}")
+
+
 def run_once(env: dict) -> int:
     engine = Engine(env["CONTENT_ENGINE_URL"], env["CONTENT_WORKER_SECRET"])
     try:
         playbook.sync_playbook(playbook_ctx(env, engine))
     except Exception as e:  # the skill catches up on the next pass
         log(f"playbook sync failed: {e}")
-    job = engine.call("claim").get("job")
-    if not job:
-        # Nothing to make: a remake the owner asked for first, then the next thing to learn from.
+    slot = take_video_slot()
+    if slot:
         try:
-            if playbook.remake_next(playbook_ctx(env, engine)):
-                return 0
-        except Exception as e:  # e.g. the function is older than this worker; videos still work
-            log(f"remake skipped: {e}")
+            job = engine.call("claim").get("job")
+            if job:
+                return make_video(env, engine, job)
+        finally:
+            release(slot)
+    # Both slots are making videos, or there's nothing to make: learn from what the owner sent.
+    if take(PLAYBOOK_LOCK):
         try:
-            studied = playbook.study_next(playbook_ctx(env, engine))
-        except Exception as e:
-            log(f"playbook study skipped: {e}")
-            studied = False
-        if studied:
-            # A /remake link has just been studied: its remake can go now, in the same pass.
-            try:
-                playbook.remake_next(playbook_ctx(env, engine))
-            except Exception as e:
-                log(f"remake skipped: {e}")
-            try:
-                playbook.sync_playbook(playbook_ctx(env, engine))
-            except Exception as e:
-                log(f"playbook sync failed: {e}")
-        return 0
+            playbook_work(env, engine)
+        finally:
+            release(PLAYBOOK_LOCK)
+    return 0
+
+
+def make_video(env: dict, engine: Engine, job: dict) -> int:
     video = job["video"]
     log(f"job {video['id']} v{video.get('version', 1)}: {job['idea']['title']}")
     root = Path(env.get("CONTENT_VIDEO_ROOT") or DEFAULT_ROOT)
@@ -606,15 +653,7 @@ def main() -> int:
         playbook.sync_playbook(playbook_ctx(env, Engine(env["CONTENT_ENGINE_URL"], env["CONTENT_WORKER_SECRET"])))
         log(f"playbook: {playbook.SKILL_DIR / 'SKILL.md'}")
         return 0
-    if not take_lock():
-        return 0
-    try:
-        return run_once(env)
-    finally:
-        try:
-            LOCK.unlink()
-        except FileNotFoundError:
-            pass
+    return run_once(env)
 
 
 if __name__ == "__main__":
