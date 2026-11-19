@@ -192,6 +192,9 @@ def child_env() -> dict:
         env[f"GIT_CONFIG_KEY_{i}"] = "url.push-disabled-by-content-studio://blocked/.pushInsteadOf"
         env[f"GIT_CONFIG_VALUE_{i}"] = prefix
     env["PYTHONUTF8"] = "1"
+    # A full render takes ~15 min. With Bash's default 10-min cap it went to the background and the run
+    # stopped to wait for it (2026-11-19), so a command may run in the foreground for up to an hour.
+    env["BASH_MAX_TIMEOUT_MS"] = str(60 * 60 * 1000)
     return env
 
 
@@ -212,8 +215,51 @@ def ffprobe(path: Path) -> dict:
 
 # ---- The project ----------------------------------------------------------------------------
 
+def retry_folder(job: dict) -> Path | None:
+    """A retry of a run that stopped (claim attempts > 1) goes back to the folder that run used."""
+    video = job["video"]
+    folder = video.get("project_dir")
+    if int(video.get("attempts") or 1) > 1 and folder and (Path(folder) / "BRIEF.md").exists():
+        return Path(folder)
+    return None
+
+
+def last_session(project: Path) -> str | None:
+    """The Claude session of the last run in this folder (its JSON result is in out/claude-run.log)."""
+    log_file = project / "out" / "claude-run.log"
+    if not log_file.exists():
+        return None
+    for line in log_file.read_text(encoding="utf-8", errors="replace").splitlines()[::-1]:
+        try:
+            data = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(data, dict) and data.get("session_id"):
+            return str(data["session_id"])
+    return None
+
+
+def unfinished(project: Path) -> bool:
+    """The render is there but the deliverables aren't: the run stopped before its checks and exports."""
+    out = project / "out"
+    return (out / "video.mp4").exists() and not ((out / "final.mp4").exists() and (out / "review.mp4").exists())
+
+
+def continue_prompt(reason: str) -> str:
+    return ("This is the same video job, and the last run stopped before the video was finished"
+            + (f" ({reason.strip()[:400]})" if reason.strip() else "") + ". Everything it made is still in this "
+            "folder. Pick up where it stopped: look at out/ and finish the remaining steps; don't redo work that "
+            "is done and checked (a finished out/video.mp4 still needs its lint, frame review and voice check). "
+            "Run every command in the foreground and wait for it (Bash timeout up to 3600000 ms); never end your "
+            "turn while a command is still running. Answer done only when all four deliverables are in out/ and "
+            "pass their checks.")
+
+
 def prepare_project(job: dict, root: Path) -> Path:
     video, idea = job["video"], job["idea"]
+    again = retry_folder(job)
+    if again:
+        return again
     previous = job.get("previous") or {}
     prev_dir = Path(previous["project_dir"]) if previous.get("project_dir") else None
     if video.get("version", 1) > 1 and prev_dir and prev_dir.exists():
@@ -341,11 +387,13 @@ def remake_brief(project: Path, idea: dict, ref: dict) -> list[str]:
     return [l for l in lines if l is not None]
 
 
-def run_claude(project: Path, env: dict, engine: Engine, video_id: str) -> tuple[dict | None, str]:
-    prompt = ("Make the video described in BRIEF.md in this folder, following the rules you were given. "
-              "Work unattended: nobody can answer questions. When the four deliverables are in out/ and pass "
-              "their checks, answer with status done; if you can't make it work, answer failed with the reason.")
-    cmd = [find_claude(env), "-p", prompt,
+def run_claude(project: Path, env: dict, engine: Engine, video_id: str, *, resume: str | None = None,
+               prompt: str | None = None, timeout_s: int = CLAUDE_TIMEOUT_S) -> tuple[dict | None, str]:
+    prompt = prompt or ("Make the video described in BRIEF.md in this folder, following the rules you were given. "
+                        "Work unattended: nobody can answer questions. When the four deliverables are in out/ and "
+                        "pass their checks, answer with status done; if you can't make it work, answer failed with "
+                        "the reason.")
+    cmd = [find_claude(env), "-p", prompt, *(["--resume", resume] if resume else []),
            "--output-format", "json",
            "--model", MODEL,
            "--effort", EFFORT,
@@ -357,7 +405,7 @@ def run_claude(project: Path, env: dict, engine: Engine, video_id: str) -> tuple
            "--name", f"Content studio: {project.name}"[:80],
            "--disallowedTools", "AskUserQuestion", "WebFetch", "WebSearch",
            "--add-dir", str(Path.home() / ".claude" / "skills"), str(HERE)]
-    log(f"claude starts in {project}")
+    log(f"claude {'resumes ' + resume if resume else 'starts'} in {project}")
     proc = subprocess.Popen(cmd, cwd=str(project), env=child_env(), stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace", creationflags=NO_WINDOW)
     started = time.time()
@@ -370,7 +418,7 @@ def run_claude(project: Path, env: dict, engine: Engine, video_id: str) -> tuple
 
     threading.Thread(target=beat, daemon=True).start()
     try:
-        out, err = proc.communicate(timeout=CLAUDE_TIMEOUT_S)
+        out, err = proc.communicate(timeout=timeout_s)
     except subprocess.TimeoutExpired:
         subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True, creationflags=NO_WINDOW)
         out, err = proc.communicate()
@@ -467,11 +515,28 @@ def run_once(env: dict) -> int:
     root.mkdir(parents=True, exist_ok=True)
     project = None
     try:
+        again = retry_folder(job)
         project = prepare_project(job, root)
         write_brief(project, job)
-        engine.progress(video["id"], "Starting")
-        result, raw = run_claude(project, env, engine, video["id"])
+        started = time.time()
+        if again:
+            # A retry: carry on in the last run's folder (and its Claude session) instead of starting over.
+            engine.progress(video["id"], "Picking up the last run")
+            result, raw = run_claude(project, env, engine, video["id"], resume=last_session(project),
+                                     prompt=continue_prompt(video.get("error") or ""))
+        else:
+            engine.progress(video["id"], "Starting")
+            result, raw = run_claude(project, env, engine, video["id"])
         res = outcome(result)
+        left = CLAUDE_TIMEOUT_S - int(time.time() - started)
+        session = (result or {}).get("session_id")
+        if res.get("status") != "done" and session and unfinished(project) and left >= 20 * 60:
+            # It stopped with the render made but not checked or exported: one more go in the same session.
+            log(f"job {video['id']}: the run stopped before the exports; resuming it once")
+            engine.progress(video["id"], "Finishing the checks and exports")
+            result, raw = run_claude(project, env, engine, video["id"], resume=session,
+                                     prompt=continue_prompt(res.get("error") or ""), timeout_s=left)
+            res = outcome(result)
         if res.get("status") != "done":
             raise RuntimeError(res.get("error") or "Claude didn't finish the video.")
         meta, problems = check_deliverables(project)

@@ -13,6 +13,12 @@ approval. When you finish, the video goes to the owner on Telegram, who approves
 - Don't install or update anything (skip `reelkit update` installs). Don't log in to the Reelkit library;
   everything you need is in `assets/`.
 - Skip every "show the user and wait" checkpoint in the reelkit skill: the brief is the approved plan.
+- Run every command in the foreground and wait for it. A full render takes about 15 minutes on this PC,
+  so give `reelkit render` and `reelkit export` the Bash `timeout: 3600000` (the limit here is 60 minutes).
+  Never use `run_in_background`, `&`, Monitor or a background wait loop, and never end your turn while a
+  command is still running: the moment you stop, the run is reported and over. (2026-11-19: a render that
+  passed 10 minutes went to the background, the run stopped to wait for it, and the video never got
+  its checks and exports.)
 
 ## How to make it
 1. Read BRIEF.md. Then read `reference/Video.reel1.tsx` + `reference/plan.reel1.json` (a finished,
@@ -32,7 +38,8 @@ approval. When you finish, the video goes to the owner on Telegram, who approves
 4. `reelkit check` (builds manifest.json). Then write `src/Video.tsx`, timing every visual to the real
    word times (`wordFrame`, `onWord`); never count words by hand.
 5. Render: `NODE_OPTIONS="--require C:/Users/97254/wat-framework/tools/reelkit_win_import_fix.cjs" reelkit render --no-share`
-   (never `--chunk`: it drops the voice). At most three full renders; plan before you render.
+   (never `--chunk`: it drops the voice). At most three full renders; plan before you render. It runs about
+   15 minutes: foreground, `timeout: 3600000`, and wait for it.
 6. Check like a picky editor: `reelkit lint`; pull PNG frames with ffmpeg (`-pix_fmt rgb24`; JPEG fails on
    this export) at every scene change and on the key words, and LOOK at them. Fix text that collides, is cut
    by the frame edge, or sits under the safe-zone lines below. Voice sync:

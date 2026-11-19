@@ -181,3 +181,11 @@ usual views and breaks each into beats. It has no API or export, so nothing pull
 - Release (2026-11-18): the safety check blocks `functions deploy` to production until the owner
   says yes in the chat; ask once with the exact functions, then deploy. First live study: a 61 s
   TikTok took 9 min end to end (prep ~1.5 min, Claude the rest) and gave 4 concrete lessons.
+- Long renders (2026-11-19, first 2-a-day batch): a 34 s video's `reelkit render` took ~14 min. Bash's
+  default 10-min cap moved it to the background, the headless run ended its turn to wait, and with
+  `--json-schema` ending the turn means reporting: it said "failed" with a finished `out/video.mp4`
+  and no exports. The worker then started over in a new `-2` folder. Fixes: `child_env()` sets
+  `BASH_MAX_TIMEOUT_MS=3600000` and `rules.md` says to run render/export in the foreground with
+  `timeout: 3600000`; a run that stops with the render made but not exported is resumed once in
+  the same session (`--resume`); a retry (claim attempts > 1) goes back to the failed run's
+  `project_dir` and resumes its session (id from `out/claude-run.log`) instead of starting over.
