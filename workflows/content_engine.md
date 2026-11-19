@@ -251,3 +251,8 @@ usual views and breaks each into beats. It has no API or export, so nothing pull
   error wasn't read), and a reply could have matched the other bot's idea or video. Fixed in fb44efc:
   key `(chat_id, bot, message_id)`, replies looked up in the bot they came in, a failed insert is logged.
   A "ready" video without a `content_messages` row of kind `video` means its message wasn't recorded.
+- **Posting hours (USER 2026-11-19, "upload it at a good time"):** the 5-h gap between a brand's
+  posts had put the day's second video at 01:24. Posts now go up only between 09:00 and 21:00 on the
+  brand's clock (`C.POST_HOURS`, `content_brands.timezone`); a time outside waits for 09:00. With a
+  9:00 post, the next two land at 14:00 and 19:00. Mapflow 28311fd. To move a waiting post by hand,
+  set `content_posts.next_check_at` while its status is 'queued'.
