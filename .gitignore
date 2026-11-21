@@ -22,3 +22,7 @@ internal/intake-studio/
 
 # Build log: client project names for tools/build_log (stays on this PC).
 tools/build_log/projects.local.json
+
+# Email Watch: the list and run state hold personal details
+tools/email_watch/watchlist.json
+tools/email_watch/state.json
