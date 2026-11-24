@@ -97,12 +97,17 @@ writeFileSync(indexPath, html);
 const services = [1, 2, 3, 4].map((n) => `- ${tr[`service${n}_title`]}: ${tr[`service${n}_body`]}`).join('\n');
 const products = PRODUCTS.map((n) => `- ${tr[`prod${n}_name`]} (${tr.prod_status}): ${productText(n)} עמוד המוצר: ${tr[`prod${n}_url`]}`).join('\n');
 const process = STEPS.map((n) => `${n}. ${tr[`step${n}_title`]}: ${tr[`step${n}_body`]}`).join('\n');
+// Starter and Professional can also be bought with a one-time payment and no monthly plan
+// (`tierN_onetime` in the dictionary); Premium is monthly only.
+const oneTime = (n) => tr[`tier${n}_onetime`];
 const plans = TIERS.map(
-  (n) => `- ${tr[`tier${n}_name`]}: ${tr[`tier${n}_price`]} + ${tr[`tier${n}_monthly`]}. ${tr[`tier${n}_sub`]} כולל: ${tr[`tier${n}_features`].join('; ')}.`
+  (n) => `- ${tr[`tier${n}_name`]}: ${tr[`tier${n}_price`]} + ${tr[`tier${n}_monthly`]}${oneTime(n) ? `, או ${oneTime(n)} בתשלום חד־פעמי בלי מנוי` : ''}. ${tr[`tier${n}_sub`]} כולל: ${tr[`tier${n}_features`].join('; ')}.`
 ).join('\n');
 // The FAQ answers about the monthly plan (what it includes, minimum term, leaving) are
 // marked `plan: true` in the dictionary; pricing.md repeats them.
 const planFaq = tr.faq_items.filter((i) => i.plan).map((i) => `### ${i.q}\n\n${plain(i.a)}`).join('\n\n');
+// The FAQ answer about paying once is marked `onetime: true`; pricing.md gives it its own section.
+const oneTimeFaq = tr.faq_items.filter((i) => i.onetime).map((i) => `### ${i.q}\n\n${plain(i.a)}`).join('\n\n');
 const projects = work.map((k) => `- [${tr[`${k}_name`]}](${tr[`${k}_url`]}): ${tr[`${k}_tag`]}`).join('\n');
 const faqText = tr.faq_items.map((i) => `### ${i.q}\n\n${plain(i.a)}`).join('\n\n');
 
@@ -132,7 +137,7 @@ ${tr.pricing_sub}
 
 ${plans}
 
-תנאי המנוי (התחייבות, הפסקה, מה נשאר שלכם) מופיעים בשאלות הנפוצות למטה.
+תנאי המנוי (התחייבות, הפסקה, מה נשאר שלכם) ומה כולל תשלום חד־פעמי בלי מנוי מופיעים בשאלות הנפוצות למטה.
 
 פירוט מלא: [pricing.md](${SITE}/pricing.md)
 
@@ -161,6 +166,7 @@ const planSections = TIERS.map(
 
 - מחיר התחלתי: ${tr[`tier${n}_price`]}
 - מנוי חודשי: ${tr[`tier${n}_monthly`]}
+- ${oneTime(n) ? `תשלום חד־פעמי, בלי מנוי: ${oneTime(n)}` : 'תשלום חד־פעמי: לא זמין, רק עם מנוי'}
 - למי זה מתאים: ${tr[`tier${n}_sub`]}
 - כולל:
 ${tr[`tier${n}_features`].map((f) => `  - ${f}`).join('\n')}`
@@ -180,6 +186,10 @@ ${planSections}
 ## המנוי החודשי
 
 ${planFaq}
+
+## תשלום חד־פעמי, בלי מנוי
+
+${oneTimeFaq}
 
 פרטים והזמנה: ${SITE}/#pricing
 `
