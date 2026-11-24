@@ -1,0 +1,3 @@
+# Local ids (the Notion table, the Telegram chat): specific to this machine
+board.json
+__pycache__/
