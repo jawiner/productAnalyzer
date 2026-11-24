@@ -969,6 +969,10 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
       <h2 data-t="process_title" style="font-family:var(--fd);font-size:58px;font-weight:300;letter-spacing:-.02em;margin:0;">איך זה עובד</h2>
     </div>
     <p data-t="process_sub" data-reveal style="transition-delay:.08s;margin:16px 0 0;font-size:16px;line-height:1.7;opacity:.62;max-width:56ch;">ארבעה שלבים ברורים, לוח זמנים ריאלי, ותקשורת ישירה איתי לאורך כל הדרך — בלי הפתעות ובלי שכבות תיווך.</p>
+    <div data-reveal style="transition-delay:.14s;margin-top:30px;display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;">
+      <button type="button" id="processFilmBtn" class="film-btn film-btn--solid"><span aria-hidden="true" class="film-btn__tri"></span><span data-t="process_film">צפו בתהליך</span></button>
+      <span data-t="process_film_note" style="font-family:'IBM Plex Mono',var(--ft);font-size:12px;letter-spacing:.12em;color:rgba(233,235,232,.55);">53 שניות · מהשיחה הראשונה עד אתר שאתם עורכים לבד</span>
+    </div>
 
     <div id="stepsWrap" style="position:relative;margin-top:88px;padding-bottom:20px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));column-gap:36px;align-items:start;">
       <div style="position:absolute;top:244px;left:0;right:0;height:1px;background:rgba(233,235,232,.14);"></div>
@@ -1281,6 +1285,8 @@ const translations = {
     work_watch_film: 'צפו בסרטון', work_live_site: 'לאתר החי', aria_close_film: 'סגירת הסרטון',
     testimonials_label: 'המלצות', testimonials_title: 'מה אומרים עליי',
     process_title: 'איך זה עובד',
+    process_film: 'צפו בתהליך', process_film_note: '53 שניות · מהשיחה הראשונה עד אתר שאתם עורכים לבד',
+    process_film_name: 'איך זה עובד', process_film_tag: 'אתר לדוגמה · 53 שניות',
     process_sub: 'ארבעה שלבים ברורים, לוח זמנים ריאלי, ותקשורת ישירה איתי לאורך כל הדרך — בלי הפתעות ובלי שכבות תיווך.',
     step1_title: 'גילוי', step1_body: 'שיחת עומק על העסק, הקהל והמטרות שלכם, ומיפוי בדיוק מה האתר צריך לעשות בשבילכם — לפני שנוגעים בפיקסל אחד. בסוף השלב יש לנו תוכנית עבודה ברורה ולוח זמנים מוסכם, ואתם מקבלים קישור אחד לשליחת כל החומרים ישר מהטלפון.',
     step2_title: 'עיצוב', step2_body: 'הקונספט נבנה ישר בדפדפן במקום בקבצי עיצוב סטטיים, כך שמההתחלה אתם רואים ומרגישים את האתר האמיתי — לא הדמיה. אתם מאשרים כל שלב לפני שממשיכים, כדי שלא יהיו הפתעות בסוף.',
@@ -1406,6 +1412,8 @@ const translations = {
     work_watch_film: 'Watch the film', work_live_site: 'Live site', aria_close_film: 'Close the film',
     testimonials_label: 'Testimonials', testimonials_title: 'What clients say',
     process_title: 'How it runs',
+    process_film: 'Watch the process', process_film_note: '53 seconds · in Hebrew',
+    process_film_name: 'How it runs', process_film_tag: 'Sample site · 53 s · Hebrew',
     process_sub: 'Four clear stages, a realistic timeline, and direct communication with me the whole way through — no surprises, no middlemen.',
     step1_title: 'Discover', step1_body: 'An in-depth conversation about your business, audience and goals, mapping exactly what the site needs to do for you before a single pixel is drawn. You leave this stage with a clear plan, an agreed timeline, and one link for sending all your materials straight from your phone.',
     step2_title: 'Design', step2_body: 'The concept is built straight in the browser instead of static design files, so from day one you’re seeing and feeling the real site, not a mockup. You approve each stage before we move on, so nothing surprises you at the end.',
@@ -1945,7 +1953,11 @@ function openFilm(w) {
   filmReturnFocus = document.activeElement;
   document.getElementById('filmModalName').textContent = tr[w.key + '_name'];
   document.getElementById('filmModalTag').textContent = tr[w.key + '_tag'];
-  document.getElementById('filmModalVisit').href = tr[w.key + '_url'];
+  const visit = document.getElementById('filmModalVisit');
+  visit.href = w.url ? w.url() : tr[w.key + '_url'];
+  const visitLabel = visit.querySelector('[data-t]');
+  visitLabel.setAttribute('data-t', w.visitKey || 'work_live_site');
+  visitLabel.textContent = tr[w.visitKey || 'work_live_site'];
   document.getElementById('filmModalClose').setAttribute('aria-label', tr.aria_close_film);
   video.poster = src.replace('.mp4', '-poster.jpg');
   video.src = src;
@@ -1966,12 +1978,15 @@ function closeFilm() {
   setTimeout(() => { modal.hidden = true; video.removeAttribute('src'); video.load(); }, 400);
   if (filmReturnFocus && filmReturnFocus.focus && document.contains(filmReturnFocus)) filmReturnFocus.focus({ preventScroll: true });
 }
+// The process film ("how it works"), opened from its button in #process. Its side button is WhatsApp.
+const PROCESS_FILM = { key: 'process_film', film: { he: 'assets/video/film-process.mp4' }, visitKey: 'contact_cta_whatsapp', url: () => (document.getElementById('fab') || {}).href || 'https://wa.me/972549961663' };
 function initFilmModal() {
   const modal = document.getElementById('filmModal');
   if (!modal) return;
   document.body.appendChild(modal); // out of the section, so nothing above it can clip or cover it
   document.getElementById('filmModalBackdrop').addEventListener('click', closeFilm);
   document.getElementById('filmModalClose').addEventListener('click', closeFilm);
+  document.getElementById('processFilmBtn')?.addEventListener('click', () => openFilm(PROCESS_FILM));
   window.addEventListener('keydown', (e) => {
     if (modal.hidden) return;
     if (e.key === 'Escape') { e.stopPropagation(); closeFilm(); return; }
