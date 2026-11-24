@@ -41,6 +41,7 @@ from pathlib import Path
 
 import media_turn
 import playbook
+import proc_job
 
 HERE = Path(__file__).resolve().parent
 STATE = HERE.parent.parent / ".tmp" / "content_studio"
@@ -58,6 +59,14 @@ EFFORT = "high"
 CLAUDE_TIMEOUT_S = 150 * 60
 BASH_CAP_MS = 120 * 60 * 1000   # one Bash command's limit in the run: a render plus a wait for the other one
 LOW_MEMORY_GB = 3.0   # a render starting with less swaps to disk (2026-11-19: 0.8 s a frame became 3-7 s)
+# 2026-11-22: two videos started together with 1-2 GB free; the PC swapped so hard that `ls` took 10 min
+# and trimming the voice took 124, and every run hit the time limit, three times each. So a video starts
+# only with START_MIN_GB available, and a second one beside it only with SECOND_VIDEO_MIN_GB.
+START_MIN_GB = 3.0
+SECOND_VIDEO_MIN_GB = 8.0
+MEMORY_WAIT_S = 30 * 60    # a claimed video waits this long for memory, then goes back to the queue
+MEMORY_POLL_S = 60
+MEMORY_NOTE = STATE / "memory-wait.json"   # when the "waiting for memory" lines were last logged / sent
 NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 
 RESULT_SCHEMA = {
@@ -197,6 +206,90 @@ def take_video_slot() -> Path | None:
     return next((slot for slot in VIDEO_SLOTS if take(slot)), None)
 
 
+def held(lock: Path) -> bool:
+    """A lock whose process is still running."""
+    try:
+        pid = int(lock.read_text().strip() or 0)
+    except (OSError, ValueError):
+        return False
+    return pid != os.getpid() and pid_alive(pid)
+
+
+def video_running(mine: Path | None = None) -> bool:
+    """Another pass of this worker is making a video right now."""
+    return any(held(slot) for slot in VIDEO_SLOTS if slot != mine)
+
+
+def note_due(key: str, every_s: int) -> bool:
+    """True at most once per `every_s` for `key`, across passes (each pass is a new process)."""
+    try:
+        seen = json.loads(MEMORY_NOTE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        seen = {}
+    if time.time() - float(seen.get(key) or 0) < every_s:
+        return False
+    seen[key] = time.time()
+    try:
+        STATE.mkdir(parents=True, exist_ok=True)
+        MEMORY_NOTE.write_text(json.dumps(seen), encoding="utf-8")
+    except OSError:
+        pass
+    return True
+
+
+class MemoryShort(RuntimeError):
+    pass
+
+
+def wait_for_memory(engine: "Engine", video_id: str, title: str, *, sleep=time.sleep, clock=time.time,
+                    free=None) -> int:
+    """Waits until START_MIN_GB is available; answers the seconds waited. Raises MemoryShort after
+    MEMORY_WAIT_S, so the job goes back to the queue instead of crawling for the whole time limit."""
+    free = free or media_turn.free_gb
+    start = clock()
+    gb = free()
+    if gb >= START_MIN_GB:
+        return 0
+    log(f"job {video_id}: only {gb:.1f} GB of memory free (needs {START_MIN_GB:.0f}); waiting up to "
+        f"{MEMORY_WAIT_S // 60} min")
+    if note_due(f"told:{video_id}", 6 * 3600):
+        try:  # the owner's Telegram: what's slow and what to close
+            engine.call("low_memory", video_id=video_id, free_gb=round(gb, 1))
+        except Exception as e:  # noqa: BLE001 - a missed note mustn't stop the video
+            log(f"low-memory note failed: {e}")
+    while gb < START_MIN_GB:
+        waited = clock() - start
+        if waited >= MEMORY_WAIT_S:
+            raise MemoryShort(
+                f"Not started: the PC had only {gb:.1f} GB of memory free for {int(waited // 60)} minutes (a video "
+                f"needs about {START_MIN_GB:.0f}). Close Docker Desktop and the Claude or VS Code windows you "
+                "aren't using; the PC tries again by itself.")
+        engine.progress(video_id, f"Waiting for memory: {gb:.1f} GB free, needs {START_MIN_GB:.0f} GB")
+        sleep(MEMORY_POLL_S)
+        gb = free()
+    waited = int(clock() - start)
+    log(f"job {video_id}: {gb:.1f} GB free after {waited // 60} min; starting")
+    return waited
+
+
+def sweep_project(project: Path) -> int:
+    """Stops processes left over from a run in this folder that the job couldn't hold (the Microsoft Store
+    `python` starts outside it): anything whose command line names the project folder."""
+    if os.name != "nt":
+        return 0
+    paths = {str(project), str(project).replace("\\", "/")}
+    script = ("$ps = Get-CimInstance Win32_Process | Where-Object { $c = $_.CommandLine; $c -and ("
+              + " -or ".join(f"$c.Contains('{p}')" for p in paths) + ") -and $_.ProcessId -ne $PID }; "
+              "$ps | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }; "
+              "($ps | Measure-Object).Count")
+    try:
+        out = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", script],
+                             capture_output=True, text=True, timeout=120, creationflags=NO_WINDOW).stdout
+        return int((out or "0").strip().splitlines()[-1] or 0)
+    except (OSError, ValueError, subprocess.TimeoutExpired, IndexError):
+        return 0
+
+
 def find_claude(env: dict) -> str:
     override = env.get("CLAUDE_BIN")
     if override and Path(override).exists():
@@ -249,27 +342,45 @@ def ffprobe(path: Path) -> dict:
 # ---- The project ----------------------------------------------------------------------------
 
 def retry_folder(job: dict) -> Path | None:
-    """A retry of a run that stopped (claim attempts > 1) goes back to the folder that run used."""
+    """A retry of a run that stopped goes back to the folder that run used: a claim after the first, or the
+    owner's "Try again" (which starts the count again), as long as the folder's brief is this video's.
+    (2026-11-22: "Try again" made a new -2 folder and redid the script, voice and stills from scratch.)"""
     video = job["video"]
     folder = video.get("project_dir")
-    if int(video.get("attempts") or 1) > 1 and folder and (Path(folder) / "BRIEF.md").exists():
+    if not folder:
+        return None
+    brief = Path(folder) / "BRIEF.md"
+    try:
+        mine = f"Video id: {video['id']}" in brief.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return None
+    if mine or int(video.get("attempts") or 1) > 1:
         return Path(folder)
     return None
 
 
-def last_session(project: Path) -> str | None:
-    """The Claude session of the last run in this folder (its JSON result is in out/claude-run.log)."""
+SESSIONS = Path.home() / ".claude" / "projects"
+
+
+def last_session(project: Path, sessions: Path | None = None) -> str | None:
+    """The Claude session of the last run in this folder: from its JSON result in out/claude-run.log, or,
+    when the run was stopped before it could answer (the time limit), from Claude's own session files."""
     log_file = project / "out" / "claude-run.log"
-    if not log_file.exists():
+    if log_file.exists():
+        for line in log_file.read_text(encoding="utf-8", errors="replace").splitlines()[::-1]:
+            try:
+                data = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(data, dict) and data.get("session_id"):
+                return str(data["session_id"])
+    # Claude Code keeps each folder's sessions in ~/.claude/projects/<the path with every other character as ->.
+    folder = (sessions or SESSIONS) / re.sub(r"[^A-Za-z0-9]", "-", str(project))
+    try:
+        newest = max(folder.glob("*.jsonl"), key=lambda p: p.stat().st_mtime)
+    except (ValueError, OSError):
         return None
-    for line in log_file.read_text(encoding="utf-8", errors="replace").splitlines()[::-1]:
-        try:
-            data = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        if isinstance(data, dict) and data.get("session_id"):
-            return str(data["session_id"])
-    return None
+    return newest.stem if re.fullmatch(r"[0-9a-f-]{36}", newest.stem) else None
 
 
 def unfinished(project: Path) -> bool:
@@ -447,6 +558,51 @@ def remake_brief(project: Path, idea: dict, ref: dict) -> list[str]:
     return [l for l in lines if l is not None]
 
 
+def collect(proc: subprocess.Popen, job: proc_job.Job, timeout_s: int, *, poll_s: int = 30) -> tuple[str, str, bool]:
+    """Waits for Claude's answer: (stdout, stderr, timed_out).
+
+    Something the run started can keep Claude's output open after Claude itself has finished; waiting for
+    the output to close would then wait out the whole time limit and lose a finished video. So once
+    Claude's process has ended, the job's leftovers are stopped and the answer read right away."""
+    deadline = time.time() + timeout_s
+    while True:
+        try:
+            out, err = proc.communicate(timeout=max(1, min(poll_s, deadline - time.time())))
+            return out or "", err or "", False
+        except subprocess.TimeoutExpired:
+            if proc.poll() is not None:
+                job.kill()  # Claude is done; a leftover holds its output open
+                continue
+            if time.time() < deadline:
+                continue
+        subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True, creationflags=NO_WINDOW)
+        job.kill()  # first, so nothing holds the output open while it's read
+        try:
+            out, err = proc.communicate(timeout=60)
+        except subprocess.TimeoutExpired:
+            out, err = "", ""
+        return out or "", err or "", True
+
+
+def clean_up_run(project: Path, job: proc_job.Job) -> None:
+    """After a run, finished or stopped: nothing it started may keep running and holding memory."""
+    left = job.kill()
+    job.close()
+    # A render started from Claude's Git Bash through the Store `python media_turn.py` isn't in the job
+    # (that python starts outside it) or in claude.exe's tree (2026-11-19): stop it through the turn it holds.
+    other = media_turn.holder()
+    try:
+        mine = other and other.get("pid") and Path(str(other.get("project", ""))).resolve() == project.resolve()
+    except OSError:
+        mine = False
+    if mine:
+        subprocess.run(["taskkill", "/PID", str(other["pid"]), "/T", "/F"], capture_output=True, creationflags=NO_WINDOW)
+        left += 1
+    swept = sweep_project(project)
+    if left or swept:
+        log(f"stopped what the run left running: {left} in its job, {swept} more by folder name")
+
+
 def run_claude(project: Path, env: dict, engine: Engine, video_id: str, *, resume: str | None = None,
                prompt: str | None = None, timeout_s: int = CLAUDE_TIMEOUT_S) -> tuple[dict | None, str]:
     prompt = prompt or ("Make the video described in BRIEF.md in this folder, following the rules you were given. "
@@ -468,6 +624,11 @@ def run_claude(project: Path, env: dict, engine: Engine, video_id: str, *, resum
     log(f"claude {'resumes ' + resume if resume else 'starts'} in {project}")
     proc = subprocess.Popen(cmd, cwd=str(project), env=child_env(), stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace", creationflags=NO_WINDOW)
+    # Everything the run starts (renders, voice tools, Chrome) joins this job, so the end of the run can stop
+    # all of it, whatever started it (2026-11-22: leftovers of a timed-out run starved the retry of memory).
+    job = proc_job.Job()
+    if not job.add(proc):
+        log("note: couldn't put the run in a job; leftovers are stopped by folder name only")
     started = time.time()
     stop = threading.Event()
 
@@ -501,21 +662,15 @@ def run_claude(project: Path, env: dict, engine: Engine, video_id: str, *, resum
 
     threading.Thread(target=beat, daemon=True).start()
     threading.Thread(target=memory_watch, daemon=True).start()
-    try:
-        out, err = proc.communicate(timeout=timeout_s)
-    except subprocess.TimeoutExpired:
-        subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True, creationflags=NO_WINDOW)
-        # A render started from Claude's Git Bash isn't in claude.exe's process tree (2026-11-19): stop
-        # this project's media job through the turn it holds, or it keeps rendering and holding memory.
-        other = media_turn.holder()
-        if other and other.get("pid") and Path(str(other.get("project", ""))).resolve() == project.resolve():
-            subprocess.run(["taskkill", "/PID", str(other["pid"]), "/T", "/F"], capture_output=True, creationflags=NO_WINDOW)
-        out, err = proc.communicate()
+    out, err, timed_out = collect(proc, job, timeout_s)
+    if timed_out:
         stop.set()
+        clean_up_run(project, job)
         (project / "out").mkdir(exist_ok=True)  # replaces an older run's log, so a retry starts fresh
         (project / "out" / "claude-run.log").write_text(((out or "") + (err or ""))[-200_000:], encoding="utf-8")
         return {"_timeout": True}, (out or "") + (err or "")
     stop.set()
+    clean_up_run(project, job)
     raw = (out or "") + ("\n[stderr]\n" + err if err else "")
     (project / "out").mkdir(exist_ok=True)
     (project / "out" / "claude-run.log").write_text(raw[-200_000:], encoding="utf-8")
@@ -603,12 +758,27 @@ def run_once(env: dict) -> int:
     slot = take_video_slot()
     if slot:
         try:
+            # A second video beside a running one only when the PC has plenty of memory (2026-11-22).
+            busy = video_running(slot)
+            gb = media_turn.free_gb() if busy else None
+            if busy and gb < SECOND_VIDEO_MIN_GB:
+                if note_due("second-video", 3600):
+                    log(f"a video is being made and only {gb:.1f} GB is free (a second needs "
+                        f"{SECOND_VIDEO_MIN_GB:.0f}); the next one waits its turn")
+                return 0  # and no study beside it either: it would take the memory the video needs
             job = engine.call("claim").get("job")
             if job:
                 return make_video(env, engine, job)
         finally:
             release(slot)
-    # Both slots are making videos, or there's nothing to make: learn from what the owner sent.
+    elif media_turn.free_gb() < SECOND_VIDEO_MIN_GB:
+        return 0  # both slots busy and memory short: a study now would slow the videos down
+    # Both slots are making videos, or there's nothing to make: learn from what the owner sent,
+    # when the PC has room for it (a study runs Claude and speech recognition too).
+    if media_turn.free_gb() < START_MIN_GB:
+        if note_due("study-memory", 3 * 3600):
+            log(f"studies wait: only {media_turn.free_gb():.1f} GB of memory free (needs {START_MIN_GB:.0f})")
+        return 0
     if take(PLAYBOOK_LOCK):
         try:
             playbook_work(env, engine)
@@ -624,20 +794,25 @@ def make_video(env: dict, engine: Engine, job: dict) -> int:
     root.mkdir(parents=True, exist_ok=True)
     project = None
     try:
+        # Memory first: a run that starts starved crawls for the whole time limit and fails anyway.
+        # The wait counts against the run's time, so a claim stays under the function's 3-hour limit.
+        waited = wait_for_memory(engine, video["id"], job["idea"]["title"])
+        budget = CLAUDE_TIMEOUT_S - waited
         again = retry_folder(job)
         project = prepare_project(job, root)
         write_brief(project, job)
         started = time.time()
         if again:
             # A retry: carry on in the last run's folder (and its Claude session) instead of starting over.
+            session = last_session(project)
             engine.progress(video["id"], "Picking up the last run")
-            result, raw = run_claude(project, env, engine, video["id"], resume=last_session(project),
+            result, raw = run_claude(project, env, engine, video["id"], resume=session, timeout_s=budget,
                                      prompt=continue_prompt(video.get("error") or "") + resume_note(project))
         else:
             engine.progress(video["id"], "Starting")
-            result, raw = run_claude(project, env, engine, video["id"])
+            result, raw = run_claude(project, env, engine, video["id"], timeout_s=budget)
         res = outcome(result)
-        left = CLAUDE_TIMEOUT_S - int(time.time() - started)
+        left = budget - int(time.time() - started)
         session = (result or {}).get("session_id")
         if res.get("status") != "done" and session and unfinished(project) and left >= 20 * 60:
             # It stopped with the render made but not checked or exported: one more go in the same session.

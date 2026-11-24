@@ -270,3 +270,19 @@ usual views and breaks each into beats. It has no API or export, so nothing pull
   owner_text), approved and queued; today's open Telegram ideas are parked with their buttons closed.
   Mapflow cbaf426. An app explainer still keeps the brand name for the end and walks Steppy through
   the real Today page (Example screens), so it explains without turning into a pitch.
+- **Memory decides whether a video can be made (2026-11-22 failures, fixed 2026-11-24).** Two videos
+  started together with 1-2 GB free (Docker/WSL ~3.6 GB, VS Code, several Claude windows). The PC swapped
+  so hard that `ls` took 10 min and trimming the voice with faster-whisper took 124; every run hit the
+  150-min limit, three times each, and both failed for good. Worse, `taskkill /T` on claude.exe doesn't
+  reach what Claude starts from Git Bash, so each killed run left its voice tools running and the retry
+  started with even less memory. Now (worker.py): a video waits up to 30 min for `START_MIN_GB` (3 GB)
+  available, tells the owner once on Telegram (`low_memory`), and otherwise goes back to the queue with
+  "Not started: close Docker Desktop and the Claude or VS Code windows you aren't using"; a second video
+  beside a running one only with `SECOND_VIDEO_MIN_GB` (8 GB); studies only with 3 GB. Every run goes in a
+  Windows job (`proc_job.py`, works under Task Scheduler too), stopped as a whole at the end, finished or
+  not, plus the media-turn holder and anything whose command line names the project folder (the Store
+  `python` starts outside a job). A finished run is read as soon as claude.exe ends, even if a leftover
+  holds its output open. "Try again" reuses the video's own folder (matched by `Video id:` in BRIEF.md)
+  and a timed-out run is resumed from its newest session file in `~/.claude/projects/`.
+  Checks: `python tools/content_studio/test_offline.py` (32). If videos stop starting, read
+  `.tmp/content_studio/worker.log` for "only X GB of memory free" before changing anything.
