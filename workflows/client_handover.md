@@ -1,4 +1,4 @@
-# Client hand-over (a client leaves a Mashtech monthly plan)
+# Client hand-over (a client leaves a Mashtech monthly plan, or buys a site with a one-time payment)
 
 ## Objective
 
@@ -39,6 +39,44 @@ This is the promise in the "תנאי המנוי" block on mashtech.co.il, so it 
 5. **Only after their domain answers from the new host,** work through `owner-checklist.md`:
    Vercel domain + project, Intake Studio access, booking business, Premium services, billing, LeadFlow.
    Removing the domain from Vercel earlier takes the site offline.
+
+## One-time clients (paid once, no monthly plan)
+
+Starter and Professional can be bought with one payment and no monthly plan (₪1,690 / ₪3,190 on the
+site, 2026-11-24). Premium is monthly only, and the tool refuses `--one-time --plan premium`. The client
+gets the same package a leaving client gets, but on the day the site is delivered: the site goes onto
+**Cloudflare Pages in the client's own free account**. Vercel's free plan is personal, non-commercial use
+only, so a business site there would need the client's own paid Pro plan.
+
+What the client gets: the site set up in their Cloudflare account, the domain connected, all files, and
+free fixes for 30 days after go-live. What they don't get: the self-editing system, backups, fixes after
+those 30 days, and updates. Later changes are quoted per job, and monthly clients get replies first.
+They can join the monthly plan at any time; if someone else has changed the site, check it first and quote.
+
+1. **Build the package** once the site is approved and paid:
+   ```
+   python tools/client_handover.py websites/<site> --client "<business name>" --contact "<first name>" \
+       --domain <domain> --plan <starter|professional> --one-time --live-date <YYYY-MM-DD>
+   ```
+   Output: `.tmp/handover/<site>-onetime-<date>/`, with a **set-up** checklist instead of a leaving one,
+   and a message to send once the site is live. `--live-date` sets the 30-day free-fix window (default today).
+2. **The client opens a free Cloudflare account** with their own email and password and adds you as a
+   member (Manage Account → Members). Doing it together on a call takes about 5 minutes.
+3. **Work through `owner-checklist.md`:** upload the unzipped website folder (Workers & Pages → Create →
+   Pages → Upload assets), check the `pages.dev` address, then connect the domain.
+4. **Send the zip and `message-to-client.txt`** once the domain answers from Cloudflare.
+5. **On the free-fix end date** remove yourself as a member, or stay on with the client's OK for paid changes.
+
+Watch out for:
+- **Email on the domain.** Connecting the main domain moves its DNS to Cloudflare (new nameservers). If the
+  client gets email on the domain (MX records, e.g. Google Workspace), check that Cloudflare copied those
+  records before switching, or their email stops.
+- **Big files.** Cloudflare Pages takes files up to 25 MiB, and the dashboard upload takes up to 1,000 files.
+  The tool warns about both. Compress big videos; past 1,000 files use `npx wrangler pages deploy <folder>`.
+- **Next.js apps** need a server, so the tool refuses them in one-time mode. Quote those separately.
+- **Booking widget.** It isn't part of a one-time sale. The tool flags it, so swap it for a WhatsApp or phone link.
+- **A new one-time client never needs a move.** Show the preview on your Vercel as usual, then put the
+  real site straight on their Cloudflare.
 
 ## What the tool handles for you
 
@@ -98,5 +136,7 @@ The business id is in the site's `booking/config.js` (`businessId`).
 
 ## Lessons
 
+- 2026-11-24: one-time mode (`--one-time`) built and tested on Tnufa (static, booking widget flagged) and
+  El Nof (Vite build, Intake Studio loader removed); Premium is refused, and a 26 MiB test file is flagged.
 - 2026-11-16: built and tested on El Nof (Vite + prerender, Intake Studio connected), Tnufa (static,
   booking widget, not in git) and Art Rock Dental (stopped correctly: its last commit has no index.html).

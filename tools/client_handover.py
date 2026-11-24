@@ -1,4 +1,6 @@
-"""Build the hand-over package for a client who leaves a Mashtech monthly plan.
+"""Build the hand-over package for a client who leaves a Mashtech monthly plan,
+or (with --one-time) for a client who paid once and gets the site on their own
+Cloudflare Pages account at delivery.
 
 One command produces everything the client keeps (site files ready to upload, the
 source, their content) plus a checklist and a message for you. See
@@ -6,6 +8,9 @@ workflows/client_handover.md for when and how to use it.
 
     python tools/client_handover.py websites/el-nof-panorama --client "וילה אל נוף" \
         --domain villa-el-nof-panorama.co.il --plan premium
+
+    python tools/client_handover.py websites/tnufa-physio --client "תנופה" \
+        --domain tnufa.co.il --plan starter --one-time --live-date 2026-12-01
 
 What it does, in order:
   1. Copies the source from the last commit (what is live), never .env files.
@@ -342,6 +347,12 @@ def secret_scan(folders: list[Path]) -> tuple[list[str], list[str]]:
 SUPABASE_RE = re.compile(r"https://([a-z0-9-]+)\.supabase\.co", re.I)
 BOOKING_MARKERS = ("data-booking-mount", "booking/widget.js", "booking-platform")
 
+# One-time clients: the site goes onto Cloudflare Pages in the client's account (free plan, business use allowed).
+# Folder uploads take files up to 25 MiB, and the dashboard upload takes up to 1,000 files.
+CF_MAX_FILE = 25 * 1024 * 1024
+CF_DASHBOARD_MAX_FILES = 1000
+FREE_FIX_DAYS = 30  # one-time clients get free fixes for this many days after go-live
+
 
 def outside_hosts(folder: Path) -> tuple[list[str], bool]:
     """Outside hosts the site loads or calls, and whether it embeds the Mashtech booking widget."""
@@ -486,6 +497,160 @@ def client_message(ctx: dict) -> str:
 """
 
 
+# ----------------------------------------------------------------------------- 5b. one-time clients
+
+def not_included(ctx: dict) -> tuple[list[str], list[str]]:
+    """What a one-time client doesn't get, in Hebrew and English."""
+    he = ["מערכת העריכה העצמית (אפשר עדיין לשנות טקסטים ותמונות ישירות בקבצים)",
+          "גיבויים (website.zip הוא הגיבוי שלכם)",
+          f"טיפול בתקלות אחרי {ctx['fixes_until_he']}",
+          "עדכונים חודשיים"]
+    en = ["the self-editing system (texts and photos can still be changed in the files)",
+          "backups (website.zip is your backup)",
+          f"fixes after {ctx['fixes_until']}",
+          "monthly updates"]
+    he += [x for x in ctx["lost_he"] if not x.startswith("עורך התוכן")]
+    en += [x for x in ctx["lost_en"] if not x.startswith("the content editor") and x not in MASHTECH_SERVICES]
+    return he, en
+
+
+def readme_one_time(ctx: dict) -> str:
+    no_he, no_en = not_included(ctx)
+    until_he, until_en = ctx["fixes_until_he"], ctx["fixes_until"]
+    cms_he = "\nהשינויים שעשיתם בעורך התוכן כלולים בקבצים (cms-content.json ותיקיית cms-media)." if ctx["cms_frozen"] else ""
+    cms_en = "\nThe edits you made in the content editor are included (cms-content.json and the cms-media folder)." if ctx["cms_frozen"] else ""
+    env_he = ("\nלמפתח שימשיך את האתר: הקוד משתמש בהגדרות האלה (רק השמות; הערכים לא נמסרים):\n  " + ", ".join(ctx["env"])) if ctx["env"] else ""
+    env_en = ("\nFor the next developer: the code reads these settings (names only; values are not handed over):\n  " + ", ".join(ctx["env"])) if ctx["env"] else ""
+    build_en = f"\nBuild: npm ci && npm run build  ->  {ctx['outdir']}/" if ctx["kind"] == "build" else ""
+    dom_he = ("   דומיין: " + ctx["domain"]) if ctx["domain"] else ""
+    dom_en = ("   Domain: " + ctx["domain"]) if ctx["domain"] else ""
+    list_he = "\n".join(f"  - {x}" for x in no_he)
+    list_en = "\n".join(f"  - {x}" for x in no_en)
+    return f"""האתר {ctx['client']} — חבילת מסירה (תשלום חד־פעמי)
+{'=' * 40}
+תאריך: {ctx['date']}{dom_he}
+
+מה יש כאן
+  - website.zip: האתר עצמו, בדיוק הקבצים שבאוויר. שמרו אותו, הוא הגיבוי שלכם.
+  - source.zip: קוד המקור, למפתח שימשיך לעבוד על האתר.
+  - הקובץ הזה.
+
+הכול שלכם: האתר מאוחסן ב־Cloudflare Pages בחשבון החינמי שלכם, הדומיין רשום על שמכם ובחשבון שלכם, והטקסטים, התמונות והלוגו שייכים לכם.{cms_he}
+
+מה כלול
+  - הקמת האתר בחשבון Cloudflare שלכם וחיבור הדומיין.
+  - תיקון כל תקלה בלי תשלום עד {until_he}.
+
+מה לא כלול
+{list_he}
+
+כל שינוי אחרי {until_he} מקבל הצעת מחיר לפני שמתחילים. רוצים לעבור למנוי בהמשך? אפשר בכל שלב.
+
+שמרו את פרטי הכניסה ל־Cloudflare ולחשבון הדומיין. בלעדיהם אי אפשר לשנות את האתר.
+
+איך מעלים גרסה חדשה של האתר (למי שישנה אותו)
+1. פותחים את website.zip ומשנים את הקבצים.
+2. ב־Cloudflare נכנסים ל־Workers & Pages, בוחרים את הפרויקט של האתר, לוחצים Create deployment וגוררים את התיקייה.
+{env_he}
+
+שאלות? יניר משטא, Mashtech · וואטסאפ 054-996-1663 · mashtatech@gmail.com
+
+
+{ctx['client']} — hand-over package (one-time payment)
+{'=' * 40}
+Date: {ctx['date']}{dom_en}
+
+What's inside
+  - website.zip: the site itself, exactly the files that are live. Keep it: it's your backup.
+  - source.zip: the source code, for a developer who carries on.
+  - this file.
+
+It's all yours: the site is hosted on Cloudflare Pages in your own free account, the domain is registered in your name and account, and the texts, photos and logo are yours.{cms_en}
+
+Included
+  - Setting the site up in your Cloudflare account and connecting the domain.
+  - Fixing any problem at no charge until {until_en}.
+
+Not included
+{list_en}
+
+Any change after {until_en} gets a quote before work starts. Want to switch to the monthly plan later? You can at any time.
+
+Keep your Cloudflare and domain-account logins safe. Without them nobody can change the site.
+
+Uploading a new version of the site (for whoever changes it)
+1. Open website.zip and change the files.
+2. In Cloudflare, open Workers & Pages, pick the site's project, click Create deployment and drop in the folder.
+{env_en}{build_en}
+
+Questions? Yanir Mashta, Mashtech · WhatsApp +972 54-996-1663 · mashtatech@gmail.com
+"""
+
+
+def checklist_one_time(ctx: dict) -> str:
+    dom = ctx["domain"] or "the domain"
+    www = f"www.{ctx['domain']}" if ctx["domain"] else "the www address"
+    lines = [
+        f"# One-time set-up checklist: {ctx['client']} ({ctx['name']})",
+        "",
+        f"Package built {ctx['date']} from {ctx['source_ref']}. Client zip: `{ctx['client_zip']}`",
+        f"Go-live {ctx['live_date']}; free fixes until {ctx['fixes_until']} ({FREE_FIX_DAYS} days).",
+        "",
+        "## Before you start",
+        "- [ ] The one-time price is paid (Starter ₪1,690 / Professional ₪3,190, or what the quote says).",
+        "- [ ] Opened website.zip locally and the site looks right (`python -m http.server` inside the folder).",
+        "- [ ] The client opened a free Cloudflare account with their own email and password,"
+        " and added you as a member (Manage Account → Members).",
+        "",
+        "## Put the site on the client's Cloudflare",
+        "- [ ] Workers & Pages → Create → Pages → Upload assets: named the project and dropped in the unzipped website folder.",
+        "- [ ] Opened the `<project>.pages.dev` address and checked every page, on a phone too.",
+        "- [ ] Email first: if the domain has email (MX records, e.g. Google Workspace), checked that Cloudflare"
+        " copied those records before changing anything. If they're missing, the client's email stops.",
+        f"- [ ] Pages project → Custom domains: added {dom} and {www}.",
+        "- [ ] In the client's domain account: replaced the nameservers with the two Cloudflare gives. The domain stays registered in their name.",
+        f"- [ ] {dom} opens from Cloudflare with https (the lock), and the client's email still works.",
+        "",
+        "## After the domain answers from Cloudflare (not before, or the site goes dark)",
+        f"- [ ] If the site ran on your Vercel (preview or an earlier plan): removed {dom} from the project, then paused or deleted the project.",
+        "- [ ] GitHub: kept the repo private as an archive, or transferred it to the client if they asked.",
+    ]
+    if ctx["cms_used"]:
+        lines.append("- [ ] Intake Studio: archived the site and removed the client's editor access.")
+    if ctx["booking"]:
+        lines.append("- [ ] Booking: the site embeds the booking widget, which isn't part of a one-time sale."
+                     " Swapped it for a WhatsApp or phone link, or deactivated the business on the booking platform.")
+    lines += [
+        "- [ ] Sent the client zip and `message-to-client.txt` (WhatsApp or email).",
+        f"- [ ] Put {ctx['fixes_until']} in your calendar: the end of free fixes.",
+        f"- [ ] On {ctx['fixes_until']}: removed yourself as a member of their Cloudflare account,"
+        " or stayed on with the client's OK for paid changes.",
+        "- [ ] No monthly charge set up; kept the invoice.",
+        "- [ ] LeadFlow: marked the client as a one-time client.",
+        "",
+        "## Notes from the build",
+    ]
+    lines += [f"- {n}" for n in ctx["notes"]] or ["- None."]
+    if ctx["warnings"]:
+        lines += ["", "## Warnings"] + [f"- {w}" for w in ctx["warnings"]]
+    if ctx["soft"]:
+        lines += ["", "## Check these (not blocking)"] + [f"- {x}" for x in ctx["soft"]]
+    lines += ["", "## Outside services the site still loads", ""] + ([f"- {h}" for h in ctx["hosts"]] or ["- None."])
+    return "\n".join(lines) + "\n"
+
+
+def message_one_time(ctx: dict) -> str:
+    where = f" בכתובת {ctx['domain']}" if ctx["domain"] else ""
+    return f"""היי{(' ' + ctx['contact']) if ctx['contact'] else ''},
+האתר {ctx['client']} באוויר{where}, בחשבון ה־Cloudflare שלכם.
+מצורפת חבילת המסירה: כל קבצי האתר (שמרו אותם, זה הגיבוי שלכם), קוד המקור, וקובץ הסבר קצר (README.txt).
+עד {ctx['fixes_until_he']} אני מתקן כל תקלה בלי תשלום. אחרי זה כל שינוי מקבל הצעת מחיר לפני שמתחילים.
+שמרו את פרטי הכניסה ל־Cloudflare ולחשבון הדומיין, כי בלעדיהם אי אפשר לשנות את האתר. ואם תרצו לעבור למנוי בהמשך, אפשר בכל שלב.
+תודה על העבודה המשותפת!
+יניר
+"""
+
+
 # ----------------------------------------------------------------------------- main
 
 def main() -> None:
@@ -496,16 +661,28 @@ def main() -> None:
     ap.add_argument("--domain", default="", help="the site's domain, e.g. villa-el-nof-panorama.co.il")
     ap.add_argument("--plan", choices=["starter", "professional", "premium"], default="starter")
     ap.add_argument("--skip-build", action="store_true", help="don't build; ship the source only (for a quick look)")
+    ap.add_argument("--one-time", action="store_true",
+                    help="one-time client (Starter/Professional): set-up checklist for their own Cloudflare Pages, not a leaving checklist")
+    ap.add_argument("--live-date", default="", help="one-time: go-live date YYYY-MM-DD (default today); free fixes run 30 days from it")
     ap.add_argument("--out", default=str(WAT_ROOT / ".tmp" / "handover"))
     ap.add_argument("--cms-content-file", type=Path, help="testing: use this JSON instead of the live Intake Studio content")
     args = ap.parse_args()
+    if args.one_time and args.plan == "premium":
+        fail("Premium is monthly only (booking, payments, SMS and reviews run through the plan), so it has no one-time hand-over.")
+    if args.one_time and args.skip_build:
+        fail("--one-time needs the built site (website.zip) for Cloudflare Pages; drop --skip-build.")
+    try:
+        live_date = dt.date.fromisoformat(args.live_date) if args.live_date else dt.date.today()
+    except ValueError:
+        fail(f"--live-date must look like 2026-12-01, not {args.live_date!r}")
+    fixes_until = live_date + dt.timedelta(days=FREE_FIX_DAYS)
 
     site = Path(args.site).resolve()
     if not site.is_dir():
         fail(f"no such folder: {site}")
     name = site.name
     date = dt.date.today().isoformat()
-    out = Path(args.out) / f"{name}-{date}"
+    out = Path(args.out) / (f"{name}-onetime-{date}" if args.one_time else f"{name}-{date}")
     if out.exists():
         shutil.rmtree(out)
     out.mkdir(parents=True)
@@ -523,6 +700,9 @@ def main() -> None:
             warnings.append("Removed committed .env file(s) from the package: " + ", ".join(removed) + ". Rotate any secret they held.")
         kind, _pkg = detect_kind(src)
         say(f"    {source_ref}; kind: {kind}")
+        if args.one_time and kind == "next":
+            fail("Next.js app: it needs a server, so it can't go on Cloudflare Pages as a folder upload."
+                 " Quote this one-time hand-over separately.")
 
         say("2/5 freezing Intake Studio content")
         cms = freeze_cms(src, kind, args.cms_content_file, notes, warnings)
@@ -553,6 +733,17 @@ def main() -> None:
         if envs and kind == "build" and website is not None:
             warnings.append("The build ran without any settings (.env is never copied). The code reads: "
                             + ", ".join(envs) + ". If the site needs them at build time, check the built copy.")
+
+        if website is not None:
+            files = [f for f in website.rglob("*") if f.is_file()]
+            big = [f"{f.relative_to(website).as_posix()} ({f.stat().st_size / 2**20:.0f} MiB)"
+                   for f in files if f.stat().st_size > CF_MAX_FILE]
+            to = warnings if args.one_time else notes
+            if big:
+                to.append("Cloudflare Pages takes files up to 25 MiB; compress or move these first: " + ", ".join(big))
+            if len(files) > CF_DASHBOARD_MAX_FILES:
+                to.append(f"{len(files)} files: the Cloudflare dashboard upload takes up to {CF_DASHBOARD_MAX_FILES};"
+                          " use `npx wrangler pages deploy <folder>` instead.")
 
         say("4/5 scanning for secrets")
         scan_dirs = [d for d in (src, website) if d is not None]
@@ -594,16 +785,18 @@ def main() -> None:
             "lost_he": lost_he, "lost_en": lost_en, "notes": notes, "warnings": warnings, "booking": booking,
             "has_website": website is not None,
             "soft": soft, "hosts": hosts, "source_ref": source_ref,
+            "one_time": args.one_time, "live_date": live_date.isoformat(),
+            "fixes_until": fixes_until.isoformat(), "fixes_until_he": fixes_until.strftime("%d.%m.%Y"),
         }
-        (client_dir / "README.txt").write_text(readme(ctx), encoding="utf-8")
-        client_zip = out / f"handover-{name}-{date}.zip"
+        (client_dir / "README.txt").write_text((readme_one_time if args.one_time else readme)(ctx), encoding="utf-8")
+        client_zip = out / f"handover-{out.name}.zip"
         ctx["client_zip"] = str(client_zip)
         zip_dir(client_dir, client_zip)
-        (out / "owner-checklist.md").write_text(checklist(ctx), encoding="utf-8")
-        (out / "message-to-client.txt").write_text(client_message(ctx), encoding="utf-8")
+        (out / "owner-checklist.md").write_text((checklist_one_time if args.one_time else checklist)(ctx), encoding="utf-8")
+        (out / "message-to-client.txt").write_text((message_one_time if args.one_time else client_message)(ctx), encoding="utf-8")
 
     say("")
-    say(f"Done: {out}")
+    say(f"Done: {out}" + (f"  (one-time; free fixes until {fixes_until.isoformat()})" if args.one_time else ""))
     web_part = f"website.zip {n_web} files, " if n_web else "no website.zip, "
     say(f"  client zip : {client_zip.name}  ({web_part}source.zip {n_src} files, README.txt)")
     say("  for you    : owner-checklist.md, message-to-client.txt" + (", build.log" if log.exists() else ""))
