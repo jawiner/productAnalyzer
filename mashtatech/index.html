@@ -860,6 +860,7 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
             <p class="pc-lede" data-t="prod2_lede">ה־CRM שמוצא לכם לקוחות חדשים בגוגל מפות, ומזכיר לכם בטלגרם מתי לחזור אליהם.</p>
             <div class="pc-cta">
               <a class="pc-btn" data-wa="prod2_wa" href="https://wa.me/972549961663?text=%D7%94%D7%99%D7%99%2C%20%D7%94%D7%92%D7%A2%D7%AA%D7%99%20%D7%9E%D7%94%D7%90%D7%AA%D7%A8%20%D7%A9%D7%9C%20Mashtech%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A7%D7%91%D7%9C%20%D7%92%D7%99%D7%A9%D7%94%20%D7%9E%D7%95%D7%A7%D7%93%D7%9E%D7%AA%20%D7%9C-LeadFlow" target="_blank" rel="noopener noreferrer"><span data-t="prod2_cta">לבקש גישה מוקדמת</span><span class="pc-arrow" aria-hidden="true">↖</span></a>
+              <button type="button" class="pc-link pc-film" id="prod2FilmBtn"><span aria-hidden="true" class="pc-tri"></span><span data-t="prod2_film">צפו בסרטון</span><span class="pc-film-len" data-t="prod2_film_len">55 שניות</span></button>
               <a class="pc-link" data-url="prod2_url" href="https://mapflow-crm.vercel.app/welcome" target="_blank" rel="noopener noreferrer"><span data-t="prod2_page">לעמוד של LeadFlow</span><span aria-hidden="true">↗</span></a>
             </div>
           </div>
@@ -1287,6 +1288,7 @@ const translations = {
     prod2_toast_head: 'תזכורת בטלגרם · 10:00',
     prod2_toast: 'הגיע הזמן להתקשר לסטודיו שיער דנה.',
     prod2_cta: 'לבקש גישה מוקדמת', prod2_page: 'לעמוד של LeadFlow',
+    prod2_film: 'צפו בסרטון', prod2_film_len: '55 שניות', prod2_film_name: 'LeadFlow', prod2_film_tag: 'נפתח בקרוב · 55 שניות',
     prod2_url: 'https://mapflow-crm.vercel.app/welcome',
     prod2_wa: 'היי, הגעתי מהאתר של Mashtech ואשמח לקבל גישה מוקדמת ל-LeadFlow',
     prod2_f1: 'פניות, שיחות, מעקב והצעות מחיר בלוח אחד.',
@@ -1418,6 +1420,7 @@ const translations = {
     prod2_toast_head: 'Telegram reminder · 10:00',
     prod2_toast: 'Time to call Dana Hair Studio.',
     prod2_cta: 'Ask for early access', prod2_page: 'LeadFlow’s page',
+    prod2_film: 'Watch the film', prod2_film_len: '55 s · Hebrew', prod2_film_name: 'LeadFlow', prod2_film_tag: 'Opening soon · 55 s · Hebrew',
     prod2_url: 'https://mapflow-crm.vercel.app/welcome?lang=en',
     prod2_wa: "Hi, I found you through the Mashtech site and I'd like early access to LeadFlow",
     prod2_f1: 'Leads, calls, follow-ups and quotes on one board.',
@@ -2006,6 +2009,8 @@ function closeFilm() {
 const PROCESS_FILM = { key: 'process_film', film: { he: 'assets/video/film-process.mp4' }, visitKey: 'contact_cta_whatsapp', url: () => (document.getElementById('fab') || {}).href || 'https://wa.me/972549961663' };
 // The AI receptionist reel (vertical, 9:16), opened from its product card. Its side button is the card's WhatsApp link.
 const RECEPTIONIST_FILM = { key: 'prod1_film', vertical: true, film: { he: 'assets/video/film-receptionist.mp4' }, visitKey: 'prod1_cta', url: () => (document.querySelector('[data-wa="prod1_wa"]') || {}).href || 'https://wa.me/972549961663' };
+// The LeadFlow reel (vertical, 9:16), opened from its product card. Its side button is the card's early-access WhatsApp link.
+const LEADFLOW_FILM = { key: 'prod2_film', vertical: true, film: { he: 'assets/video/film-leadflow.mp4' }, visitKey: 'prod2_cta', url: () => (document.querySelector('[data-wa="prod2_wa"]') || {}).href || 'https://wa.me/972549961663' };
 function initFilmModal() {
   const modal = document.getElementById('filmModal');
   if (!modal) return;
@@ -2014,6 +2019,7 @@ function initFilmModal() {
   document.getElementById('filmModalClose').addEventListener('click', closeFilm);
   document.getElementById('processFilmBtn')?.addEventListener('click', () => openFilm(PROCESS_FILM));
   document.getElementById('prod1FilmBtn')?.addEventListener('click', () => openFilm(RECEPTIONIST_FILM));
+  document.getElementById('prod2FilmBtn')?.addEventListener('click', () => openFilm(LEADFLOW_FILM));
   window.addEventListener('keydown', (e) => {
     if (modal.hidden) return;
     if (e.key === 'Escape') { e.stopPropagation(); closeFilm(); return; }
