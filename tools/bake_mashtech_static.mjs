@@ -153,6 +153,7 @@ ${projects}
 
 - אימייל: mashtatech@gmail.com
 - וואטסאפ וטלפון: 054-996-1663
+- אינסטגרם: https://www.instagram.com/mashtech_il/
 - אתר: ${SITE}/
 
 ## שאלות נפוצות
