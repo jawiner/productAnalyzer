@@ -127,6 +127,8 @@ a:hover{color:inherit;}
 #filmModal.is-open #filmModalBackdrop{opacity:1;}
 #filmModal.is-open #filmModalCard{opacity:1;transform:none;}
 #filmModalVideo{display:block;width:100%;aspect-ratio:16/9;background:#0E100E;border-radius:8px;box-shadow:0 40px 100px -30px rgba(0,0,0,.8),0 0 0 1px rgba(201,247,197,.3);}
+#filmModal.is-vertical #filmModalCard{width:min(440px,100%,calc((92vh - 96px) * 9 / 16));width:min(440px,100%,calc((92dvh - 96px) * 9 / 16));}
+#filmModal.is-vertical #filmModalVideo{aspect-ratio:9/16;}
 #filmModalBar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:14px;}
 #filmModalName{font-size:19px;font-weight:500;letter-spacing:-.01em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 #filmModalTag{font-family:'IBM Plex Mono',var(--ft);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#C9F7C5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -577,6 +579,10 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
 .pc-btn{display:inline-flex;align-items:center;gap:10px;padding:15px 24px;border-radius:10px;background:#C9F7C5;color:#0E100E;font-size:15px;font-weight:600;transition:background .25s,transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease;}
 .pc-link{display:inline-flex;align-items:center;gap:8px;padding:6px 0;font-size:15px;color:rgba(233,235,232,.78);border-bottom:1px solid rgba(233,235,232,.22);transition:color .25s,border-color .25s;}
 .pc-arrow{font-family:'IBM Plex Mono',var(--ft);}
+.pc-film{appearance:none;-webkit-appearance:none;margin:0;background:none;border:0;border-bottom:1px solid rgba(233,235,232,.22);font:inherit;font-size:15px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.pc-film:focus-visible{outline:2px solid #C9F7C5;outline-offset:3px;}
+.pc-tri{flex:none;width:0;height:0;border-style:solid;border-width:5px 0 5px 8px;border-color:transparent transparent transparent currentColor;}
+.pc-film-len{font-family:'IBM Plex Mono',var(--ft);font-size:12px;letter-spacing:.06em;opacity:.6;}
 [dir="ltr"] .pc-btn .pc-arrow{display:inline-block;transform:scaleX(-1);}
 @media (hover:hover){
   .pc-btn:hover{background:#E9EBE8;color:#0E100E;transform:translateY(-2px);box-shadow:0 14px 30px -14px rgba(201,247,197,.6);}
@@ -818,6 +824,7 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
             <p class="pc-lede" data-t="prod1_lede">לא הספקתם לענות? היא עונה במקומכם בעברית, ורושמת מי התקשר ומה הוא צריך.</p>
             <div class="pc-cta">
               <a class="pc-btn" data-wa="prod1_wa" href="https://wa.me/972549961663?text=%D7%94%D7%99%D7%99%2C%20%D7%94%D7%92%D7%A2%D7%AA%D7%99%20%D7%9E%D7%94%D7%90%D7%AA%D7%A8%20%D7%A9%D7%9C%20Mashtech%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%A2%D7%9C%20%D7%94%D7%9E%D7%96%D7%9B%D7%99%D7%A8%D7%94%20%D7%94%D7%A7%D7%95%D7%9C%D7%99%D7%AA%20%D7%9C%D7%A2%D7%A1%D7%A7" target="_blank" rel="noopener noreferrer"><span data-t="prod1_cta">לפרטים בוואטסאפ</span><span class="pc-arrow" aria-hidden="true">↖</span></a>
+              <button type="button" class="pc-link pc-film" id="prod1FilmBtn"><span aria-hidden="true" class="pc-tri"></span><span data-t="prod1_film">צפו בסרטון</span><span class="pc-film-len" data-t="prod1_film_len">56 שניות</span></button>
               <a class="pc-link" data-url="prod1_url" href="https://ai-receptionist-il.fly.dev/" target="_blank" rel="noopener noreferrer"><span data-t="prod1_page">לעמוד המוצר</span><span aria-hidden="true">↗</span></a>
             </div>
           </div>
@@ -1262,6 +1269,7 @@ const translations = {
     prod1_l6: 'קבעתי. מחכים לכם מחר בשמונה.',
     prod1_booked_title: 'נקבע ביומן', prod1_booked_when: 'מחר, 08:00 · רוני כהן', prod1_booked_tag: 'בחבילת מענה + יומן',
     prod1_cta: 'לפרטים בוואטסאפ', prod1_page: 'לעמוד המוצר',
+    prod1_film: 'צפו בסרטון', prod1_film_len: '56 שניות', prod1_film_name: 'מזכירה קולית', prod1_film_tag: 'נפתח בקרוב · 56 שניות',
     prod1_url: 'https://ai-receptionist-il.fly.dev/',
     prod1_wa: 'היי, הגעתי מהאתר של Mashtech ואשמח לשמוע על המזכירה הקולית לעסק',
     // prod1_f*, prod1_micro: only for llms.txt and the structured data (tools/bake_mashtech_static.mjs)
@@ -1393,6 +1401,7 @@ const translations = {
     prod1_l6: 'Booked. See you tomorrow at 8.',
     prod1_booked_title: 'Booked in the calendar', prod1_booked_when: 'Tomorrow, 08:00 · Roni Cohen', prod1_booked_tag: 'Answer + Calendar plan',
     prod1_cta: 'Ask on WhatsApp', prod1_page: 'Product page (Hebrew)',
+    prod1_film: 'Watch the film', prod1_film_len: '56 s · Hebrew', prod1_film_name: 'AI Receptionist', prod1_film_tag: 'Opening soon · 56 s · Hebrew',
     prod1_url: 'https://ai-receptionist-il.fly.dev/',
     prod1_wa: "Hi, I found you through the Mashtech site and I'd like to hear about the AI receptionist",
     prod1_f1: 'Your phone still rings first. Only the calls you miss go to her.',
@@ -1974,6 +1983,7 @@ function openFilm(w) {
   document.getElementById('filmModalClose').setAttribute('aria-label', tr.aria_close_film);
   video.poster = src.replace('.mp4', '-poster.jpg');
   video.src = src;
+  modal.classList.toggle('is-vertical', !!w.vertical);
   modal.hidden = false;
   document.documentElement.style.overflow = 'hidden';
   requestAnimationFrame(() => modal.classList.add('is-open'));
@@ -1993,6 +2003,8 @@ function closeFilm() {
 }
 // The process film ("how it works"), opened from its button in #process. Its side button is WhatsApp.
 const PROCESS_FILM = { key: 'process_film', film: { he: 'assets/video/film-process.mp4' }, visitKey: 'contact_cta_whatsapp', url: () => (document.getElementById('fab') || {}).href || 'https://wa.me/972549961663' };
+// The AI receptionist reel (vertical, 9:16), opened from its product card. Its side button is the card's WhatsApp link.
+const RECEPTIONIST_FILM = { key: 'prod1_film', vertical: true, film: { he: 'assets/video/film-receptionist.mp4' }, visitKey: 'prod1_cta', url: () => (document.querySelector('[data-wa="prod1_wa"]') || {}).href || 'https://wa.me/972549961663' };
 function initFilmModal() {
   const modal = document.getElementById('filmModal');
   if (!modal) return;
@@ -2000,6 +2012,7 @@ function initFilmModal() {
   document.getElementById('filmModalBackdrop').addEventListener('click', closeFilm);
   document.getElementById('filmModalClose').addEventListener('click', closeFilm);
   document.getElementById('processFilmBtn')?.addEventListener('click', () => openFilm(PROCESS_FILM));
+  document.getElementById('prod1FilmBtn')?.addEventListener('click', () => openFilm(RECEPTIONIST_FILM));
   window.addEventListener('keydown', (e) => {
     if (modal.hidden) return;
     if (e.key === 'Escape') { e.stopPropagation(); closeFilm(); return; }
