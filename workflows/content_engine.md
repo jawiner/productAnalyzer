@@ -35,6 +35,9 @@ Brand today: **LifeMaxer** (never write or say "Lifemaxing" in content).
    (Opus 5.5, high effort, 150 min limit) with `rules.md` as the system prompt. Deliverables:
    `out/final.mp4`, `out/review.mp4`, `out/cover.jpg`, `out/caption.txt`. The worker checks them
    with ffprobe and uploads them to the private `content-media` bucket.
+   While a video, study or render runs, `WAT-RenderAwake` (`tools/render_awake/`, USER 2026-11-25)
+   keeps PowerToys Awake on so the laptop doesn't doze mid-run (it did, and the 150-min limit
+   then fired late). Its log is `.tmp/render_awake/render_awake.log`.
 3. **Approve.** The function sends the video to Telegram with **Post it / Change / Drop**.
    Change makes a new version in the same project.
 4. **Post.** `content-engine-posts` (every 2 min, only while a post is queued) posts the Reel to
