@@ -1,6 +1,8 @@
 # Registers render_awake.py with Task Scheduler: starts at sign-in and keeps running in the background
 # (no time limit, restarted if it crashes), and starts it now. It turns PowerToys Awake on while a render
-# runs (USER 2026-11-25). Re-running this script replaces the task and restarts the watcher.
+# runs. Re-running this script replaces the task and restarts the watcher.
+# OFF since 2026-11-25: the USER wants Awake manual only, so the task was removed. Don't run this
+# script without the USER asking for automatic Awake again.
 #
 #   powershell -ExecutionPolicy Bypass -File tools\render_awake\setup_task.ps1
 #   powershell -ExecutionPolicy Bypass -File tools\render_awake\setup_task.ps1 -Remove
