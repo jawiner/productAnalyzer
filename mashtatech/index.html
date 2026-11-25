@@ -35,13 +35,24 @@
 <link rel="preload" href="assets/fonts/assistant-200-600-hebrew.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/playfair-display-600-latin.woff2" as="font" type="font/woff2" crossorigin>
 <script defer src="assets/analytics.js"></script>
+<link rel="preload" as="image" href="assets/landingpage-animation-mobile-poster.webp" media="(max-width: 760px) and (prefers-reduced-motion: no-preference)" fetchpriority="high">
+<script>
+/* Phones: give the hero its phone layout before the first paint, so the first screen does not
+   wait for the page script (initIntroScrub sets the same classes again when it runs). */
+(function(){try{
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches||!matchMedia('(max-width: 760px)').matches)return;
+  var d=document.documentElement;
+  d.classList.add('m-scrub');
+  if(/iP(hone|od|ad)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))d.classList.add('m-jack');
+}catch(e){}})();
+</script>
 <style>
 :root{--fd:'Frank Ruhl Libre',serif;--ft:'Assistant',sans-serif;}
 @font-face{font-family:'Assistant';font-style:normal;font-weight:200 600;font-display:swap;src:url(assets/fonts/assistant-200-600-hebrew.woff2) format('woff2');unicode-range:U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;}
-@font-face{font-family:'Assistant';font-style:normal;font-weight:200 600;font-display:swap;src:url(assets/fonts/assistant-200-600-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face{font-family:'Assistant';font-style:normal;font-weight:200 600;font-display:swap;src:url(assets/fonts/assistant-200-600-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20A9, U+20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;}
 @font-face{font-family:'Assistant';font-style:normal;font-weight:200 600;font-display:swap;src:url(assets/fonts/assistant-200-600-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
 @font-face{font-family:'Frank Ruhl Libre';font-style:normal;font-weight:300 400;font-display:swap;src:url(assets/fonts/frank-ruhl-libre-300-400-hebrew.woff2) format('woff2');unicode-range:U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;}
-@font-face{font-family:'Frank Ruhl Libre';font-style:normal;font-weight:300 400;font-display:swap;src:url(assets/fonts/frank-ruhl-libre-300-400-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face{font-family:'Frank Ruhl Libre';font-style:normal;font-weight:300 400;font-display:swap;src:url(assets/fonts/frank-ruhl-libre-300-400-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20A9, U+20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;}
 @font-face{font-family:'Frank Ruhl Libre';font-style:normal;font-weight:300 400;font-display:swap;src:url(assets/fonts/frank-ruhl-libre-300-400-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
 @font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:300;font-display:swap;src:url(assets/fonts/ibm-plex-mono-300-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;}
 @font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:300;font-display:swap;src:url(assets/fonts/ibm-plex-mono-300-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
@@ -234,21 +245,28 @@ a:hover{color:inherit;}
 .service-panel::after{content:'';position:absolute;inset:-1.5px;border-radius:29.5px;padding:1.5px;background:conic-gradient(from calc(var(--edgeangle,0deg)),rgba(201,247,197,.15) 0deg,#C9F7C5 55deg,rgba(233,255,225,.9) 90deg,rgba(201,247,197,.15) 130deg,rgba(201,247,197,.1) 230deg,#C9F7C5 305deg,rgba(233,255,225,.6) 330deg,rgba(201,247,197,.15) 360deg);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;z-index:-1;}
 [data-reveal]{opacity:0;transform:translateY(40px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);}
 [data-reveal].is-in{opacity:1;transform:translateY(0);}
-#introKickerEyebrow.is-in,#introKickerTextA.is-in,#introKickerTextMark.is-in{opacity:1 !important;transform:translateY(0) !important;}
+/* The first screen draws itself: the headline, the lede and the button are in the HTML and enter with
+   CSS, so they show at the first paint instead of after the page script (seconds on a slow phone). */
+@keyframes mIntro{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+#introKickerEyebrow{animation:mIntro .6s ease both;}
+#introKickerTextA{animation:mIntro .7s ease .05s both;}
+#introKickerTextMark{animation:mIntro .7s ease .18s both;}
+#heroStartIn{animation:mIntro .7s cubic-bezier(.16,1,.3,1) .5s both;}
+/* "Stop animations" pauses every animation: these must not freeze at their invisible first frame. */
+html.a11y-stop-anim :is(#introKickerEyebrow,#introKickerTextA,#introKickerTextMark,#heroStartIn){animation:none !important;}
+@media (prefers-reduced-motion:reduce){#introKicker,#heroStart{display:none;}}
 /* Hero, first screen: the lede and the buttons are also shown before the film is scrolled. They fade
    out as the film starts and the real ones (#heroCtaWrap) come back at its end, so the middle of the
    film stays clean. A visual copy only, like #introKicker: hidden from screen readers and from Tab. */
 #heroStart{position:absolute;top:0;inset-inline:0;height:100vh;height:100svh;z-index:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding:0 24px 60px;box-sizing:border-box;pointer-events:none;background:linear-gradient(0deg,rgba(14,16,14,.56) 0%,rgba(14,16,14,.26) 20%,transparent 40%);}
 #heroStart.is-off{visibility:hidden;}
-#heroStartIn{display:flex;flex-direction:column;align-items:center;gap:26px;text-align:center;opacity:0;transform:translateY(14px);transition:opacity .7s ease .5s,transform .7s cubic-bezier(.16,1,.3,1) .5s;}
-#heroStartIn.is-in{opacity:1;transform:none;}
+#heroStartIn{display:flex;flex-direction:column;align-items:center;gap:26px;text-align:center;}
 #heroStart p{margin:0;max-width:54ch;font-size:19px;line-height:1.6;color:#F4FFF2;text-shadow:0 1px 16px rgba(0,0,0,.65),0 1px 2px rgba(0,0,0,.5);text-wrap:balance;}
 .hs-btns{display:flex;gap:12px;pointer-events:auto;}
 #heroStart.is-off .hs-btns{pointer-events:none;}
 .hs-btns a{display:inline-flex;align-items:center;justify-content:center;padding:16px 28px;font-size:16px;box-sizing:border-box;}
 .hs-btn-1{background:#C9F7C5;color:#0E100E;font-weight:600;transition:background .25s,transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease;}
 .hs-btn-2{background:rgba(14,16,14,.44);border:1px solid rgba(244,255,242,.46);color:#F4FFF2;font-weight:400;transition:border-color .25s,color .25s;}
-@media (prefers-reduced-motion:reduce){#heroStartIn{transition:none;}}
 [data-reveal-stagger]{opacity:0;transform:translateY(40px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);}
 [data-reveal-stagger].is-in{opacity:1;transform:translateY(0);}
 .reveal-card{opacity:0;transform:translateY(40px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);}
@@ -714,13 +732,32 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
     <div id="heroVideoWrap" aria-hidden="true" style="position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;">
       <img id="heroPoster" src="assets/video/hero-poster.webp" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.34;">
       <video id="introVideo" muted playsinline preload="auto" data-src-wide="assets/landingpage-animation-scrub.mp4?v=1" data-src-tall="assets/landingpage-animation-scrub-mobile.mp4?v=1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"></video>
+      <script>
+      /* Phones: show the film's first frame and start fetching the film now, instead of after the page
+         script has run. initIntroScrub picks the download up from window.__heroFilm. */
+      (function(){try{
+        if(!document.documentElement.classList.contains('m-scrub'))return;
+        var v=document.getElementById('introVideo'),url=v.getAttribute('data-src-tall'),poster='assets/landingpage-animation-mobile-poster.webp';
+        var H=window.__heroFilm={url:url,posterReady:false,blob:null,start:null};
+        H.start=function(){
+          if(!H.blob&&window.fetch){H.blob=fetch(url,{priority:'low'}).then(function(r){return r.ok?r.blob():Promise.reject(r.status);});H.blob.catch(function(){});}
+          return H.blob;
+        };
+        v.poster=poster;
+        /* the small first frame goes first, the film right behind it */
+        var im=new Image();
+        im.onload=function(){H.posterReady=true;if(H.start)H.start();};
+        im.onerror=function(){if(H.start)H.start();};
+        im.src=poster;
+      }catch(e){}})();
+      </script>
       <div id="heroScrim" style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(14,16,14,.62) 0%,rgba(14,16,14,.18) 16%,transparent 30%);opacity:0;transition:opacity .4s ease;"></div>
     </div>
     <div id="introKicker" aria-hidden="true" style="position:absolute;top:106px;inset-inline:0;z-index:1;margin:0;text-align:center;font-family:var(--fd);font-weight:400;font-size:51px;letter-spacing:-.01em;color:#F4FFF2;text-shadow:0 2px 18px rgba(0,0,0,.55),0 1px 3px rgba(0,0,0,.4);opacity:1;transition:opacity .5s ease;pointer-events:none;">
-      <span style="font-family:'IBM Plex Mono',var(--ft);font-size:12px;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:#C9F7C5;display:block;margin-bottom:16px;opacity:0;transform:translateY(10px);transition:opacity .6s ease,transform .6s ease;" id="introKickerEyebrow" data-t="hero_kicker">פיתוח אתרים ומערכות · פתרונות AI</span>
-      <span id="introKickerTextA" style="display:inline-block;opacity:0;transform:translateY(14px);transition:opacity .7s ease .05s,transform .7s ease .05s;"></span>
-      <span id="introKickerTextMark" style="display:inline-block;position:relative;color:#C9F7C5;opacity:0;transform:translateY(14px);transition:opacity .7s ease .18s,transform .7s ease .18s;">
-        <span id="introKickerMarkText"></span>
+      <span style="font-family:'IBM Plex Mono',var(--ft);font-size:12px;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:#C9F7C5;display:block;margin-bottom:16px;" id="introKickerEyebrow" data-t="hero_kicker">פיתוח אתרים ומערכות · פתרונות AI</span>
+      <span id="introKickerTextA" style="display:inline-block;">פתרונות דיגיטליים </span>
+      <span id="introKickerTextMark" style="display:inline-block;position:relative;color:#C9F7C5;">
+        <span id="introKickerMarkText">שנבנו בדיוק עבורכם.</span>
         <span style="position:absolute;inset-inline-start:0;bottom:-.08em;height:2px;width:100%;background:linear-gradient(90deg,transparent,#C9F7C5,transparent);"></span>
       </span>
     </div>
@@ -1123,7 +1160,7 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
         <div style="border-inline-end:1px solid rgba(233,235,232,.12);padding-block:44px;padding-inline-start:0;padding-inline-end:44px;">
           <div id="aboutPortrait" class="sketch-reveal" style="position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;">
             <img class="sketch-reveal-photo" src="assets/yanir-mashta.webp" alt="יניר משטא" data-t-alt="about_name" loading="lazy" decoding="async" width="600" height="750" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:78% 50%;display:block;">
-            <img class="sketch-reveal-sketch" src="assets/yanir-mashta-sketch.jpg" alt="" aria-hidden="true" width="600" height="750" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:78% 50%;display:block;">
+            <img class="sketch-reveal-sketch" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="assets/yanir-mashta-sketch.jpg" alt="" aria-hidden="true" decoding="async" width="600" height="750" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:78% 50%;display:block;">
           </div>
         </div>
         <div style="padding-block:44px;padding-inline-end:0;padding-inline-start:56px;">
@@ -3436,12 +3473,6 @@ function applyTranslations() {
   document.getElementById('heroTitleB').textContent = tr.hero_title_b;
   document.getElementById('introKickerTextA').textContent = tr.hero_title_a;
   document.getElementById('introKickerMarkText').textContent = tr.hero_title_mark + tr.hero_title_b;
-  requestAnimationFrame(() => {
-    ['introKickerEyebrow', 'introKickerTextA', 'introKickerTextMark', 'heroStartIn'].forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) el.classList.add('is-in');
-    });
-  });
   document.getElementById('location').textContent = tr.location;
   document.getElementById('location2').textContent = tr.location;
   document.getElementById('availability').textContent = tr.availability;
@@ -4049,7 +4080,7 @@ lvhProbe.style.cssText = 'position:absolute;top:0;left:0;width:0;height:100vh;he
 document.body.appendChild(lvhProbe);
 function heroViewportH() { return lvhProbe.offsetHeight || window.innerHeight; }
 // On iPhone the film is driven by swipes, not by scrolling (initIntroScrub sets these).
-const heroState = { jack: false, done: false };
+const heroState = { jack: false, done: false, covers: () => false };
 function onScroll() {
   const introDone = heroState.jack
     ? (heroState.done || window.scrollY > 1)
@@ -4120,7 +4151,15 @@ setInterval(() => {
   const ctx = cv.getContext('2d');
   if (!ctx) return;
   const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const opaqueEls = ['about', 'contact'].map((id) => document.getElementById(id)).filter(Boolean);
+  // Everything with a solid background that can sit in front of the field, in page order.
+  const solid = (el) => {
+    const m = /rgba?\(([^)]+)\)/.exec(getComputedStyle(el).backgroundColor);
+    if (!m) return false;
+    const c = m[1].split(',');
+    return c.length < 4 || parseFloat(c[3]) === 1;
+  };
+  const opaqueEls = ['techStrip', 'services', 'products', 'work', 'process', 'pricing', 'faq', 'about', 'contact']
+    .map((id) => document.getElementById(id)).filter((el) => el && solid(el));
   const field = { w: 0, h: 0, pts: [], mx: 0, my: 0, tx: 0, ty: 0, t: 0, blobs: [] };
 
   function seed() {
@@ -4235,11 +4274,16 @@ setInterval(() => {
 
     window.addEventListener('resize', () => { seed(); draw(false); }, { passive: true });
 
+    // Hidden = the hero film fills the screen, or solid sections cover it from top to bottom
+    // (one section, or neighbours that touch). Then there is nothing to draw.
     function covers() {
+      if (heroState.covers()) return true;
       const vh = window.innerHeight;
+      let y = 0;
       for (let i = 0; i < opaqueEls.length; i++) {
         const r = opaqueEls[i].getBoundingClientRect();
-        if (r.top <= 0 && r.bottom >= vh) return true;
+        if (r.height > 0 && r.top <= y + 1 && r.bottom > y) y = r.bottom;
+        if (y >= vh) return true;
       }
       return false;
     }
@@ -4280,6 +4324,21 @@ initFilmModal();
 initSectionMove();
 initProducts();
 
+// The founder sketch (shown when the portrait is hovered or tapped) is fetched when the About
+// section is getting close, not at page start. It is clipped away until then, so the browser's
+// own lazy loading never sees it.
+(function () {
+  const img = document.querySelector('.sketch-reveal-sketch[data-src]');
+  const box = document.getElementById('aboutPortrait');
+  if (!img) return;
+  const load = () => { img.src = img.getAttribute('data-src'); img.removeAttribute('data-src'); };
+  if (!box || !('IntersectionObserver' in window)) { load(); return; }
+  const io = new IntersectionObserver((entries) => {
+    if (entries.some((e) => e.isIntersecting)) { io.disconnect(); load(); }
+  }, { rootMargin: '1500px 0px' });
+  io.observe(box);
+})();
+
 (function initIntroScrub() {
   const wrap = document.getElementById('heroScroll');
   const video = document.getElementById('introVideo');
@@ -4306,6 +4365,17 @@ initProducts();
     revealHero();
     return;
   }
+
+  // While the film (or its first frame) fills the screen, nothing behind it can be seen.
+  // The background field asks this before it draws (see "Hero particle field").
+  const topEl = document.getElementById('top');
+  heroState.covers = () => {
+    if (!topEl || (video.style.opacity && video.style.opacity !== '1')) return false;
+    const early = window.__heroFilm;
+    if (!(video.readyState >= 2 || (early && early.posterReady && video.poster))) return false;
+    const r = topEl.getBoundingClientRect();
+    return r.top <= 0 && r.bottom >= window.innerHeight;
+  };
 
   let targetProgress = 0;
   let currentProgress = 0;
@@ -4415,8 +4485,11 @@ initProducts();
         video.load();
         primeVideo();
       };
-      fetch(next)
-        .then((r) => (r.ok ? r.blob() : Promise.reject(r.status)))
+      // The small script next to the film has usually started this download already.
+      const early = window.__heroFilm;
+      const earlyBlob = early && early.url === next && early.start ? early.start() : null;
+      if (early) early.start = null; // one use: a later source swap fetches again (from the browser cache)
+      (earlyBlob || fetch(next).then((r) => (r.ok ? r.blob() : Promise.reject(r.status))))
         .then((b) => {
           if (source !== next) return;
           blobUrl = URL.createObjectURL(b);
