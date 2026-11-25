@@ -103,13 +103,21 @@ a:hover{color:inherit;}
 .pricing-onetime-link{color:#C9F7C5;white-space:nowrap;padding-bottom:2px;border-bottom:1px solid rgba(201,247,197,.35);transition:color .25s,border-color .25s;}
 .pricing-onetime-link:hover{color:#F4FFF2;border-bottom-color:#F4FFF2;}
 .pricing-onetime-link:focus-visible{outline:2px solid #C9F7C5;outline-offset:3px;border-radius:2px;}
+/* Every button has the LeadFlow card button's shape (.pc-btn): 10px corners. The mint ones
+   lift, turn light and glow on hover. !important beats the inline mint background (the nav
+   button's is set by script). The nav button only turns light once it is solid (.is-solid):
+   over the hero film it is an outline with light text. */
+:is(#langToggle,#navCta,#navMenuBtn,.mm-btn,.btn-cta-lift,.btn-outline,.contact-dark,.contact-outline,.social-icon){border-radius:10px;}
 .btn-lang:hover{border-color:#C9F7C5;color:#C9F7C5;}
-.btn-cta:hover{background:#E9EBE8;}
-.btn-cta-lift:hover{background:#E9EBE8;transform:translateY(-2px);}
 .btn-outline:hover{border-color:#C9F7C5;color:#C9F7C5;}
+@media (hover:hover){
+  :is(#navCta,.btn-cta-lift,.contact-dark):hover{transform:translateY(-2px);}
+  :is(#navCta.is-solid,.btn-cta-lift,.contact-dark):hover{background:#E9EBE8 !important;color:#0E100E !important;box-shadow:0 14px 30px -14px rgba(201,247,197,.6);}
+}
+:is(#navCta,.btn-cta-lift,.btn-outline,.contact-dark,.contact-outline,.mm-btn):active{transform:scale(.98);}
 .service-cell:hover{background:rgba(233,235,232,.03);}
 .work-arrow:hover{transform:scale(1.08);}
-.film-btn{display:inline-flex;align-items:center;gap:9px;height:42px;padding:0 16px;border:1px solid rgba(233,235,232,.22);background:rgba(14,16,14,.5);color:#E9EBE8;font-family:'IBM Plex Mono',var(--ft);font-size:11px;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;white-space:nowrap;cursor:pointer;border-radius:6px;transition:background .25s cubic-bezier(.16,1,.3,1),color .25s,border-color .25s,transform .25s cubic-bezier(.16,1,.3,1);}
+.film-btn{display:inline-flex;align-items:center;gap:9px;height:42px;padding:0 16px;border:1px solid rgba(233,235,232,.22);background:rgba(14,16,14,.5);color:#E9EBE8;font-family:'IBM Plex Mono',var(--ft);font-size:11px;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;white-space:nowrap;cursor:pointer;border-radius:10px;transition:background .25s cubic-bezier(.16,1,.3,1),color .25s,border-color .25s,transform .25s cubic-bezier(.16,1,.3,1);}
 .film-btn:hover{border-color:#C9F7C5;color:#C9F7C5;}
 .film-btn:active{transform:scale(.97);}
 .film-btn:focus-visible,.film-play:focus-visible{outline:2px solid #C9F7C5;outline-offset:3px;}
@@ -652,8 +660,8 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
       <a href="#about" class="hoverline" data-t="nav_about" style="padding-bottom:3px;border-bottom:1px solid transparent;transition:color .25s,border-color .25s;">אודות</a>
     </div>
     <div style="margin-inline-start:auto;display:flex;align-items:center;gap:18px;">
-      <button id="langToggle" class="btn-lang" data-t="lang_toggle" style="background:none;border:1px solid rgba(233,235,232,.20);color:#E9EBE8;font-family:'IBM Plex Mono',var(--ft);font-size:12px;letter-spacing:.10em;padding:9px 13px;cursor:pointer;transition:border-color .25s,color .25s;">EN</button>
-      <a id="navCta" href="#contact" class="btn-cta" style="display:inline-flex;align-items:center;gap:10px;background:#C9F7C5;color:#0E100E;border:1px solid transparent;padding:11px 20px;font-size:14px;font-weight:600;transition:background .3s ease,color .3s ease,border-color .3s ease;"><span data-t="nav_cta">בואו נדבר</span> <span id="navCtaArrow" style="font-family:'IBM Plex Mono',var(--ft);">↖</span></a>
+      <button id="langToggle" class="btn-lang" data-t="lang_toggle" style="background:none;border:1px solid rgba(233,235,232,.20);color:#E9EBE8;font-family:'IBM Plex Mono',var(--ft);font-size:12px;letter-spacing:.10em;padding:0 15px;align-self:stretch;cursor:pointer;transition:border-color .25s,color .25s;">EN</button>
+      <a id="navCta" href="#contact" class="btn-cta" style="display:inline-flex;align-items:center;gap:10px;background:#C9F7C5;color:#0E100E;border:1px solid transparent;padding:11px 20px;font-size:14px;font-weight:600;transition:background .3s ease,color .3s ease,border-color .3s ease,transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease;"><span data-t="nav_cta">בואו נדבר</span> <span id="navCtaArrow" style="font-family:'IBM Plex Mono',var(--ft);">↖</span></a>
       <button id="navMenuBtn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="mobileMenu" style="display:none;width:44px;height:44px;background:none;border:1px solid rgba(233,235,232,.20);color:#E9EBE8;cursor:pointer;padding:0;align-items:center;justify-content:center;flex:none;">
         <span class="menu-bars" aria-hidden="true"><span></span><span></span><span></span></span>
       </button>
@@ -672,10 +680,10 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
       <a href="#contact" class="mobile-menu-link"><span class="mobile-menu-num">08</span><span data-t="nav_cta">בואו נדבר</span></a>
     </nav>
     <div style="margin-top:auto;padding-top:28px;display:flex;flex-direction:column;gap:12px;">
-      <a href="https://wa.me/972549961663?text=%D7%94%D7%99%D7%99%2C%20%D7%94%D7%92%D7%A2%D7%AA%D7%99%20%D7%93%D7%A8%D7%9A%20%D7%94%D7%90%D7%AA%D7%A8%20%D7%A9%D7%9C%20Mashtatech%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%93%D7%91%D7%A8%20%D7%A2%D7%9C%20%D7%9E%D7%A9%D7%94%D7%95%20%D7%A9%D7%90%D7%A0%D7%99%20%D7%A8%D7%95%D7%A6%D7%94%20%D7%9C%D7%91%D7%A0%D7%95%D7%AA%20%D7%90%D7%99%D7%AA%D7%9B%D7%9D%20%F0%9F%99%82" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#C9F7C5;color:#0E100E;padding:16px 20px;font-size:16px;font-weight:600;"><span data-t="contact_cta_whatsapp">דברו איתי בוואטסאפ</span> <span style="font-family:'IBM Plex Mono',var(--ft);">↖</span></a>
+      <a href="https://wa.me/972549961663?text=%D7%94%D7%99%D7%99%2C%20%D7%94%D7%92%D7%A2%D7%AA%D7%99%20%D7%93%D7%A8%D7%9A%20%D7%94%D7%90%D7%AA%D7%A8%20%D7%A9%D7%9C%20Mashtatech%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%93%D7%91%D7%A8%20%D7%A2%D7%9C%20%D7%9E%D7%A9%D7%94%D7%95%20%D7%A9%D7%90%D7%A0%D7%99%20%D7%A8%D7%95%D7%A6%D7%94%20%D7%9C%D7%91%D7%A0%D7%95%D7%AA%20%D7%90%D7%99%D7%AA%D7%9B%D7%9D%20%F0%9F%99%82" target="_blank" rel="noopener noreferrer" class="mm-btn" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#C9F7C5;color:#0E100E;padding:16px 20px;font-size:16px;font-weight:600;transition:transform .2s ease;"><span data-t="contact_cta_whatsapp">דברו איתי בוואטסאפ</span> <span style="font-family:'IBM Plex Mono',var(--ft);">↖</span></a>
       <div style="display:flex;gap:12px;">
-        <a href="mailto:mashtatech@gmail.com" style="flex:1;display:flex;align-items:center;justify-content:center;border:1px solid rgba(233,235,232,.2);padding:14px;font-size:15px;">mashtatech@gmail.com</a>
-        <button id="mobileLangToggle" type="button" data-t="lang_toggle" style="flex:none;min-width:64px;background:none;border:1px solid rgba(233,235,232,.2);color:#E9EBE8;font-family:'IBM Plex Mono',var(--ft);font-size:13px;letter-spacing:.10em;padding:14px 16px;cursor:pointer;">EN</button>
+        <a href="mailto:mashtatech@gmail.com" class="mm-btn" style="flex:1;display:flex;align-items:center;justify-content:center;border:1px solid rgba(233,235,232,.2);padding:14px;font-size:15px;">mashtatech@gmail.com</a>
+        <button id="mobileLangToggle" type="button" class="mm-btn" data-t="lang_toggle" style="flex:none;min-width:64px;background:none;border:1px solid rgba(233,235,232,.2);color:#E9EBE8;font-family:'IBM Plex Mono',var(--ft);font-size:13px;letter-spacing:.10em;padding:14px 16px;cursor:pointer;">EN</button>
       </div>
     </div>
   </div>
@@ -709,7 +717,7 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
       <div id="heroCtaWrap" data-reveal style="margin-top:54px;">
         <p data-t="hero_sub" style="font-size:19px;line-height:1.7;margin:0;opacity:.68;max-width:56ch;">אתרים מקצועיים, מערכות חכמות ואוטומציות שעובדות — כולל שילוב AI, בהתאמה למה שהעסק שלכם באמת צריך.</p>
         <div style="display:flex;gap:12px;margin-top:44px;">
-          <a href="#contact" class="btn-cta-lift" data-t="hero_cta_primary" style="display:inline-flex;align-items:center;gap:12px;background:#C9F7C5;color:#0E100E;padding:17px 30px;font-size:16px;font-weight:600;transition:background .25s,transform .35s cubic-bezier(.2,.8,.2,1);">להתחיל פרויקט</a>
+          <a href="#contact" class="btn-cta-lift" data-t="hero_cta_primary" style="display:inline-flex;align-items:center;gap:12px;background:#C9F7C5;color:#0E100E;padding:17px 30px;font-size:16px;font-weight:600;transition:background .25s,transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease;">להתחיל פרויקט</a>
           <a href="#work" class="btn-outline" data-t="hero_cta_secondary" style="display:inline-flex;align-items:center;gap:12px;border:1px solid rgba(233,235,232,.24);padding:17px 30px;font-size:16px;font-weight:400;transition:border-color .25s,color .25s;">לצפייה בעבודות</a>
         </div>
       </div>
@@ -1030,7 +1038,7 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
         <p data-t="tier1_sub" style="font-style:italic;font-size:14px;line-height:1.6;opacity:.65;margin:18px 0 0;">לעסקים קטנים שרוצים נוכחות מקצועית באינטרנט.</p>
         <hr style="width:100%;border:none;border-top:1px solid rgba(233,235,232,.14);margin:28px 0;">
         <ul data-t-list="tier1_features" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;font-size:14px;line-height:1.5;text-align:start;flex-grow:1;"><!--baked--><li>אחסון</li><li>גיבויים</li><li>טיפול בתקלות</li><li>עריכה עצמית של טקסטים, תמונות וסרטונים</li><li>עדכון קטן אחד בחודש דרכי</li><li>עמוד אחד</li><li>עיצוב מותאם למובייל</li><li>עיצוב בהתאמה אישית למותג וללוגו שלכם</li><li>כפתור WhatsApp + טופס יצירת קשר</li><li>עזרה בהעלאה לדומיין</li><!--/baked--></ul>
-        <a href="#contact" class="pricing-btn" data-t="pricing_cta" style="margin-top:32px;display:inline-flex;align-items:center;justify-content:center;gap:10px;border:1px solid rgba(233,235,232,.28);border-radius:8px;padding:14px 22px;font-size:15px;font-weight:600;transition:border-color .25s,background .25s,color .25s;">בואו נדבר</a>
+        <a href="#contact" class="pricing-btn" data-t="pricing_cta" style="margin-top:32px;display:inline-flex;align-items:center;justify-content:center;gap:10px;border:1px solid rgba(233,235,232,.28);border-radius:10px;padding:14px 22px;font-size:15px;font-weight:600;transition:border-color .25s,background .25s,color .25s;">בואו נדבר</a>
       </div>
 
       <div data-reveal-stagger class="pricing-card pricing-card-popular is-popular-card" style="transition-delay:.08s;padding:40px 32px;border:2px solid #C9F7C5;background:#171B17;border-radius:20px;display:flex;flex-direction:column;text-align:center;position:relative;box-shadow:0 20px 60px rgba(201,247,197,.08);z-index:2;">
@@ -1046,7 +1054,7 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
         <p data-t="tier2_sub" style="font-style:italic;font-size:14px;line-height:1.6;opacity:.65;margin:18px 0 0;">לעסקים שרוצים אתר מתקדם שמייצר יותר פניות.</p>
         <hr style="width:100%;border:none;border-top:1px solid rgba(233,235,232,.14);margin:28px 0;">
         <ul data-t-list="tier2_features" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;font-size:14px;line-height:1.5;text-align:start;flex-grow:1;"><!--baked--><li>אחסון</li><li>גיבויים</li><li>טיפול בתקלות</li><li>עריכה עצמית של טקסטים, תמונות וסרטונים</li><li>עד 3 עדכונים קטנים בחודש דרכי</li><li>עד 5 עמודים</li><li>עיצוב בהתאמה אישית ברמה גבוהה</li><li>עיצוב מותאם למובייל</li><li>אנימציות גלילה חלקות</li><li>כפתורים ואינטראקציות מונפשים</li><li>הגדרות SEO מתקדמות</li><li>טופס יצירת קשר</li><li>אופטימיזציה לחוויית משתמש ולמהירות האתר</li><!--/baked--></ul>
-        <a href="#contact" class="pricing-btn pricing-btn-popular" data-t="pricing_cta" style="margin-top:32px;display:inline-flex;align-items:center;justify-content:center;gap:10px;background:#C9F7C5;color:#0E100E;border-radius:8px;padding:16px 22px;font-size:15px;font-weight:600;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s;">בואו נדבר</a>
+        <a href="#contact" class="pricing-btn pricing-btn-popular" data-t="pricing_cta" style="margin-top:32px;display:inline-flex;align-items:center;justify-content:center;gap:10px;background:#C9F7C5;color:#0E100E;border-radius:10px;padding:16px 22px;font-size:15px;font-weight:600;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s;">בואו נדבר</a>
       </div>
 
       <div data-reveal-stagger class="pricing-card" style="transition-delay:.16s;padding:40px 32px;border:1px solid rgba(233,235,232,.16);background:#131613;border-radius:20px;display:flex;flex-direction:column;text-align:center;transition:border-color .3s,transform .3s cubic-bezier(.16,1,.3,1),opacity .7s cubic-bezier(.16,1,.3,1);">
@@ -1058,7 +1066,7 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
         <p data-t="tier3_sub" style="font-style:italic;font-size:14px;line-height:1.6;opacity:.65;margin:18px 0 0;">לעסקים שרוצים אתר מתקדם עם מערכות דיגיטליות שמייעלות את העסק.</p>
         <hr style="width:100%;border:none;border-top:1px solid rgba(233,235,232,.14);margin:28px 0;">
         <ul data-t-list="tier3_features" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;font-size:14px;line-height:1.5;text-align:start;flex-grow:1;"><!--baked--><li>אחסון</li><li>גיבויים</li><li>טיפול בתקלות</li><li>עריכה עצמית של טקסטים, תמונות וסרטונים</li><li>עד 6 עדכונים קטנים בחודש דרכי</li><li>מענה מועדף תוך 48 שעות</li><li>עד 10 עמודים</li><li>עיצוב פרימיום בהתאמה אישית מלאה</li><li>עיצוב מותאם למובייל</li><li>חבילת SEO מלאה</li><li>התאמה לחיפוש בכלי AI כמו ChatGPT ו־Gemini (GEO)</li><li>אלמנטים תלת־ממדיים אינטראקטיביים</li><li>מערכת תורים והזמנות אונליין</li><li>תשלום אונליין</li><li>מערכת לאיסוף ביקורות Google</li><li>הגדרת דומיין מותאם אישית</li><li>שליחת SMS אוטומטית ללקוחות בעקבות שיחות שלא נענו</li><!--/baked--></ul>
-        <a href="#contact" class="pricing-btn" data-t="pricing_cta" style="margin-top:32px;display:inline-flex;align-items:center;justify-content:center;gap:10px;border:1px solid rgba(233,235,232,.28);border-radius:8px;padding:14px 22px;font-size:15px;font-weight:600;transition:border-color .25s,background .25s,color .25s;">בואו נדבר</a>
+        <a href="#contact" class="pricing-btn" data-t="pricing_cta" style="margin-top:32px;display:inline-flex;align-items:center;justify-content:center;gap:10px;border:1px solid rgba(233,235,232,.28);border-radius:10px;padding:14px 22px;font-size:15px;font-weight:600;transition:border-color .25s,background .25s,color .25s;">בואו נדבר</a>
       </div>
     </div>
 
@@ -1115,7 +1123,7 @@ html.sm-no-tr *,html.sm-no-tr *::before,html.sm-no-tr *::after{transition:none !
       <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:64px;align-items:end;margin-top:48px;">
         <p data-t="contact_sub" data-reveal-stagger style="transition-delay:.16s;font-size:19px;line-height:1.7;margin:0;max-width:52ch;opacity:.72;">יש לכם רעיון? ספרו לנו עליו, וביחד נהפוך אותו למציאות.</p>
         <div data-reveal-stagger style="transition-delay:.24s;display:flex;gap:12px;">
-          <a href="https://wa.me/972549961663?text=%D7%94%D7%99%D7%99%2C%20%D7%94%D7%92%D7%A2%D7%AA%D7%99%20%D7%93%D7%A8%D7%9A%20%D7%94%D7%90%D7%AA%D7%A8%20%D7%A9%D7%9C%20Mashtatech%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%93%D7%91%D7%A8%20%D7%A2%D7%9C%20%D7%9E%D7%A9%D7%94%D7%95%20%D7%A9%D7%90%D7%A0%D7%99%20%D7%A8%D7%95%D7%A6%D7%94%20%D7%9C%D7%91%D7%A0%D7%95%D7%AA%20%D7%90%D7%99%D7%AA%D7%9B%D7%9D%20%F0%9F%99%82" target="_blank" rel="noopener noreferrer" class="contact-dark" style="display:inline-flex;align-items:center;gap:12px;background:#C9F7C5;color:#0E100E;padding:18px 32px;font-size:16px;font-weight:600;white-space:nowrap;transition:transform .35s cubic-bezier(.2,.8,.2,1);"><span data-t="contact_cta_whatsapp">דברו איתי בוואטסאפ</span> <span style="font-family:'IBM Plex Mono',var(--ft);">↖</span></a>
+          <a href="https://wa.me/972549961663?text=%D7%94%D7%99%D7%99%2C%20%D7%94%D7%92%D7%A2%D7%AA%D7%99%20%D7%93%D7%A8%D7%9A%20%D7%94%D7%90%D7%AA%D7%A8%20%D7%A9%D7%9C%20Mashtatech%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%93%D7%91%D7%A8%20%D7%A2%D7%9C%20%D7%9E%D7%A9%D7%94%D7%95%20%D7%A9%D7%90%D7%A0%D7%99%20%D7%A8%D7%95%D7%A6%D7%94%20%D7%9C%D7%91%D7%A0%D7%95%D7%AA%20%D7%90%D7%99%D7%AA%D7%9B%D7%9D%20%F0%9F%99%82" target="_blank" rel="noopener noreferrer" class="contact-dark" style="display:inline-flex;align-items:center;gap:12px;background:#C9F7C5;color:#0E100E;padding:18px 32px;font-size:16px;font-weight:600;white-space:nowrap;transition:background .25s,transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease;"><span data-t="contact_cta_whatsapp">דברו איתי בוואטסאפ</span> <span style="font-family:'IBM Plex Mono',var(--ft);">↖</span></a>
           <a href="mailto:mashtatech@gmail.com" class="contact-outline" data-t="contact_cta" style="display:inline-flex;align-items:center;gap:12px;border:1px solid rgba(233,235,232,.28);padding:18px 32px;font-size:16px;font-weight:500;white-space:nowrap;transition:background .25s,border-color .25s,color .25s;">שלחו מייל</a>
         </div>
       </div>
@@ -4035,6 +4043,7 @@ function onScroll() {
       el.style.borderColor = 'rgba(233,235,232,.4)';
     }
   });
+  if (navCtaEl) navCtaEl.classList.toggle('is-solid', introDone);
 }
 window.addEventListener('scroll', onScroll, { passive: true });
 onScroll();

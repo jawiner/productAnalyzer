@@ -47,7 +47,7 @@ body:has(#en:target, #en :target) .doc[lang="en"]{display:block;}
 .bar-nav{margin-inline-start:auto;display:flex;align-items:center;gap:10px;}
 .bar-link{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;font-size:14px;font-weight:400;text-decoration:none;color:var(--ink-2);transition:color .25s var(--ease);}
 .bar-link:hover{color:var(--ink);}
-.bar-lang{display:inline-flex;align-items:center;justify-content:center;min-width:52px;min-height:44px;padding:0 13px;border:1px solid rgba(233,235,232,.2);font-family:var(--fm);font-size:12px;letter-spacing:.1em;text-decoration:none;transition:border-color .25s var(--ease),color .25s var(--ease);}
+.bar-lang{display:inline-flex;align-items:center;justify-content:center;min-width:52px;min-height:44px;padding:0 13px;border:1px solid rgba(233,235,232,.2);border-radius:10px;font-family:var(--fm);font-size:12px;letter-spacing:.1em;text-decoration:none;transition:border-color .25s var(--ease),color .25s var(--ease);}
 .bar-lang:hover{border-color:var(--mint);color:var(--mint);}
 
 /* Page grid: a big head, then a slim index beside the reading column on wide screens */
