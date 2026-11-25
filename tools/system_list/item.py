@@ -6,7 +6,7 @@ Keep the System list current from a terminal or a Claude session.
     python tools/system_list/item.py seed .tmp/system_list/seed.json   # many at once (a JSON list)
     python tools/system_list/item.py done "online payments" [--system "Shop site"]
     python tools/system_list/item.py update "online payments" [--system "Shop site"] [--status Waiting]
-            [--remind 2026-12-01] [--due ...] [--priority P0] [--who Claude]
+            [--remind 2026-12-01] [--due ...] [--priority P0] [--who Claude] [--rename "new item text"]
     python tools/system_list/item.py list [--system "Shop site"] [--all]
 
 add and seed skip a row that already exists (same system and same words).
@@ -19,9 +19,9 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from todo_table import (P_DUE, P_PRIORITY, P_REMIND, P_STATUS, P_WHO, PRIORITIES, STATUSES, WHO, Item,
-                        Notion, NotionError, date_prop, load_config, new_row, normalise, read_all, same,
-                        select_prop)
+from todo_table import (P_DUE, P_ITEM, P_PRIORITY, P_REMIND, P_STATUS, P_WHO, PRIORITIES, STATUSES, WHO,
+                        Item, Notion, NotionError, date_prop, load_config, new_row, normalise, read_all,
+                        rich_text, same, select_prop)
 
 
 def add_items(notion, db_id: str, raws: list[dict], existing=None, *, say=print) -> tuple[int, int]:
@@ -73,6 +73,7 @@ def main() -> int:
             u.add_argument("--who", choices=WHO)
             u.add_argument("--remind", type=date.fromisoformat)
             u.add_argument("--due", type=date.fromisoformat)
+            u.add_argument("--rename", help="Replace the row's item text")
 
     lst = sub.add_parser("list")
     lst.add_argument("--system")
@@ -125,11 +126,13 @@ def main() -> int:
             props[P_REMIND] = date_prop(args.remind)
         if args.due:
             props[P_DUE] = date_prop(args.due)
+        if args.rename and args.rename.strip():
+            props[P_ITEM] = {"title": rich_text(args.rename.strip())}
     if not props:
-        print("Nothing to change: give --status, --priority, --who, --remind or --due.")
+        print("Nothing to change: give --status, --priority, --who, --remind, --due or --rename.")
         return 1
     notion.update_page(it.page_id, props)
-    print(f"Updated: {it.system}: {it.item}")
+    print(f"Updated: {it.system}: {args.rename.strip() if getattr(args, 'rename', None) else it.item}")
     return 0
 
 
